@@ -1,0 +1,183 @@
+// This is your Prisma schema file,
+// learn more about it in the docs: https://pris.ly/d/prisma-schema
+
+generator client {
+  provider = "prisma-client-js"
+}
+
+datasource db {
+  provider = "mysql"
+  url      = env("DATABASE_URL")
+}
+
+// --- MODULE AUTH & USERS ---
+model User {
+  id        Int      @id @default(autoincrement())
+  email     String   @unique
+  password  String
+  firstName String?
+  lastName  String?
+  phone     String?
+  whatsapp  String?
+  country   String?   @default("Cameroun")
+  address   String?
+  role      String   @default("USER") // ADMIN, USER, MANAGER
+  orders    Order[]
+  createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
+}
+
+// --- MODULE PRODUCTION (GÉOGRAPHIQUE) ---
+
+model GeographicZone {
+  id           Int           @id @default(autoincrement())
+  name         String        @unique // Centre, Littoral, Sud, etc.
+  cultureSites CultureSite[]
+  createdAt    DateTime      @default(now())
+}
+
+model CultureSite {
+  id               Int            @id @default(autoincrement())
+  name             String         @unique // Le lieu précis : Ferme X, Plantation Y
+  geographicZoneId Int
+  geographicZone   GeographicZone @relation(fields: [geographicZoneId], references: [id])
+  products         ProductSite[]
+  harvests         Harvest[]
+  createdAt        DateTime       @default(now())
+  updatedAt        DateTime       @updatedAt
+}
+
+// --- MODULE CATALOGUE ---
+
+model Category {
+  id        Int       @id @default(autoincrement())
+  name      String    @unique
+  varieties ProductVariety[]
+  products  Product[]
+  createdAt DateTime  @default(now())
+  updatedAt DateTime  @updatedAt
+}
+
+model ProductType {
+  id        Int       @id @default(autoincrement())
+  name      String    @unique
+  products  Product[]
+  createdAt DateTime  @default(now())
+}
+
+model ProductVariety {
+  id          Int      @id @default(autoincrement())
+  name        String   @unique 
+  categoryId  Int
+  category    Category @relation(fields: [categoryId], references: [id])
+  products    Product[]
+  createdAt   DateTime @default(now())
+  updatedAt   DateTime @updatedAt
+}
+
+model Product {
+  id            Int           @id @default(autoincrement())
+  name          String        @unique
+  description   String?       @db.Text
+  price         Decimal       @db.Decimal(10, 2)
+  stock         Int           @default(0)
+  imageUrl      String?
+  gallery       Json?
+
+  typeId        Int
+  type          ProductType   @relation(fields: [typeId], references: [id])
+  
+  categoryId    Int
+  category      Category      @relation(fields: [categoryId], references: [id])
+  
+  varietyId     Int
+  variety       ProductVariety @relation(fields: [varietyId], references: [id])
+  
+  // Paramètres de production
+  sowingDate       DateTime?
+  maturityDate     DateTime?
+  quantityKg       Float?
+  quantityTonne    Float?
+  priceKg          Decimal?   @db.Decimal(10, 2)
+  priceTonne       Decimal?   @db.Decimal(10, 2)
+  status           String     @default("en_production")
+  
+  // Liens avec les sites (Plusieurs à Plusieurs)
+  sites         ProductSite[]
+  harvests      Harvest[]     
+  orderItems    OrderItem[]   
+  createdAt     DateTime      @default(now())
+  updatedAt     DateTime      @updatedAt
+
+  @@index([typeId])
+  @@index([categoryId])
+  @@index([varietyId])
+}
+
+// Table de liaison entre Produits et Sites de Culture
+model ProductSite {
+  productId Int
+  siteId    Int
+  product   Product      @relation(fields: [productId], references: [id])
+  site      CultureSite  @relation(fields: [siteId], references: [id])
+  @@id([productId, siteId])
+}
+
+// --- MODULE : RÉCOLTES ---
+model Harvest {
+  id          Int            @id @default(autoincrement())
+  productId   Int
+  product     Product        @relation(fields: [productId], references: [id])
+  siteId      Int
+  site        CultureSite    @relation(fields: [siteId], references: [id])
+  quantity    Float          
+  unit        String         @default("kg")
+  harvestDate DateTime       @default(now())
+  status      String         @default("COMPLETED")
+  notes       String?        @db.Text
+  createdAt   DateTime       @default(now())
+  updatedAt   DateTime       @updatedAt
+
+  @@index([productId])
+  @@index([siteId])
+}
+
+// --- MODULE : VENTES & COMMANDES ---
+model Order {
+  id          Int         @id @default(autoincrement())
+  userId      Int
+  user        User        @relation(fields: [userId], references: [id])
+  totalAmount Decimal     @db.Decimal(10, 2)
+  status      String      @default("PENDING") 
+  isProcessed Boolean     @default(false)    
+  items       OrderItem[]
+  createdAt   DateTime    @default(now())
+  updatedAt   DateTime    @updatedAt
+
+  @@index([userId])
+}
+
+model OrderItem {
+  id        Int     @id @default(autoincrement())
+  orderId   Int
+  order     Order   @relation(fields: [orderId], references: [id])
+  productId Int
+  product   Product @relation(fields: [productId], references: [id])
+  quantity  Int
+  price     Decimal @db.Decimal(10, 2) 
+
+  @@index([orderId])
+  @@index([productId])
+}
+
+// --- MODULE : CONTACT & MESSAGES ---
+model ContactMessage {
+  id        Int      @id @default(autoincrement())
+  name      String
+  email     String
+  phone     String?
+  subject   String?
+  message   String   @db.Text
+  isRead    Boolean  @default(false)
+  createdAt DateTime @default(now())
+}
