@@ -21,8 +21,13 @@ export default function Marketplace() {
     try {
       setLoading(true);
       const [prodRes, catRes] = await Promise.all([
+<<<<<<< HEAD
         axios.get('http://localhost:5000/api/v1/catalog/products'),
         axios.get('http://localhost:5000/api/v1/catalog/categories')
+=======
+        axios.get('http://localhost:5000/api/v1/products'),
+        axios.get('http://localhost:5000/api/v1/categories')
+>>>>>>> a9f1ddf04f884b977c71915d684ba0681cbb35f1
       ]);
       setProducts(prodRes.data.data);
       setCategories(catRes.data.data);
@@ -162,6 +167,7 @@ export default function Marketplace() {
                 {filteredProducts.map(product => (
                   <div 
                     key={product.id} 
+<<<<<<< HEAD
                     className="bg-white rounded-3xl shadow-sm border border-gray-100 overflow-hidden flex flex-col group transition-all hover:shadow-xl"
                   >
                     {/* Image Area */}
@@ -173,12 +179,26 @@ export default function Marketplace() {
                         src={product.imageUrl ? (product.imageUrl.startsWith('http') ? product.imageUrl : `http://localhost:5000${product.imageUrl}`) : 'https://images.unsplash.com/photo-1574323347407-f5e1ad6d020b?auto=format&fit=crop&w=600&q=80'} 
                         alt={product.name} 
                         className="w-full h-full object-cover group-hover:scale-105 transition-transform duration-700" 
+=======
+                    className="bg-white rounded-[2rem] shadow-sm border border-gray-100 overflow-hidden flex flex-col group"
+                  >
+                    {/* Image Area */}
+                    <div className="relative h-64 bg-gray-100 p-0 flex items-center justify-center overflow-hidden">
+                      <span className="absolute top-4 right-4 z-10 bg-white/90 backdrop-blur-md text-emerald-700 text-[11px] font-bold px-3 py-1.5 rounded-full shadow-sm">
+                        {product.category?.name}
+                      </span>
+                      <img 
+                        src={product.imageUrl} 
+                        alt={product.name} 
+                        className="w-full h-full object-cover group-hover:scale-110 transition-transform duration-700" 
+>>>>>>> a9f1ddf04f884b977c71915d684ba0681cbb35f1
                         referrerPolicy="no-referrer" 
                       />
                     </div>
                     
                     {/* Content Area */}
                     <div className="p-6 flex flex-col flex-1">
+<<<<<<< HEAD
                       <h3 className="text-xl font-extrabold text-gray-900 mb-2 line-clamp-1">
                         {product.name}
                       </h3>
@@ -200,16 +220,47 @@ export default function Marketplace() {
                       <div className="bg-[#f8f9fa] border border-gray-100 rounded-2xl p-4 mb-4 mt-auto">
                         <div className="text-xl font-extrabold text-gray-900 text-center">
                           {product.price.toLocaleString('fr-FR')} CFA <span className="text-sm font-medium text-gray-400">/ {product.typeId === 1 ? 'Kg' : (product.typeId === 2 ? 'Litre' : 'Unité')}</span>
+=======
+                      <h3 className="text-lg font-bold text-gray-900 mb-2 line-clamp-2 leading-tight">
+                        {product.name}
+                      </h3>
+                      
+                      <p className="text-sm text-gray-500 mb-4 line-clamp-2">
+                        {product.description}
+                      </p>
+                      
+                      <div className="flex items-center gap-1.5 text-sm text-gray-500 mb-4">
+                        <MapPin className="w-4 h-4 text-emerald-600" />
+                        <span>{product.productionSite?.location || 'Cameroun'}</span>
+                      </div>
+                      
+                      <div className="text-[11px] font-bold uppercase tracking-wider mb-4 text-emerald-600">
+                        Disponibilité: {product.status === 'active' ? 'En Stock' : 'Brouillon'}
+                      </div>
+                      
+                      {/* Price Box */}
+                      <div className="bg-[#f8f9fa] border border-gray-100 rounded-2xl p-5 mb-5 mt-auto">
+                        <div className="text-xl font-extrabold text-gray-900">
+                          {product.price.toLocaleString('fr-FR')} CFA <span className="text-sm font-medium text-gray-500">/ {product.unit}</span>
+>>>>>>> a9f1ddf04f884b977c71915d684ba0681cbb35f1
                         </div>
                       </div>
                       
                       {/* Action Button */}
+<<<<<<< HEAD
                       <Link 
                         to={`/product/${product.id}`}
                         className="w-full bg-[#388e3c] hover:bg-[#2e7d32] text-white font-bold py-3.5 rounded-xl flex items-center justify-center transition-colors shadow-sm"
                       >
                         En savoir plus <ChevronRight className="w-4 h-4 ml-1" />
                       </Link>
+=======
+                      <button 
+                        className="w-full bg-emerald-600 hover:bg-emerald-700 text-white font-bold py-3.5 rounded-2xl flex items-center justify-center transition-colors shadow-sm"
+                      >
+                        Acheter maintenant <ChevronRight className="w-4 h-4 ml-1" />
+                      </button>
+>>>>>>> a9f1ddf04f884b977c71915d684ba0681cbb35f1
                     </div>
                   </div>
                 ))}

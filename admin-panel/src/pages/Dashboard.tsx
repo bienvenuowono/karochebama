@@ -39,7 +39,11 @@ const Dashboard = () => {
   const fetchStats = async () => {
     try {
       const token = authService.getToken();
+<<<<<<< HEAD
       const res = await axios.get('http://localhost:5001/api/v1/production/analytics/dashboard-stats', {
+=======
+      const res = await axios.get('http://localhost:5000/api/v1/production/analytics/dashboard-stats', {
+>>>>>>> a9f1ddf04f884b977c71915d684ba0681cbb35f1
         headers: { Authorization: `Bearer ${token}` }
       });
       setStats(res.data.data);
@@ -53,7 +57,11 @@ const Dashboard = () => {
   const handleProcessOrder = async (id: number) => {
     try {
       const token = authService.getToken();
+<<<<<<< HEAD
       await axios.patch(`http://localhost:5001/api/v1/catalog/orders/${id}/status`, { isProcessed: true }, {
+=======
+      await axios.patch(`http://localhost:5000/api/v1/catalog/orders/${id}/status`, { isProcessed: true }, {
+>>>>>>> a9f1ddf04f884b977c71915d684ba0681cbb35f1
         headers: { Authorization: `Bearer ${token}` }
       });
       fetchStats();
@@ -65,7 +73,11 @@ const Dashboard = () => {
   const handleSetPaid = async (id: number) => {
     try {
       const token = authService.getToken();
+<<<<<<< HEAD
       await axios.patch(`http://localhost:5001/api/v1/catalog/orders/${id}/status`, { status: 'PAID', isProcessed: true }, {
+=======
+      await axios.patch(`http://localhost:5000/api/v1/catalog/orders/${id}/status`, { status: 'PAID', isProcessed: true }, {
+>>>>>>> a9f1ddf04f884b977c71915d684ba0681cbb35f1
         headers: { Authorization: `Bearer ${token}` }
       });
       fetchStats();
@@ -214,4 +226,7 @@ const StatCard = ({ title, value, icon: Icon, color, onClick }: any) => (
 );
 
 export default Dashboard;
+<<<<<<< HEAD
 
+=======
+>>>>>>> a9f1ddf04f884b977c71915d684ba0681cbb35f1

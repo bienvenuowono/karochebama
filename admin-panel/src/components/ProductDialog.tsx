@@ -36,4 +36,7 @@ const ProductDialog = ({ open, onClose, onSave, product, types, sites, varieties
 };
 
 export default ProductDialog;
+<<<<<<< HEAD
 
+=======
+>>>>>>> a9f1ddf04f884b977c71915d684ba0681cbb35f1

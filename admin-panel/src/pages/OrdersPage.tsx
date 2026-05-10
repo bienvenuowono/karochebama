@@ -45,9 +45,15 @@ const OrdersPage = () => {
       
       // Utilisation de allSettled pour ne pas tout bloquer si une API échoue
       const responses = await Promise.allSettled([
+<<<<<<< HEAD
         axios.get('http://localhost:5001/api/v1/catalog/orders', config),
         axios.get('http://localhost:5001/api/v1/catalog/products', config),
         axios.get('http://localhost:5001/api/v1/users', config)
+=======
+        axios.get('http://localhost:5000/api/v1/catalog/orders', config),
+        axios.get('http://localhost:5000/api/v1/catalog/products', config),
+        axios.get('http://localhost:5000/api/v1/users', config)
+>>>>>>> a9f1ddf04f884b977c71915d684ba0681cbb35f1
       ]);
 
       const [oRes, pRes, uRes] = responses.map(r => r.status === 'fulfilled' ? (r as any).value : { data: { data: [] } });
@@ -65,7 +71,11 @@ const OrdersPage = () => {
   const handleUpdateStatus = async (id: number, updates: any) => {
     try {
       const token = authService.getToken();
+<<<<<<< HEAD
       await axios.patch(`http://localhost:5001/api/v1/catalog/orders/${id}/status`, updates, {
+=======
+      await axios.patch(`http://localhost:5000/api/v1/catalog/orders/${id}/status`, updates, {
+>>>>>>> a9f1ddf04f884b977c71915d684ba0681cbb35f1
         headers: { Authorization: `Bearer ${token}` }
       });
       fetchData();
@@ -276,4 +286,7 @@ const StatCard = ({ title, value, icon: Icon, color, sub }: any) => (
 );
 
 export default OrdersPage;
+<<<<<<< HEAD
 
+=======
+>>>>>>> a9f1ddf04f884b977c71915d684ba0681cbb35f1

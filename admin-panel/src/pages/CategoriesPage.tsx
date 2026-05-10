@@ -24,7 +24,11 @@ const CategoriesPage = () => {
       setLoading(true);
       const token = authService.getToken();
       const config = { headers: { Authorization: `Bearer ${token}` } };
+<<<<<<< HEAD
       const res = await axios.get('http://localhost:5001/api/v1/catalog/categories', config);
+=======
+      const res = await axios.get('http://localhost:5000/api/v1/catalog/categories', config);
+>>>>>>> a9f1ddf04f884b977c71915d684ba0681cbb35f1
       setCategories(res.data.data);
     } catch (error) {
       console.error('Error fetching categories:', error);
@@ -37,15 +41,24 @@ const CategoriesPage = () => {
     e.preventDefault();
     try {
       const token = authService.getToken();
+<<<<<<< HEAD
       await axios.post('http://localhost:5001/api/v1/catalog/categories', { name: newCatName }, {
+=======
+      await axios.post('http://localhost:5000/api/v1/catalog/categories', { name: newCatName }, {
+>>>>>>> a9f1ddf04f884b977c71915d684ba0681cbb35f1
         headers: { Authorization: `Bearer ${token}` }
       });
       setNewCatName('');
       setIsCatDialogOpen(false);
       fetchData();
+<<<<<<< HEAD
     } catch (error: any) {
       console.error('Error creating category:', error);
       alert(error.response?.data?.message || "Erreur lors de la création de la catégorie");
+=======
+    } catch (error) {
+      console.error('Error creating category:', error);
+>>>>>>> a9f1ddf04f884b977c71915d684ba0681cbb35f1
     }
   };
 
@@ -53,7 +66,11 @@ const CategoriesPage = () => {
     if (!window.confirm("Êtes-vous sûr de vouloir supprimer cette catégorie ?")) return;
     try {
       const token = authService.getToken();
+<<<<<<< HEAD
       await axios.delete(`http://localhost:5001/api/v1/catalog/categories/${id}`, {
+=======
+      await axios.delete(`http://localhost:5000/api/v1/catalog/categories/${id}`, {
+>>>>>>> a9f1ddf04f884b977c71915d684ba0681cbb35f1
         headers: { Authorization: `Bearer ${token}` }
       });
       fetchData();
@@ -66,7 +83,11 @@ const CategoriesPage = () => {
     if (!window.confirm("Supprimer cette variété ?")) return;
     try {
       const token = authService.getToken();
+<<<<<<< HEAD
       await axios.delete(`http://localhost:5001/api/v1/catalog/categories/varieties/${id}`, {
+=======
+      await axios.delete(`http://localhost:5000/api/v1/catalog/categories/varieties/${id}`, {
+>>>>>>> a9f1ddf04f884b977c71915d684ba0681cbb35f1
         headers: { Authorization: `Bearer ${token}` }
       });
       fetchData();
@@ -80,7 +101,11 @@ const CategoriesPage = () => {
     e.preventDefault();
     try {
       const token = authService.getToken();
+<<<<<<< HEAD
       await axios.post('http://localhost:5001/api/v1/catalog/categories/varieties', { 
+=======
+      await axios.post('http://localhost:5000/api/v1/catalog/categories/varieties', { 
+>>>>>>> a9f1ddf04f884b977c71915d684ba0681cbb35f1
         name: newVarName, 
         categoryId: selectedCategory.id 
       }, {
@@ -89,9 +114,14 @@ const CategoriesPage = () => {
       setNewVarName('');
       setIsVarDialogOpen(false);
       fetchData();
+<<<<<<< HEAD
     } catch (error: any) {
       console.error('Error creating variety:', error);
       alert(error.response?.data?.message || "Erreur lors de la création de la variété");
+=======
+    } catch (error) {
+      console.error('Error creating variety:', error);
+>>>>>>> a9f1ddf04f884b977c71915d684ba0681cbb35f1
     }
   };
 
@@ -218,4 +248,7 @@ const CategoriesPage = () => {
 };
 
 export default CategoriesPage;
+<<<<<<< HEAD
 
+=======
+>>>>>>> a9f1ddf04f884b977c71915d684ba0681cbb35f1

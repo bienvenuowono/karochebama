@@ -25,8 +25,13 @@ const SitesPage = () => {
       const token = authService.getToken();
       const config = { headers: { Authorization: `Bearer ${token}` } };
       const [sRes, zRes] = await Promise.all([
+<<<<<<< HEAD
         axios.get('http://localhost:5001/api/v1/production/sites', config),
         axios.get('http://localhost:5001/api/v1/production/zones', config)
+=======
+        axios.get('http://localhost:5000/api/v1/production/sites', config),
+        axios.get('http://localhost:5000/api/v1/production/zones', config)
+>>>>>>> a9f1ddf04f884b977c71915d684ba0681cbb35f1
       ]);
       setSites(sRes.data.data);
       setZones(zRes.data.data);
@@ -39,7 +44,11 @@ const SitesPage = () => {
     e.preventDefault();
     try {
       const token = authService.getToken();
+<<<<<<< HEAD
       await axios.post('http://localhost:5001/api/v1/production/sites', 
+=======
+      await axios.post('http://localhost:5000/api/v1/production/sites', 
+>>>>>>> a9f1ddf04f884b977c71915d684ba0681cbb35f1
         formData,
         { headers: { Authorization: `Bearer ${token}` } }
       );
@@ -55,7 +64,11 @@ const SitesPage = () => {
     if (!window.confirm('Supprimer ce site ?')) return;
     try {
       const token = authService.getToken();
+<<<<<<< HEAD
       await axios.delete(`http://localhost:5001/api/v1/production/sites/${id}`, {
+=======
+      await axios.delete(`http://localhost:5000/api/v1/production/sites/${id}`, {
+>>>>>>> a9f1ddf04f884b977c71915d684ba0681cbb35f1
         headers: { Authorization: `Bearer ${token}` }
       });
       fetchData();
@@ -135,4 +148,7 @@ const SitesPage = () => {
 };
 
 export default SitesPage;
+<<<<<<< HEAD
 
+=======
+>>>>>>> a9f1ddf04f884b977c71915d684ba0681cbb35f1

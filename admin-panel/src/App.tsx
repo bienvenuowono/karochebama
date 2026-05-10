@@ -10,11 +10,14 @@ import SitesPage from './pages/SitesPage';
 import ZonesPage from './pages/ZonesPage';
 import HarvestsPage from './pages/HarvestsPage';
 import OrdersPage from './pages/OrdersPage';
+<<<<<<< HEAD
 import ActivitiesPage from './pages/ActivitiesPage';
 import ProjectsPage from './pages/ProjectsPage';
 import MediaPage from './pages/MediaPage';
 import NewsPage from './pages/NewsPage';
 import ProfilePage from './pages/ProfilePage';
+=======
+>>>>>>> a9f1ddf04f884b977c71915d684ba0681cbb35f1
 import { authService } from './services/authService';
 
 const ProtectedRoute = ({ children }: { children: React.ReactNode }) => {
@@ -39,11 +42,14 @@ function App() {
         <Route path="/zones" element={<ProtectedRoute><ZonesPage /></ProtectedRoute>} />
         <Route path="/harvests" element={<ProtectedRoute><HarvestsPage /></ProtectedRoute>} />
         <Route path="/orders" element={<ProtectedRoute><OrdersPage /></ProtectedRoute>} />
+<<<<<<< HEAD
         <Route path="/activities" element={<ProtectedRoute><ActivitiesPage /></ProtectedRoute>} />
         <Route path="/projects" element={<ProtectedRoute><ProjectsPage /></ProtectedRoute>} />
         <Route path="/media" element={<ProtectedRoute><MediaPage /></ProtectedRoute>} />
         <Route path="/news" element={<ProtectedRoute><NewsPage /></ProtectedRoute>} />
         <Route path="/profile" element={<ProtectedRoute><ProfilePage /></ProtectedRoute>} />
+=======
+>>>>>>> a9f1ddf04f884b977c71915d684ba0681cbb35f1
         
         {/* Redirects */}
         <Route path="/" element={<Navigate to="/dashboard" replace />} />
@@ -54,4 +60,7 @@ function App() {
 }
 
 export default App;
+<<<<<<< HEAD
 
+=======
+>>>>>>> a9f1ddf04f884b977c71915d684ba0681cbb35f1

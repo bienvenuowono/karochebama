@@ -14,11 +14,15 @@ import {
   MapPin,
   MessageCircle,
   Clock,
+<<<<<<< HEAD
   Briefcase,
   Edit,
   Trash2,
   X,
   Check
+=======
+  Briefcase
+>>>>>>> a9f1ddf04f884b977c71915d684ba0681cbb35f1
 } from 'lucide-react';
 import axios from 'axios';
 import { authService } from '../services/authService';
@@ -30,6 +34,7 @@ const UsersPage = () => {
   const [loading, setLoading] = useState(true);
   const [selectedUser, setSelectedUser] = useState<any>(null);
   const [isProfileOpen, setIsProfileOpen] = useState(false);
+<<<<<<< HEAD
   const [isFormOpen, setIsFormOpen] = useState(false);
   const [searchTerm, setSearchTerm] = useState('');
 
@@ -45,6 +50,10 @@ const UsersPage = () => {
     password: ''
   });
 
+=======
+  const [searchTerm, setSearchTerm] = useState('');
+
+>>>>>>> a9f1ddf04f884b977c71915d684ba0681cbb35f1
   useEffect(() => {
     fetchData();
   }, []);
@@ -54,7 +63,11 @@ const UsersPage = () => {
       setLoading(true);
       const token = authService.getToken();
       const config = { headers: { Authorization: `Bearer ${token}` } };
+<<<<<<< HEAD
       const res = await axios.get('http://localhost:5001/api/v1/users', config);
+=======
+      const res = await axios.get('http://localhost:5000/api/v1/users', config);
+>>>>>>> a9f1ddf04f884b977c71915d684ba0681cbb35f1
       setUsers(res.data.data);
     } catch (error) {
       console.error('Error fetching users:', error);
@@ -65,11 +78,20 @@ const UsersPage = () => {
 
   const filteredUsers = useMemo(() => {
     return users.filter((u: any) => 
+<<<<<<< HEAD
       ((u.firstName || '') + ' ' + (u.lastName || '')).toLowerCase().includes(searchTerm.toLowerCase()) ||
       (u.email || '').toLowerCase().includes(searchTerm.toLowerCase())
     );
   }, [users, searchTerm]);
 
+=======
+      (u.firstName + ' ' + u.lastName).toLowerCase().includes(searchTerm.toLowerCase()) ||
+      u.email.toLowerCase().includes(searchTerm.toLowerCase())
+    );
+  }, [users, searchTerm]);
+
+  // CALCULS DU PROFIL CLIENT
+>>>>>>> a9f1ddf04f884b977c71915d684ba0681cbb35f1
   const customerStats = useMemo(() => {
     if (!selectedUser) return { ltv: 0, orderCount: 0, recentOrders: [] };
     const paidOrders = selectedUser.orders?.filter((o: any) => o.status === 'PAID') || [];
@@ -81,6 +103,7 @@ const UsersPage = () => {
     };
   }, [selectedUser]);
 
+<<<<<<< HEAD
   const handleOpenForm = (user: any = null) => {
     if (user) {
       setFormData({
@@ -150,6 +173,8 @@ const UsersPage = () => {
     }
   };
 
+=======
+>>>>>>> a9f1ddf04f884b977c71915d684ba0681cbb35f1
   const columns = [
     { 
       id: 'name', 
@@ -171,9 +196,13 @@ const UsersPage = () => {
       label: 'Rôle',
       format: (val: string) => (
         <span className={`px-2 py-1 text-[10px] font-black rounded-lg uppercase border
+<<<<<<< HEAD
           ${val === 'ADMIN' ? 'bg-purple-50 text-purple-600 border-purple-100' : 
             val === 'MANAGER' ? 'bg-orange-50 text-orange-600 border-orange-100' : 
             'bg-blue-50 text-blue-600 border-blue-100'}
+=======
+          ${val === 'ADMIN' ? 'bg-purple-50 text-purple-600 border-purple-100' : 'bg-blue-50 text-blue-600 border-blue-100'}
+>>>>>>> a9f1ddf04f884b977c71915d684ba0681cbb35f1
         `}>
           {val}
         </span>
@@ -200,6 +229,7 @@ const UsersPage = () => {
     },
     {
       id: 'actions',
+<<<<<<< HEAD
       label: 'Actions',
       format: (_: any, row: any) => (
         <div className="flex items-center gap-2">
@@ -225,6 +255,16 @@ const UsersPage = () => {
             <Trash2 size={18} />
           </button>
         </div>
+=======
+      label: 'Gérer',
+      format: (_: any, row: any) => (
+        <button 
+          onClick={() => { setSelectedUser(row); setIsProfileOpen(true); }}
+          className="p-2 hover:bg-primary-50 text-primary-600 rounded-xl transition-all flex items-center gap-2 text-xs font-bold"
+        >
+          Voir Profil <ChevronRight size={14} />
+        </button>
+>>>>>>> a9f1ddf04f884b977c71915d684ba0681cbb35f1
       )
     }
   ];
@@ -237,12 +277,15 @@ const UsersPage = () => {
           <h1 className="text-3xl font-black text-slate-900 font-outfit tracking-tight">Utilisateurs & CRM</h1>
           <p className="text-sm text-slate-500 mt-1">Gérez votre communauté et vos clients fidèles.</p>
         </div>
+<<<<<<< HEAD
         <button 
           onClick={() => handleOpenForm()}
           className="px-6 py-3 bg-primary-500 text-white rounded-2xl font-bold text-sm hover:bg-primary-600 shadow-lg shadow-primary-500/20 flex items-center gap-2 transition-all active:scale-95"
         >
           <PlusCircle size={20} /> Nouvel Utilisateur
         </button>
+=======
+>>>>>>> a9f1ddf04f884b977c71915d684ba0681cbb35f1
       </div>
 
       {/* Barre de Recherche */}
@@ -309,7 +352,11 @@ const UsersPage = () => {
                   <Clock size={16} className="text-orange-500" /> Historique récent
                </h4>
                <div className="space-y-2">
+<<<<<<< HEAD
                  {customerStats.recentOrders?.map((o: any) => (
+=======
+                 {customerStats.recentOrders.map((o: any) => (
+>>>>>>> a9f1ddf04f884b977c71915d684ba0681cbb35f1
                    <div key={o.id} className="flex justify-between items-center p-3 bg-slate-50 rounded-xl border border-slate-100">
                       <div>
                         <p className="text-xs font-bold text-slate-900">Commande #{o.id}</p>
@@ -318,17 +365,26 @@ const UsersPage = () => {
                       <p className="text-xs font-black text-primary-600">{Number(o.totalAmount).toLocaleString()} FCFA</p>
                    </div>
                  ))}
+<<<<<<< HEAD
                  {(!customerStats.recentOrders || customerStats.recentOrders.length === 0) && <p className="text-xs text-slate-400 italic text-center py-4">Aucune commande passée.</p>}
+=======
+                 {customerStats.recentOrders.length === 0 && <p className="text-xs text-slate-400 italic text-center py-4">Aucune commande passée.</p>}
+>>>>>>> a9f1ddf04f884b977c71915d684ba0681cbb35f1
                </div>
             </div>
 
             {/* Boutons d'action */}
             <div className="flex gap-4 pt-4">
+<<<<<<< HEAD
               <button 
                 onClick={() => { setIsProfileOpen(false); handleOpenForm(selectedUser); }}
                 className="flex-1 py-3 bg-slate-100 text-slate-600 rounded-2xl font-bold text-sm hover:bg-slate-200 transition-all flex items-center justify-center gap-2"
               >
                 <Edit size={18} /> Modifier Profil
+=======
+              <button className="flex-1 py-3 bg-slate-100 text-slate-600 rounded-2xl font-bold text-sm hover:bg-slate-200 transition-all flex items-center justify-center gap-2">
+                <Briefcase size={18} /> Modifier le rôle
+>>>>>>> a9f1ddf04f884b977c71915d684ba0681cbb35f1
               </button>
               <a 
                 href={`https://wa.me/${selectedUser.whatsapp || selectedUser.phone}`} 
@@ -342,6 +398,7 @@ const UsersPage = () => {
           </div>
         )}
       </Modal>
+<<<<<<< HEAD
 
       {/* MODAL FORMULAIRE UTILISATEUR */}
       <Modal 
@@ -426,6 +483,8 @@ const UsersPage = () => {
           </button>
         </form>
       </Modal>
+=======
+>>>>>>> a9f1ddf04f884b977c71915d684ba0681cbb35f1
     </div>
   );
 };

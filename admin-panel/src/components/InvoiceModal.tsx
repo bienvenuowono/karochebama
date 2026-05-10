@@ -134,4 +134,7 @@ const InvoiceModal = ({ isOpen, onClose, order }: any) => {
 };
 
 export default InvoiceModal;
+<<<<<<< HEAD
 
+=======
+>>>>>>> a9f1ddf04f884b977c71915d684ba0681cbb35f1

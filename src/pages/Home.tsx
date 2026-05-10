@@ -13,8 +13,12 @@ import {
   Sprout,
   Globe,
   Leaf,
+<<<<<<< HEAD
   Store,
   ChevronRight
+=======
+  Store
+>>>>>>> a9f1ddf04f884b977c71915d684ba0681cbb35f1
 } from 'lucide-react';
 
 export default function Home() {
@@ -40,7 +44,11 @@ export default function Home() {
   const fetchProducts = async () => {
     try {
       setLoading(true);
+<<<<<<< HEAD
       const response = await axios.get('http://localhost:5000/api/v1/catalog/products');
+=======
+      const response = await axios.get('http://localhost:5000/api/v1/products');
+>>>>>>> a9f1ddf04f884b977c71915d684ba0681cbb35f1
       // On prend les 8 derniers produits ajoutés
       setFeaturedProducts(response.data.data.slice(0, 8));
     } catch (error) {
@@ -68,7 +76,11 @@ export default function Home() {
       <div className="relative h-[650px] w-full overflow-hidden">
         <div className="absolute inset-0">
           <img 
+<<<<<<< HEAD
             src="/hero-bg.jpg" 
+=======
+            src="https://images.unsplash.com/photo-1500937386664-56d1dfefcb0c?auto=format&fit=crop&w=2000&q=80" 
+>>>>>>> a9f1ddf04f884b977c71915d684ba0681cbb35f1
             alt="Agricultural Fields" 
             className="w-full h-full object-cover"
             referrerPolicy="no-referrer"
@@ -199,6 +211,7 @@ export default function Home() {
           ) : (
             <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-6">
               {featuredProducts.map((product) => (
+<<<<<<< HEAD
                 <div key={product.id} className="bg-white rounded-3xl border border-gray-100 overflow-hidden hover:shadow-xl transition-all group flex flex-col">
                   <div className="relative h-56 overflow-hidden bg-gray-100 p-0">
                     <div className="absolute top-4 right-4 z-10 bg-white/90 backdrop-blur-md text-emerald-700 text-[11px] font-bold px-3 py-1.5 rounded-full shadow-sm">
@@ -232,6 +245,43 @@ export default function Home() {
                     <Link to={`/product/${product.id}`} className="w-full bg-[#388e3c] hover:bg-[#2e7d32] text-white font-bold py-3.5 rounded-xl flex items-center justify-center transition-colors shadow-sm">
                       En savoir plus <ChevronRight className="w-4 h-4 ml-1" />
                     </Link>
+=======
+                <div key={product.id} className="bg-white rounded-2xl border border-gray-100 overflow-hidden hover:shadow-xl transition-all group flex flex-col">
+                  <div className="relative h-48 overflow-hidden">
+                    <img src={product.imageUrl} alt={product.name} className="w-full h-full object-cover group-hover:scale-105 transition-transform duration-500" referrerPolicy="no-referrer" />
+                    <div className="absolute top-3 left-3 bg-white/90 backdrop-blur-sm text-gray-900 text-[10px] font-bold px-2.5 py-1 rounded-md shadow-sm uppercase tracking-wider">
+                      {product.category?.name || 'Général'}
+                    </div>
+                    <div className="absolute top-3 right-3 bg-emerald-500 text-white text-[10px] font-bold px-2.5 py-1 rounded-md shadow-sm">
+                      {product.status === 'active' ? 'En Stock' : 'Brouillon'}
+                    </div>
+                  </div>
+                  
+                  <div className="p-5 flex flex-col flex-grow">
+                    <h3 className="font-bold text-gray-900 text-lg mb-1 line-clamp-1">{product.name}</h3>
+                    <div className="flex items-center text-xs text-gray-500 mb-4">
+                      <Store className="h-3.5 w-3.5 mr-1" /> {product.supplier?.firstName} {product.supplier?.lastName}
+                    </div>
+                    
+                    <div className="space-y-2 mb-6 flex-grow">
+                      <div className="flex items-center text-sm text-gray-600">
+                        <MapPin className="h-4 w-4 mr-2 text-gray-400" /> {product.productionSite?.location || 'Cameroun'}
+                      </div>
+                      <div className="flex items-center text-sm text-gray-600">
+                        <CheckCircle2 className="h-4 w-4 mr-2 text-emerald-500" /> Disponible
+                      </div>
+                    </div>
+                    
+                    <div className="flex items-end justify-between pt-4 border-t border-gray-100">
+                      <div>
+                        <div className="text-xs text-gray-500 mb-0.5">Prix Unitaire</div>
+                        <div className="text-xl font-extrabold text-gray-900">{product.price.toLocaleString('fr-FR')} CFA<span className="text-sm font-normal text-gray-500">/{product.unit}</span></div>
+                      </div>
+                      <button className="bg-emerald-50 hover:bg-emerald-100 text-emerald-700 p-2.5 rounded-xl transition-colors">
+                        <ShoppingCart className="h-5 w-5" />
+                      </button>
+                    </div>
+>>>>>>> a9f1ddf04f884b977c71915d684ba0681cbb35f1
                   </div>
                 </div>
               ))}

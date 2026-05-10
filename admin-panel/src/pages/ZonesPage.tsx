@@ -18,7 +18,11 @@ const ZonesPage = () => {
   const fetchZones = async () => {
     try {
       const token = authService.getToken();
+<<<<<<< HEAD
       const res = await axios.get('http://localhost:5001/api/v1/production/zones', {
+=======
+      const res = await axios.get('http://localhost:5000/api/v1/production/zones', {
+>>>>>>> a9f1ddf04f884b977c71915d684ba0681cbb35f1
         headers: { Authorization: `Bearer ${token}` }
       });
       setZones(res.data.data);
@@ -31,7 +35,11 @@ const ZonesPage = () => {
     e.preventDefault();
     try {
       const token = authService.getToken();
+<<<<<<< HEAD
       await axios.post('http://localhost:5001/api/v1/production/zones', 
+=======
+      await axios.post('http://localhost:5000/api/v1/production/zones', 
+>>>>>>> a9f1ddf04f884b977c71915d684ba0681cbb35f1
         { name: newZoneName },
         { headers: { Authorization: `Bearer ${token}` } }
       );
@@ -47,7 +55,11 @@ const ZonesPage = () => {
     if (!window.confirm('Supprimer cette zone ?')) return;
     try {
       const token = authService.getToken();
+<<<<<<< HEAD
       await axios.delete(`http://localhost:5001/api/v1/production/zones/${id}`, {
+=======
+      await axios.delete(`http://localhost:5000/api/v1/production/zones/${id}`, {
+>>>>>>> a9f1ddf04f884b977c71915d684ba0681cbb35f1
         headers: { Authorization: `Bearer ${token}` }
       });
       fetchZones();
@@ -114,4 +126,7 @@ const ZonesPage = () => {
 };
 
 export default ZonesPage;
+<<<<<<< HEAD
 
+=======
+>>>>>>> a9f1ddf04f884b977c71915d684ba0681cbb35f1

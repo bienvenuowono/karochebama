@@ -112,4 +112,7 @@ const DataTable = ({ columns, data = [], onEdit, onDelete, onView, loading }: Da
 };
 
 export default DataTable;
+<<<<<<< HEAD
 
+=======
+>>>>>>> a9f1ddf04f884b977c71915d684ba0681cbb35f1

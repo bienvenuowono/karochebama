@@ -85,4 +85,7 @@ const CategoryDialog = ({ open, onClose, onSave, category }: CategoryDialogProps
 };
 
 export default CategoryDialog;
+<<<<<<< HEAD
 
+=======
+>>>>>>> a9f1ddf04f884b977c71915d684ba0681cbb35f1

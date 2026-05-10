@@ -147,20 +147,47 @@ export default function Navbar() {
               </div>
 
               <div className="flex items-center space-x-4 border-l border-gray-200 pl-6">
+<<<<<<< HEAD
                 <a 
                   href="http://localhost:5175/login"
+=======
+                <button className="text-gray-500 hover:text-emerald-600 transition-colors">
+                  <Search className="h-5 w-5" />
+                </button>
+                <button className="text-gray-500 hover:text-emerald-600 transition-colors relative group">
+                  <ShoppingCart className="h-5 w-5" />
+                  <span className="absolute -top-1.5 -right-1.5 bg-emerald-600 text-white text-[10px] font-bold px-1.5 py-0.5 rounded-full shadow-sm group-hover:scale-110 transition-transform">
+                    3
+                  </span>
+                </button>
+                <Link 
+                  to="/login"
+>>>>>>> a9f1ddf04f884b977c71915d684ba0681cbb35f1
                   className="ml-2 inline-flex items-center justify-center px-5 py-2.5 border border-transparent text-sm font-bold rounded-xl text-white bg-[#1a2b3c] hover:bg-gray-800 shadow-sm transition-all hover:shadow-md active:scale-95"
                 >
                   <svg className="h-4 w-4 mr-2" fill="none" viewBox="0 0 24 24" stroke="currentColor">
                     <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M16 7a4 4 0 11-8 0 4 4 0 018 0zM12 14a7 7 0 00-7 7h14a7 7 0 00-7-7z" />
                   </svg>
                   Connexion
+<<<<<<< HEAD
                 </a>
+=======
+                </Link>
+>>>>>>> a9f1ddf04f884b977c71915d684ba0681cbb35f1
               </div>
             </div>
 
             {/* Mobile menu button */}
             <div className="flex items-center lg:hidden space-x-4">
+<<<<<<< HEAD
+=======
+              <button className="text-gray-500 hover:text-emerald-600 transition-colors relative">
+                <ShoppingCart className="h-6 w-6" />
+                <span className="absolute -top-1.5 -right-1.5 bg-emerald-600 text-white text-[10px] font-bold px-1.5 py-0.5 rounded-full shadow-sm">
+                  3
+                </span>
+              </button>
+>>>>>>> a9f1ddf04f884b977c71915d684ba0681cbb35f1
               <button
                 onClick={() => setIsOpen(!isOpen)}
                 className="inline-flex items-center justify-center p-2 rounded-xl text-gray-500 hover:text-gray-900 hover:bg-gray-100 focus:outline-none transition-colors"
@@ -241,13 +268,22 @@ export default function Navbar() {
                   )
                 ))}
                 <div className="pt-4 flex flex-col gap-3">
+<<<<<<< HEAD
                   <a 
                     href="http://localhost:5175/login"
+=======
+                  <Link 
+                    to="/login"
+>>>>>>> a9f1ddf04f884b977c71915d684ba0681cbb35f1
                     className="w-full inline-flex items-center justify-center px-4 py-3 border border-transparent text-base font-bold rounded-xl text-white bg-[#1a2b3c] hover:bg-gray-800 shadow-sm transition-colors"
                     onClick={() => setIsOpen(false)}
                   >
                     Connexion
+<<<<<<< HEAD
                   </a>
+=======
+                  </Link>
+>>>>>>> a9f1ddf04f884b977c71915d684ba0681cbb35f1
                   <Link 
                     to="/signup"
                     className="w-full inline-flex items-center justify-center px-4 py-3 border border-gray-200 text-base font-bold rounded-xl text-gray-700 bg-white hover:bg-gray-50 shadow-sm transition-colors"

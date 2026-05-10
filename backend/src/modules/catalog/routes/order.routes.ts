@@ -2,9 +2,16 @@ import { Request, Response, Router } from 'express';
 import prisma from '../../../config/prisma';
 
 export class OrderController {
+<<<<<<< HEAD
   create = async (req: Request, res: Response) => {
     try {
       const { userId, customerName, customerEmail, customerPhone, shippingAddress, notes, items, status = 'PENDING' } = req.body;
+=======
+  // Créer une commande avec numéro de facture auto-généré
+  create = async (req: Request, res: Response) => {
+    try {
+      const { userId, items, status = 'PAID' } = req.body;
+>>>>>>> a9f1ddf04f884b977c71915d684ba0681cbb35f1
       
       let totalAmount = 0;
       const orderItemsData = [];
@@ -25,6 +32,7 @@ export class OrderController {
       const invoiceNumber = `FAC-${Date.now()}-${Math.floor(Math.random() * 1000)}`;
 
       const result = await prisma.$transaction(async (tx) => {
+<<<<<<< HEAD
         // Création de la commande
         const order = await tx.order.create({
           data: {
@@ -37,17 +45,36 @@ export class OrderController {
             totalAmount,
             status,
             // @ts-ignore
+=======
+        const order = await tx.order.create({
+          data: {
+            userId: parseInt(userId),
+            totalAmount,
+            status,
+            // @ts-ignore - On ajoutera le champ invoiceNumber via migration ou on l'utilise dynamiquement
+>>>>>>> a9f1ddf04f884b977c71915d684ba0681cbb35f1
             items: { create: orderItemsData }
           },
           include: { items: true }
         });
 
+<<<<<<< HEAD
         // Réduction immédiate des stocks lors de la réservation
         for (const item of items) {
           await tx.product.update({
             where: { id: item.productId },
             data: { stock: { decrement: item.quantity } }
           });
+=======
+        // Réduction des stocks uniquement si payé ou validé
+        if (status === 'PAID') {
+          for (const item of items) {
+            await tx.product.update({
+              where: { id: item.productId },
+              data: { stock: { decrement: item.quantity } }
+            });
+          }
+>>>>>>> a9f1ddf04f884b977c71915d684ba0681cbb35f1
         }
 
         return order;

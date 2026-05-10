@@ -40,7 +40,11 @@ const ReportsPage = () => {
   const fetchData = async () => {
     try {
       const token = authService.getToken();
+<<<<<<< HEAD
       const res = await axios.get('http://localhost:5001/api/v1/production/reporting/financial-summary', {
+=======
+      const res = await axios.get('http://localhost:5000/api/v1/production/reporting/financial-summary', {
+>>>>>>> a9f1ddf04f884b977c71915d684ba0681cbb35f1
         headers: { Authorization: `Bearer ${token}` }
       });
       setData(res.data.data);
@@ -162,4 +166,7 @@ const MetricCard = ({ title, value, trend, icon: Icon }: any) => (
 );
 
 export default ReportsPage;
+<<<<<<< HEAD
 
+=======
+>>>>>>> a9f1ddf04f884b977c71915d684ba0681cbb35f1

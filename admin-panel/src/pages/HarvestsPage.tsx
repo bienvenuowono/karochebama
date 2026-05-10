@@ -49,9 +49,15 @@ const HarvestsPage = () => {
       const config = { headers: { Authorization: `Bearer ${token}` } };
       
       const [fRes, hRes, pRes] = await Promise.all([
+<<<<<<< HEAD
         axios.get('http://localhost:5001/api/v1/production/harvests/forecasts', config),
         axios.get('http://localhost:5001/api/v1/production/harvests/history', config),
         axios.get('http://localhost:5001/api/v1/catalog/products', config)
+=======
+        axios.get('http://localhost:5000/api/v1/production/harvests/forecasts', config),
+        axios.get('http://localhost:5000/api/v1/production/harvests/history', config),
+        axios.get('http://localhost:5000/api/v1/catalog/products', config)
+>>>>>>> a9f1ddf04f884b977c71915d684ba0681cbb35f1
       ]);
 
       setActiveCultures(fRes.data.data);
@@ -85,7 +91,11 @@ const HarvestsPage = () => {
     e.preventDefault();
     try {
       const token = authService.getToken();
+<<<<<<< HEAD
       await axios.post('http://localhost:5001/api/v1/production/harvests', 
+=======
+      await axios.post('http://localhost:5000/api/v1/production/harvests', 
+>>>>>>> a9f1ddf04f884b977c71915d684ba0681cbb35f1
         formData, 
         { headers: { Authorization: `Bearer ${token}` } }
       );
@@ -265,4 +275,7 @@ const HarvestsPage = () => {
 };
 
 export default HarvestsPage;
+<<<<<<< HEAD
 
+=======
+>>>>>>> a9f1ddf04f884b977c71915d684ba0681cbb35f1

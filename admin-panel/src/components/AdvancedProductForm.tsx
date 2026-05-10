@@ -14,7 +14,11 @@ import {
 import axios from 'axios';
 import { authService } from '../services/authService';
 
+<<<<<<< HEAD
 const AdvancedProductForm = ({ onSubmit, onCancel, initialData }: any) => {
+=======
+const AdvancedProductForm = ({ onSubmit, onCancel }: any) => {
+>>>>>>> a9f1ddf04f884b977c71915d684ba0681cbb35f1
   const [categories, setCategories] = useState([]);
   const [varieties, setVarieties] = useState([]);
   const [sites, setSites] = useState([]);
@@ -49,8 +53,13 @@ const AdvancedProductForm = ({ onSubmit, onCancel, initialData }: any) => {
       const token = authService.getToken();
       const config = { headers: { Authorization: `Bearer ${token}` } };
       const [catRes, siteRes] = await Promise.all([
+<<<<<<< HEAD
         axios.get('http://localhost:5001/api/v1/catalog/categories', config),
         axios.get('http://localhost:5001/api/v1/production/sites', config)
+=======
+        axios.get('http://localhost:5000/api/v1/catalog/categories', config),
+        axios.get('http://localhost:5000/api/v1/production/sites', config)
+>>>>>>> a9f1ddf04f884b977c71915d684ba0681cbb35f1
       ]);
       setCategories(catRes.data.data || []);
       setSites(siteRes.data.data || []);
@@ -59,6 +68,7 @@ const AdvancedProductForm = ({ onSubmit, onCancel, initialData }: any) => {
     }
   };
 
+<<<<<<< HEAD
   useEffect(() => {
     if (initialData && categories.length > 0) {
       setFormData({
@@ -88,6 +98,8 @@ const AdvancedProductForm = ({ onSubmit, onCancel, initialData }: any) => {
     }
   }, [initialData, categories]);
 
+=======
+>>>>>>> a9f1ddf04f884b977c71915d684ba0681cbb35f1
   const handleMainImageChange = (e: React.ChangeEvent<HTMLInputElement>) => {
     const file = e.target.files?.[0];
     if (file) {
@@ -130,10 +142,24 @@ const AdvancedProductForm = ({ onSubmit, onCancel, initialData }: any) => {
     galleryFiles.forEach(file => data.append('gallery', file));
 
     try {
+<<<<<<< HEAD
       await onSubmit(data); // On délègue l'appel API au parent
     } catch (err: any) {
       console.error('Submit error:', err);
       alert(err.response?.data?.message || err.message || 'Erreur lors de la sauvegarde du produit');
+=======
+      const token = authService.getToken();
+      await axios.post('http://localhost:5000/api/v1/catalog/products', data, {
+        headers: { 
+          'Authorization': `Bearer ${token}`,
+          'Content-Type': 'multipart/form-data'
+        }
+      });
+      onSubmit();
+    } catch (err) {
+      console.error('Submit error:', err);
+      alert('Erreur lors de la création du produit');
+>>>>>>> a9f1ddf04f884b977c71915d684ba0681cbb35f1
     } finally {
       setSubmitting(false);
     }
@@ -189,8 +215,13 @@ const AdvancedProductForm = ({ onSubmit, onCancel, initialData }: any) => {
 
           <div>
             <label className={labelClass}>Variété</label>
+<<<<<<< HEAD
             <select className={inputClass} value={formData.varietyId} onChange={(e) => setFormData({...formData, varietyId: e.target.value})}>
               <option value="">Sélectionner une variété (Optionnel)...</option>
+=======
+            <select required className={inputClass} value={formData.varietyId} onChange={(e) => setFormData({...formData, varietyId: e.target.value})}>
+              <option value="">Sélectionner une variété...</option>
+>>>>>>> a9f1ddf04f884b977c71915d684ba0681cbb35f1
               {varieties.map((v: any) => <option key={v.id} value={v.id}>{v.name}</option>)}
             </select>
           </div>
@@ -304,4 +335,7 @@ const AdvancedProductForm = ({ onSubmit, onCancel, initialData }: any) => {
 };
 
 export default AdvancedProductForm;
+<<<<<<< HEAD
 
+=======
+>>>>>>> a9f1ddf04f884b977c71915d684ba0681cbb35f1
