@@ -1,5 +1,5 @@
 import React, { useState, useEffect } from 'react';
-import { PlusCircle, Image as ImageIcon, Video, Trash2, Edit } from 'lucide-react';
+import { PlusCircle, Video, Trash2, Edit } from 'lucide-react';
 import axios from 'axios';
 import { authService } from '../services/authService';
 import { uploadService } from '../services/uploadService';
