@@ -1,6 +1,7 @@
 import { Link, useNavigate } from 'react-router-dom';
 import { useState, useEffect } from 'react';
 import axios from 'axios';
+import { API_BASE, API_URL } from '../api';
 import { 
   CheckCircle2, 
   Truck, 
@@ -46,7 +47,7 @@ export default function Home() {
   const fetchProducts = async () => {
     try {
       setLoading(true);
-      const response = await axios.get('http://localhost:5001/api/v1/catalog/products');
+      const response = await axios.get(`${API_BASE}/catalog/products`);
       setFeaturedProducts(response.data.data.slice(0, 8));
     } catch (error) {
       console.error('Error fetching products:', error);
@@ -58,7 +59,7 @@ export default function Home() {
 
   const fetchSites = async () => {
     try {
-      const response = await axios.get('http://localhost:5001/api/v1/production/sites');
+      const response = await axios.get(`${API_BASE}/production/sites`);
       setSites(response.data.data);
     } catch (error) {
       console.error('Error fetching sites:', error);
@@ -235,7 +236,7 @@ export default function Home() {
                     <div className="absolute top-4 right-4 z-10 bg-white/90 backdrop-blur-md text-emerald-700 text-[11px] font-bold px-3 py-1.5 rounded-full shadow-sm">
                       {product.category?.name || 'Général'}
                     </div>
-                    <img src={product.imageUrl ? (product.imageUrl.startsWith('http') ? product.imageUrl : `http://localhost:5001${product.imageUrl}`) : 'https://images.unsplash.com/photo-1574323347407-f5e1ad6d020b?auto=format&fit=crop&w=600&q=80'} alt={product.name} className="w-full h-full object-cover group-hover:scale-105 transition-transform duration-500" referrerPolicy="no-referrer" />
+                    <img src={product.imageUrl ? (product.imageUrl.startsWith('http') ? product.imageUrl : `${API_URL}${product.imageUrl}`) : 'https://images.unsplash.com/photo-1574323347407-f5e1ad6d020b?auto=format&fit=crop&w=600&q=80'} alt={product.name} className="w-full h-full object-cover group-hover:scale-105 transition-transform duration-500" referrerPolicy="no-referrer" />
                   </div>
                   
                   <div className="p-6 flex flex-col flex-grow">

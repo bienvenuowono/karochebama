@@ -2,6 +2,7 @@ import { useState, useEffect, useMemo } from 'react';
 import { Search, ChevronRight, ShoppingCart, MapPin, Loader2 } from 'lucide-react';
 import { Link, useSearchParams } from 'react-router-dom';
 import axios from 'axios';
+import { API_BASE, API_URL } from '../api';
 import SEO from '../components/SEO';
 
 export default function Marketplace() {
@@ -34,9 +35,9 @@ export default function Marketplace() {
     try {
       setLoading(true);
       const [prodRes, catRes, siteRes] = await Promise.all([
-        axios.get('http://localhost:5001/api/v1/catalog/products'),
-        axios.get('http://localhost:5001/api/v1/catalog/categories'),
-        axios.get('http://localhost:5001/api/v1/production/sites')
+        axios.get(`${API_BASE}/catalog/products`),
+        axios.get(`${API_BASE}/catalog/categories`),
+        axios.get(`${API_BASE}/production/sites`)
       ]);
       setProducts(prodRes.data.data);
       setCategories(catRes.data.data);
@@ -207,7 +208,7 @@ export default function Marketplace() {
                         {product.category?.name || 'Général'}
                       </div>
                       <img 
-                        src={product.imageUrl ? (product.imageUrl.startsWith('http') ? product.imageUrl : `http://localhost:5001${product.imageUrl}`) : 'https://images.unsplash.com/photo-1574323347407-f5e1ad6d020b?auto=format&fit=crop&w=600&q=80'} 
+                        src={product.imageUrl ? (product.imageUrl.startsWith('http') ? product.imageUrl : `${API_URL}${product.imageUrl}`) : 'https://images.unsplash.com/photo-1574323347407-f5e1ad6d020b?auto=format&fit=crop&w=600&q=80'} 
                         alt={product.name} 
                         className="w-full h-full object-cover group-hover:scale-105 transition-transform duration-700" 
                         referrerPolicy="no-referrer" 

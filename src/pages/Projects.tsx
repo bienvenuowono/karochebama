@@ -2,6 +2,7 @@ import { useState, useEffect } from 'react';
 import { Link } from 'react-router-dom';
 import { ArrowRight, MapPin, Calendar, CheckCircle2, Sprout, Building, Fish, Leaf, Loader2 } from 'lucide-react';
 import axios from 'axios';
+import { API_BASE, API_URL } from '../api';
 
 export default function Projects() {
   const [projects, setProjects] = useState<any[]>([]);
@@ -14,7 +15,7 @@ export default function Projects() {
   const fetchProjects = async () => {
     try {
       setLoading(true);
-      const response = await axios.get('http://localhost:5001/api/v1/projects');
+      const response = await axios.get(`${API_BASE}/projects`);
       setProjects(response.data);
     } catch (error) {
       console.error('Error fetching projects:', error);
@@ -78,7 +79,7 @@ export default function Projects() {
                     <div key={project.id} className="bg-white rounded-[2rem] shadow-sm border border-gray-100 overflow-hidden flex flex-col group hover:shadow-xl transition-all duration-300">
                       <div className="relative h-72 overflow-hidden">
                         <img 
-                          src={project.imageUrl ? (project.imageUrl.startsWith('http') ? project.imageUrl : `http://localhost:5001${project.imageUrl}`) : 'https://images.unsplash.com/photo-1592982537447-6f2a6a0c6c13?auto=format&fit=crop&w=1200&q=80'} 
+                          src={project.imageUrl ? (project.imageUrl.startsWith('http') ? project.imageUrl : `${API_URL}${project.imageUrl}`) : 'https://images.unsplash.com/photo-1592982537447-6f2a6a0c6c13?auto=format&fit=crop&w=1200&q=80'} 
                           alt={project.title} 
                           className="w-full h-full object-cover group-hover:scale-105 transition-transform duration-700" 
                           referrerPolicy="no-referrer" 
@@ -130,7 +131,7 @@ export default function Projects() {
                   <div key={project.id} className="bg-white rounded-[2rem] shadow-sm border border-gray-100 overflow-hidden flex flex-col group hover:shadow-xl transition-all duration-300">
                     <div className="relative h-56 overflow-hidden">
                       <img 
-                        src={project.imageUrl ? (project.imageUrl.startsWith('http') ? project.imageUrl : `http://localhost:5001${project.imageUrl}`) : 'https://images.unsplash.com/photo-1511688878353-3a2f5be94cd7?auto=format&fit=crop&w=800&q=80'} 
+                        src={project.imageUrl ? (project.imageUrl.startsWith('http') ? project.imageUrl : `${API_URL}${project.imageUrl}`) : 'https://images.unsplash.com/photo-1511688878353-3a2f5be94cd7?auto=format&fit=crop&w=800&q=80'} 
                         alt={project.title} 
                         className="w-full h-full object-cover group-hover:scale-105 transition-transform duration-700" 
                         referrerPolicy="no-referrer" 

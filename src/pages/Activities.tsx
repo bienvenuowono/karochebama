@@ -2,6 +2,7 @@ import { useState, useEffect } from 'react';
 import { Link } from 'react-router-dom';
 import { Sprout, Fish, Truck, Factory, Beef, Store, ArrowRight, Mail, Loader2 } from 'lucide-react';
 import axios from 'axios';
+import { API_BASE, API_URL } from '../api';
 
 export default function Activities() {
   const [activities, setActivities] = useState<any[]>([]);
@@ -14,7 +15,7 @@ export default function Activities() {
   const fetchActivities = async () => {
     try {
       setLoading(true);
-      const response = await axios.get('http://localhost:5001/api/v1/activities');
+      const response = await axios.get(`${API_BASE}/activities`);
       setActivities(response.data);
     } catch (error) {
       console.error('Error fetching activities:', error);
@@ -72,7 +73,7 @@ export default function Activities() {
                 {/* Image Area - Left side on Desktop */}
                 <div className="relative w-full sm:w-48 md:w-56 h-48 sm:h-auto overflow-hidden bg-gray-100 shrink-0">
                   <img 
-                    src={activity.imageUrl ? (activity.imageUrl.startsWith('http') ? activity.imageUrl : `http://localhost:5001${activity.imageUrl}`) : 'https://images.unsplash.com/photo-1592982537447-6f2a6a0c6c13?auto=format&fit=crop&w=800&q=80'} 
+                    src={activity.imageUrl ? (activity.imageUrl.startsWith('http') ? activity.imageUrl : `${API_URL}${activity.imageUrl}`) : 'https://images.unsplash.com/photo-1592982537447-6f2a6a0c6c13?auto=format&fit=crop&w=800&q=80'} 
                     alt={activity.title} 
                     className="w-full h-full object-cover group-hover:scale-110 transition-transform duration-700" 
                     referrerPolicy="no-referrer" 

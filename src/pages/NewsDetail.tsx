@@ -2,6 +2,7 @@ import { useState, useEffect } from 'react';
 import { useParams, Link } from 'react-router-dom';
 import { Calendar, ArrowLeft, Share2, Facebook, Twitter, Linkedin, Loader2 } from 'lucide-react';
 import axios from 'axios';
+import { API_BASE, API_URL } from '../api';
 import SEO from '../components/SEO';
 
 export default function NewsDetail() {
@@ -13,7 +14,7 @@ export default function NewsDetail() {
     const fetchArticle = async () => {
       try {
         setLoading(true);
-        const response = await axios.get(`http://localhost:5001/api/v1/news/${id}`);
+        const response = await axios.get(`${API_BASE}/news/${id}`);
         setArticle(response.data);
       } catch (error) {
         console.error('Error fetching article:', error);
@@ -49,7 +50,7 @@ export default function NewsDetail() {
       <SEO 
         title={article.title}
         description={article.content.substring(0, 160).replace(/<[^>]*>/g, '')}
-        image={article.imageUrl ? (article.imageUrl.startsWith('http') ? article.imageUrl : `http://localhost:5001${article.imageUrl}`) : undefined}
+        image={article.imageUrl ? (article.imageUrl.startsWith('http') ? article.imageUrl : `${API_URL}${article.imageUrl}`) : undefined}
       />
       {/* Article Header */}
       <div className="bg-white border-b border-gray-200">
@@ -105,7 +106,7 @@ export default function NewsDetail() {
         {article.imageUrl && (
           <div className="rounded-2xl overflow-hidden shadow-lg mb-12">
             <img 
-              src={article.imageUrl.startsWith('http') ? article.imageUrl : `http://localhost:5001${article.imageUrl}`} 
+              src={article.imageUrl.startsWith('http') ? article.imageUrl : `${API_URL}${article.imageUrl}`} 
               alt={article.title} 
               className="w-full h-auto object-cover max-h-[500px]"
               referrerPolicy="no-referrer"

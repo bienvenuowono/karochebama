@@ -3,6 +3,7 @@ import { useParams, Link } from 'react-router-dom';
 import { MapPin, ShieldCheck, Truck, ShoppingCart, ChevronRight, CheckCircle2, Globe, Loader2, ArrowLeft, Calendar, Clock, Leaf, X } from 'lucide-react';
 import { motion, AnimatePresence } from 'framer-motion';
 import axios from 'axios';
+import { API_BASE, API_URL } from '../api';
 
 export default function ProductDetail() {
   const { id } = useParams();
@@ -16,13 +17,13 @@ export default function ProductDetail() {
   useEffect(() => {
     const fetchProduct = async () => {
       try {
-        const response = await axios.get(`http://localhost:5001/api/v1/catalog/products/${id}`);
+        const response = await axios.get(`${API_BASE}/catalog/products/${id}`);
         const p = response.data.data;
         setProduct(p);
         
         // Setup initial image
         if (p.imageUrl) {
-          setMainImage(p.imageUrl.startsWith('http') ? p.imageUrl : `http://localhost:5001${p.imageUrl}`);
+          setMainImage(p.imageUrl.startsWith('http') ? p.imageUrl : `${API_URL}${p.imageUrl}`);
         } else {
           setMainImage('https://images.unsplash.com/photo-1574323347407-f5e1ad6d020b?auto=format&fit=crop&w=1200&q=80');
         }
@@ -55,11 +56,11 @@ export default function ProductDetail() {
     };
 
     try {
-      await axios.post('http://localhost:5001/api/v1/catalog/orders', orderData);
+      await axios.post(`${API_BASE}/catalog/orders`, orderData);
       setShowOrderForm(false);
       setShowSuccessPopup(true);
       // Recharger le produit pour avoir le nouveau stock
-      const response = await axios.get(`http://localhost:5001/api/v1/catalog/products/${id}`);
+      const response = await axios.get(`${API_BASE}/catalog/products/${id}`);
       setProduct(response.data.data);
     } catch (err: any) {
       alert(`Erreur lors de la commande: ${err.response?.data?.message || err.message}`);
@@ -89,10 +90,10 @@ export default function ProductDetail() {
 
   // Construction de la galerie d'images
   const gallery = [];
-  if (product.imageUrl) gallery.push(product.imageUrl.startsWith('http') ? product.imageUrl : `http://localhost:5001${product.imageUrl}`);
+  if (product.imageUrl) gallery.push(product.imageUrl.startsWith('http') ? product.imageUrl : `${API_URL}${product.imageUrl}`);
   if (product.gallery && Array.isArray(product.gallery)) {
     product.gallery.forEach((url: string) => {
-      gallery.push(url.startsWith('http') ? url : `http://localhost:5001${url}`);
+      gallery.push(url.startsWith('http') ? url : `${API_URL}${url}`);
     });
   }
   if (gallery.length === 0) gallery.push('https://images.unsplash.com/photo-1574323347407-f5e1ad6d020b?auto=format&fit=crop&w=1200&q=80');

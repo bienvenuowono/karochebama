@@ -2,6 +2,7 @@ import { useState, useEffect } from 'react';
 import { Link } from 'react-router-dom';
 import { Calendar, ArrowRight, Newspaper, Loader2 } from 'lucide-react';
 import axios from 'axios';
+import { API_BASE, API_URL } from '../api';
 
 export default function News() {
   const [news, setNews] = useState<any[]>([]);
@@ -14,7 +15,7 @@ export default function News() {
   const fetchNews = async () => {
     try {
       setLoading(true);
-      const response = await axios.get('http://localhost:5001/api/v1/news');
+      const response = await axios.get(`${API_BASE}/news`);
       setNews(response.data);
     } catch (error) {
       console.error('Error fetching news:', error);
@@ -56,7 +57,7 @@ export default function News() {
               <div key={item.id} className="bg-white rounded-2xl overflow-hidden shadow-sm hover:shadow-xl transition-all duration-300 border border-gray-100 group flex flex-col">
                 <div className="relative aspect-[16/10] overflow-hidden bg-gray-100">
                   <img 
-                    src={item.imageUrl ? (item.imageUrl.startsWith('http') ? item.imageUrl : `http://localhost:5001${item.imageUrl}`) : 'https://images.unsplash.com/photo-1542838132-92c53300491e?auto=format&fit=crop&w=800&q=80'} 
+                    src={item.imageUrl ? (item.imageUrl.startsWith('http') ? item.imageUrl : `${API_URL}${item.imageUrl}`) : 'https://images.unsplash.com/photo-1542838132-92c53300491e?auto=format&fit=crop&w=800&q=80'} 
                     alt={item.title} 
                     className="w-full h-full object-cover group-hover:scale-105 transition-transform duration-700"
                     referrerPolicy="no-referrer"
