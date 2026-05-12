@@ -12,6 +12,7 @@ import Wholesale from './pages/Wholesale';
 import ProductDetail from './pages/ProductDetail';
 
 import Activities from './pages/Activities';
+import ActivityDetail from './pages/ActivityDetail';
 import Projects from './pages/Projects';
 import ProjectDetail from './pages/ProjectDetail';
 import Sites from './pages/Sites';
@@ -35,6 +36,7 @@ export default function App() {
           <Route path="product/:id" element={<ProductDetail />} />
           <Route path="wholesale" element={<Wholesale />} />
           <Route path="nos-activites" element={<Activities />} />
+          <Route path="nos-activites/:id" element={<ActivityDetail />} />
           <Route path="projets" element={<Projects />} />
           <Route path="projet/:id" element={<ProjectDetail />} />
           <Route path="sites-de-production" element={<Sites />} />

@@ -1,5 +1,6 @@
 import { Request, Response, Router } from 'express';
 import prisma from '../../../config/prisma';
+import { authenticate, authorize } from '../../../core/auth.middleware';
 
 export class GeographicZoneController {
   getAll = async (req: Request, res: Response) => {
@@ -75,12 +76,12 @@ const siteController = new CultureSiteController();
 
 // Routes pour Zones Géographiques
 router.get('/zones', zoneController.getAll);
-router.post('/zones', zoneController.create);
-router.delete('/zones/:id', zoneController.delete);
+router.post('/zones', authenticate, authorize(['ADMIN']), zoneController.create);
+router.delete('/zones/:id', authenticate, authorize(['ADMIN']), zoneController.delete);
 
 // Routes pour Sites de Culture
 router.get('/sites', siteController.getAll);
-router.post('/sites', siteController.create);
-router.delete('/sites/:id', siteController.delete);
+router.post('/sites', authenticate, authorize(['ADMIN']), siteController.create);
+router.delete('/sites/:id', authenticate, authorize(['ADMIN']), siteController.delete);
 
 export default router;

@@ -15,7 +15,9 @@ import {
   ChevronRight,
   TrendingUp,
   XCircle,
-  Activity
+  Activity,
+  Globe,
+  Phone
 } from 'lucide-react';
 import axios from 'axios';
 import { authService } from '../services/authService';
@@ -45,15 +47,9 @@ const OrdersPage = () => {
       
       // Utilisation de allSettled pour ne pas tout bloquer si une API échoue
       const responses = await Promise.allSettled([
-<<<<<<< HEAD
         axios.get('http://localhost:5001/api/v1/catalog/orders', config),
         axios.get('http://localhost:5001/api/v1/catalog/products', config),
         axios.get('http://localhost:5001/api/v1/users', config)
-=======
-        axios.get('http://localhost:5000/api/v1/catalog/orders', config),
-        axios.get('http://localhost:5000/api/v1/catalog/products', config),
-        axios.get('http://localhost:5000/api/v1/users', config)
->>>>>>> a9f1ddf04f884b977c71915d684ba0681cbb35f1
       ]);
 
       const [oRes, pRes, uRes] = responses.map(r => r.status === 'fulfilled' ? (r as any).value : { data: { data: [] } });
@@ -71,11 +67,7 @@ const OrdersPage = () => {
   const handleUpdateStatus = async (id: number, updates: any) => {
     try {
       const token = authService.getToken();
-<<<<<<< HEAD
       await axios.patch(`http://localhost:5001/api/v1/catalog/orders/${id}/status`, updates, {
-=======
-      await axios.patch(`http://localhost:5000/api/v1/catalog/orders/${id}/status`, updates, {
->>>>>>> a9f1ddf04f884b977c71915d684ba0681cbb35f1
         headers: { Authorization: `Bearer ${token}` }
       });
       fetchData();
@@ -105,7 +97,7 @@ const OrdersPage = () => {
     if (!Array.isArray(orders)) return [];
     return orders.filter((o: any) => {
       const matchesStatus = filterStatus === 'ALL' || o?.status === filterStatus;
-      const fullName = `${o?.user?.firstName || ''} ${o?.user?.lastName || ''}`.toLowerCase();
+      const fullName = (o?.customerName || `${o?.user?.firstName || ''} ${o?.user?.lastName || ''}`).toLowerCase();
       const matchesSearch = fullName.includes(searchTerm.toLowerCase());
       return matchesStatus && matchesSearch;
     });
@@ -123,19 +115,42 @@ const OrdersPage = () => {
       )
     },
     { 
-      id: 'user', 
+      id: 'customerName', 
       label: 'Client',
-      format: (val: any) => (
-        <div className="flex items-center gap-2">
-          <div className="w-8 h-8 rounded-full bg-slate-100 flex items-center justify-center text-slate-400 font-bold text-[10px]">
-            {val?.firstName?.charAt(0) || '?'}
+      format: (_: any, row: any) => {
+        const name = row.customerName || (row.user ? `${row.user.firstName} ${row.user.lastName}` : 'Client Anonyme');
+        const phone = row.customerPhone || row.user?.phone || 'N/A';
+        const whatsapp = row.customerWhatsapp || 'N/A';
+        const country = row.customerCountry || 'Cameroun';
+        const email = row.customerEmail || row.user?.email || 'N/A';
+        
+        return (
+          <div className="flex flex-col gap-1.5">
+            <div className="flex items-center gap-2">
+              <div className="w-8 h-8 rounded-full bg-slate-100 flex items-center justify-center text-slate-400 font-bold text-[10px]">
+                {name.charAt(0)}
+              </div>
+              <div>
+                <p className="text-xs font-bold text-slate-900">{name}</p>
+                <p className="text-[10px] text-slate-400">{email}</p>
+              </div>
+            </div>
+            <div className="flex flex-wrap gap-2 mt-1">
+              <span className="inline-flex items-center gap-1 px-2 py-0.5 bg-blue-50 text-blue-600 rounded-md text-[9px] font-bold">
+                <Globe size={10} /> {country}
+              </span>
+              <span className="inline-flex items-center gap-1 px-2 py-0.5 bg-emerald-50 text-emerald-600 rounded-md text-[9px] font-bold">
+                <Phone size={10} /> {phone}
+              </span>
+              {whatsapp !== 'N/A' && (
+                <span className="inline-flex items-center gap-1 px-2 py-0.5 bg-green-50 text-green-600 rounded-md text-[9px] font-bold">
+                  <Activity size={10} /> WhatsApp: {whatsapp}
+                </span>
+              )}
+            </div>
           </div>
-          <div>
-            <p className="text-xs font-bold text-slate-900">{val?.firstName || 'Client'} {val?.lastName || 'Anonyme'}</p>
-            <p className="text-[10px] text-slate-400">Contact: {val?.email || 'N/A'}</p>
-          </div>
-        </div>
-      )
+        );
+      }
     },
     { 
       id: 'items', 
@@ -204,7 +219,7 @@ const OrdersPage = () => {
   return (
     <div className="space-y-8 pb-10">
       {/* Header */}
-      <div className="flex flex-col md:flex-row justify-between items-start md:items-center gap-4">
+      <div className="flex flex-col md:flex-row justify-between items-start md:items-center gap-4 print:hidden">
         <div>
           <h1 className="text-3xl font-black text-slate-900 font-outfit tracking-tight">Gestion des Ventes</h1>
           <p className="text-sm text-slate-500 mt-1">Pilotage commercial et suivi des stocks.</p>
@@ -223,14 +238,14 @@ const OrdersPage = () => {
       </div>
 
       {/* KPI Cards */}
-      <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-6">
+      <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-6 print:hidden">
         <StatCard title="Chiffre d'Affaires" value={`${stats.totalRevenue.toLocaleString()} FCFA`} icon={TrendingUp} color="bg-emerald-500" sub="Ventes payées" />
         <StatCard title="Produits Vendus" value={stats.totalSold} icon={ShoppingCart} color="bg-blue-500" sub="Total articles" />
         <StatCard title="Commandes" value={stats.orderCount} icon={Package} color="bg-orange-500" sub="Toutes périodes" />
         <StatCard title="Stock Disponible" value={`${stats.remainingStock} KG`} icon={Activity} color="bg-purple-500" sub="Inventaire actuel" />
       </div>
 
-      <div className="grid grid-cols-1 lg:grid-cols-3 gap-8">
+      <div className="grid grid-cols-1 lg:grid-cols-3 gap-8 print:hidden">
         <div className="lg:col-span-2 space-y-4">
           <div className="bg-white p-4 rounded-2xl border border-slate-100 shadow-sm flex items-center gap-4">
             <Search className="text-slate-400" size={20} />
@@ -286,7 +301,4 @@ const StatCard = ({ title, value, icon: Icon, color, sub }: any) => (
 );
 
 export default OrdersPage;
-<<<<<<< HEAD
 
-=======
->>>>>>> a9f1ddf04f884b977c71915d684ba0681cbb35f1

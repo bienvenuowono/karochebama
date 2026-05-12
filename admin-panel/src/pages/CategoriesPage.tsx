@@ -24,11 +24,7 @@ const CategoriesPage = () => {
       setLoading(true);
       const token = authService.getToken();
       const config = { headers: { Authorization: `Bearer ${token}` } };
-<<<<<<< HEAD
       const res = await axios.get('http://localhost:5001/api/v1/catalog/categories', config);
-=======
-      const res = await axios.get('http://localhost:5000/api/v1/catalog/categories', config);
->>>>>>> a9f1ddf04f884b977c71915d684ba0681cbb35f1
       setCategories(res.data.data);
     } catch (error) {
       console.error('Error fetching categories:', error);
@@ -41,36 +37,29 @@ const CategoriesPage = () => {
     e.preventDefault();
     try {
       const token = authService.getToken();
-<<<<<<< HEAD
       await axios.post('http://localhost:5001/api/v1/catalog/categories', { name: newCatName }, {
-=======
-      await axios.post('http://localhost:5000/api/v1/catalog/categories', { name: newCatName }, {
->>>>>>> a9f1ddf04f884b977c71915d684ba0681cbb35f1
         headers: { Authorization: `Bearer ${token}` }
       });
       setNewCatName('');
       setIsCatDialogOpen(false);
       fetchData();
-<<<<<<< HEAD
     } catch (error: any) {
       console.error('Error creating category:', error);
       alert(error.response?.data?.message || "Erreur lors de la création de la catégorie");
-=======
-    } catch (error) {
-      console.error('Error creating category:', error);
->>>>>>> a9f1ddf04f884b977c71915d684ba0681cbb35f1
     }
   };
 
-  const handleDeleteCategory = async (id: number) => {
-    if (!window.confirm("Êtes-vous sûr de vouloir supprimer cette catégorie ?")) return;
+  const handleDeleteCategory = async (category: any) => {
+    const hasVarieties = category.varieties && category.varieties.length > 0;
+    const warning = hasVarieties 
+      ? `ATTENTION : Cette catégorie contient ${category.varieties.length} variétés. Supprimer cette catégorie supprimera également TOUTES les variétés et TOUS les produits associés.\n\nSouhaitez-vous continuer ?`
+      : "Êtes-vous sûr de vouloir supprimer cette catégorie ?";
+
+    if (!window.confirm(warning)) return;
+
     try {
       const token = authService.getToken();
-<<<<<<< HEAD
-      await axios.delete(`http://localhost:5001/api/v1/catalog/categories/${id}`, {
-=======
-      await axios.delete(`http://localhost:5000/api/v1/catalog/categories/${id}`, {
->>>>>>> a9f1ddf04f884b977c71915d684ba0681cbb35f1
+      await axios.delete(`http://localhost:5001/api/v1/catalog/categories/${category.id}`, {
         headers: { Authorization: `Bearer ${token}` }
       });
       fetchData();
@@ -83,11 +72,7 @@ const CategoriesPage = () => {
     if (!window.confirm("Supprimer cette variété ?")) return;
     try {
       const token = authService.getToken();
-<<<<<<< HEAD
       await axios.delete(`http://localhost:5001/api/v1/catalog/categories/varieties/${id}`, {
-=======
-      await axios.delete(`http://localhost:5000/api/v1/catalog/categories/varieties/${id}`, {
->>>>>>> a9f1ddf04f884b977c71915d684ba0681cbb35f1
         headers: { Authorization: `Bearer ${token}` }
       });
       fetchData();
@@ -101,11 +86,7 @@ const CategoriesPage = () => {
     e.preventDefault();
     try {
       const token = authService.getToken();
-<<<<<<< HEAD
       await axios.post('http://localhost:5001/api/v1/catalog/categories/varieties', { 
-=======
-      await axios.post('http://localhost:5000/api/v1/catalog/categories/varieties', { 
->>>>>>> a9f1ddf04f884b977c71915d684ba0681cbb35f1
         name: newVarName, 
         categoryId: selectedCategory.id 
       }, {
@@ -114,14 +95,9 @@ const CategoriesPage = () => {
       setNewVarName('');
       setIsVarDialogOpen(false);
       fetchData();
-<<<<<<< HEAD
     } catch (error: any) {
       console.error('Error creating variety:', error);
       alert(error.response?.data?.message || "Erreur lors de la création de la variété");
-=======
-    } catch (error) {
-      console.error('Error creating variety:', error);
->>>>>>> a9f1ddf04f884b977c71915d684ba0681cbb35f1
     }
   };
 
@@ -129,13 +105,16 @@ const CategoriesPage = () => {
     { 
       id: 'name', 
       label: 'Catégorie',
-      format: (val: string) => (
-        <div className="flex items-center gap-3">
+      format: (val: string, row: any) => (
+        <button 
+          onClick={() => { setSelectedCategory(row); setIsVarDialogOpen(true); }}
+          className="flex items-center gap-3 hover:text-primary-600 transition-colors text-left"
+        >
           <div className="w-10 h-10 rounded-xl bg-orange-50 text-orange-600 flex items-center justify-center font-bold">
             <Tags size={20} />
           </div>
-          <span className="font-bold text-slate-900">{val}</span>
-        </div>
+          <span className="font-bold text-slate-900 underline decoration-slate-200 underline-offset-4">{val}</span>
+        </button>
       )
     },
     { 
@@ -160,10 +139,10 @@ const CategoriesPage = () => {
             onClick={() => { setSelectedCategory(row); setIsVarDialogOpen(true); }}
             className="p-2 hover:bg-primary-50 text-primary-600 rounded-lg transition-colors flex items-center gap-1.5 text-xs font-bold"
           >
-            <ListPlus size={16} /> Gérer Variétés
+            <ListPlus size={16} /> Gérer
           </button>
           <button 
-            onClick={() => handleDeleteCategory(row.id)}
+            onClick={() => handleDeleteCategory(row)}
             className="p-2 hover:bg-red-50 text-red-500 rounded-lg transition-colors"
           >
             <Trash2 size={16} />
@@ -248,7 +227,4 @@ const CategoriesPage = () => {
 };
 
 export default CategoriesPage;
-<<<<<<< HEAD
 
-=======
->>>>>>> a9f1ddf04f884b977c71915d684ba0681cbb35f1

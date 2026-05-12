@@ -28,13 +28,35 @@ export class CategoryController {
   deleteCategory = async (req: Request, res: Response) => {
     try {
       const id = parseInt(req.params.id);
-      // Vérifier s'il y a des variétés ou produits liés
-      const count = await prisma.productVariety.count({ where: { categoryId: id } });
-      if (count > 0) throw new Error("Impossible de supprimer : cette catégorie contient des variétés.");
+      
+      // Cascade Delete using a transaction
+      await prisma.$transaction(async (tx) => {
+        // 1. Récupérer toutes les variétés de cette catégorie
+        const varieties = await tx.productVariety.findMany({
+          where: { categoryId: id },
+          select: { id: true }
+        });
+        const varietyIds = varieties.map(v => v.id);
 
-      await prisma.category.delete({ where: { id } });
-      res.json({ success: true, message: "Catégorie supprimée" });
+        if (varietyIds.length > 0) {
+          // 2. Supprimer tous les produits liés à ces variétés
+          await tx.product.deleteMany({
+            where: { varietyId: { in: varietyIds } }
+          });
+
+          // 3. Supprimer les variétés
+          await tx.productVariety.deleteMany({
+            where: { id: { in: varietyIds } }
+          });
+        }
+
+        // 4. Supprimer la catégorie
+        await tx.category.delete({ where: { id } });
+      });
+
+      res.json({ success: true, message: "Catégorie et ses variétés/produits supprimés avec succès" });
     } catch (error: any) {
+      console.error('Delete error:', error);
       res.status(400).json({ success: false, message: error.message });
     }
   };
@@ -43,12 +65,18 @@ export class CategoryController {
   deleteVariety = async (req: Request, res: Response) => {
     try {
       const id = parseInt(req.params.id);
-      // Vérifier si des produits utilisent cette variété
-      const count = await prisma.product.count({ where: { varietyId: id } });
-      if (count > 0) throw new Error("Impossible de supprimer : des produits utilisent cette variété.");
+      
+      await prisma.$transaction(async (tx) => {
+        // 1. Supprimer tous les produits utilisant cette variété
+        await tx.product.deleteMany({
+          where: { varietyId: id }
+        });
 
-      await prisma.productVariety.delete({ where: { id } });
-      res.json({ success: true, message: "Variété supprimée" });
+        // 2. Supprimer la variété
+        await tx.productVariety.delete({ where: { id } });
+      });
+
+      res.json({ success: true, message: "Variété et produits associés supprimés" });
     } catch (error: any) {
       res.status(400).json({ success: false, message: error.message });
     }

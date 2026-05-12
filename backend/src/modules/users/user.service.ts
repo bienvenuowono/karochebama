@@ -13,6 +13,7 @@ class UserService {
         whatsapp: true,
         country: true,
         address: true,
+        photoUrl: true,
         role: true,
         createdAt: true,
         orders: {

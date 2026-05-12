@@ -20,20 +20,13 @@ model User {
   phone     String?
   whatsapp  String?
   country   String?   @default("Cameroun")
-<<<<<<< HEAD
   address      String?
   refreshToken String?  @db.Text
+  photoUrl     String?
   role         String   @default("USER") // ADMIN, USER, MANAGER
   orders       Order[]
   createdAt    DateTime @default(now())
   updatedAt    DateTime @updatedAt
-=======
-  address   String?
-  role      String   @default("USER") // ADMIN, USER, MANAGER
-  orders    Order[]
-  createdAt DateTime @default(now())
-  updatedAt DateTime @updatedAt
->>>>>>> a9f1ddf04f884b977c71915d684ba0681cbb35f1
 }
 
 // --- MODULE PRODUCTION (GÉOGRAPHIQUE) ---
@@ -99,13 +92,8 @@ model Product {
   categoryId    Int
   category      Category      @relation(fields: [categoryId], references: [id])
   
-<<<<<<< HEAD
   varietyId     Int?
   variety       ProductVariety? @relation(fields: [varietyId], references: [id])
-=======
-  varietyId     Int
-  variety       ProductVariety @relation(fields: [varietyId], references: [id])
->>>>>>> a9f1ddf04f884b977c71915d684ba0681cbb35f1
   
   // Paramètres de production
   sowingDate       DateTime?
@@ -158,13 +146,14 @@ model Harvest {
 
 // --- MODULE : VENTES & COMMANDES ---
 model Order {
-<<<<<<< HEAD
   id              Int         @id @default(autoincrement())
   userId          Int?
   user            User?       @relation(fields: [userId], references: [id])
   customerName    String?
   customerEmail   String?
   customerPhone   String?
+  customerWhatsapp String?
+  customerCountry  String?
   shippingAddress String?
   notes           String?     @db.Text
   totalAmount     Decimal     @db.Decimal(10, 2)
@@ -173,17 +162,6 @@ model Order {
   items           OrderItem[]
   createdAt       DateTime    @default(now())
   updatedAt       DateTime    @updatedAt
-=======
-  id          Int         @id @default(autoincrement())
-  userId      Int
-  user        User        @relation(fields: [userId], references: [id])
-  totalAmount Decimal     @db.Decimal(10, 2)
-  status      String      @default("PENDING") 
-  isProcessed Boolean     @default(false)    
-  items       OrderItem[]
-  createdAt   DateTime    @default(now())
-  updatedAt   DateTime    @updatedAt
->>>>>>> a9f1ddf04f884b977c71915d684ba0681cbb35f1
 
   @@index([userId])
 }
@@ -212,7 +190,6 @@ model ContactMessage {
   isRead    Boolean  @default(false)
   createdAt DateTime @default(now())
 }
-<<<<<<< HEAD
 
 // --- MODULE : SITE VITRINE (CMS) ---
 
@@ -259,5 +236,3 @@ model Article {
   createdAt   DateTime @default(now())
   updatedAt   DateTime @updatedAt
 }
-=======
->>>>>>> a9f1ddf04f884b977c71915d684ba0681cbb35f1

@@ -1,10 +1,5 @@
-<<<<<<< HEAD
 import { useState, useEffect } from 'react';
 import { PlusCircle, Package, Trash2, Edit } from 'lucide-react';
-=======
-import React, { useState, useEffect } from 'react';
-import { PlusCircle, Package, Search, Trash2, Edit } from 'lucide-react';
->>>>>>> a9f1ddf04f884b977c71915d684ba0681cbb35f1
 import axios from 'axios';
 import { authService } from '../services/authService';
 import DataTable from '../components/DataTable';
@@ -31,7 +26,6 @@ const ProductsPage = () => {
       const config = { headers: { Authorization: `Bearer ${token}` } };
       
       const responses = await Promise.allSettled([
-<<<<<<< HEAD
         axios.get('http://localhost:5001/api/v1/catalog/products', config),
         axios.get('http://localhost:5001/api/v1/production/regions', config),
         axios.get('http://localhost:5001/api/v1/production/sites', config),
@@ -40,16 +34,6 @@ const ProductsPage = () => {
       ]);
 
       const [pRes, , sRes, cRes, vRes] = responses.map(r => r.status === 'fulfilled' ? (r as any).value : { data: { data: [] } });
-=======
-        axios.get('http://localhost:5000/api/v1/catalog/products', config),
-        axios.get('http://localhost:5000/api/v1/production/regions', config),
-        axios.get('http://localhost:5000/api/v1/production/sites', config),
-        axios.get('http://localhost:5000/api/v1/catalog/categories', config),
-        axios.get('http://localhost:5000/api/v1/catalog/categories/varieties', config)
-      ]);
-
-      const [pRes, tRes, sRes, cRes, vRes] = responses.map(r => r.status === 'fulfilled' ? (r as any).value : { data: { data: [] } });
->>>>>>> a9f1ddf04f884b977c71915d684ba0681cbb35f1
 
       const demoTypes = [
         { id: 1, name: 'Agricole' },
@@ -72,7 +56,6 @@ const ProductsPage = () => {
   const handleSave = async (formData: any) => {
     try {
       const token = authService.getToken();
-<<<<<<< HEAD
       const config = { 
         headers: { 
           Authorization: `Bearer ${token}`
@@ -83,24 +66,13 @@ const ProductsPage = () => {
         await axios.patch(`http://localhost:5001/api/v1/catalog/products/${(selectedProduct as any).id}`, formData, config);
       } else {
         await axios.post('http://localhost:5001/api/v1/catalog/products', formData, config);
-=======
-      const config = { headers: { Authorization: `Bearer ${token}` } };
-      
-      if (selectedProduct) {
-        await axios.patch(`http://localhost:5000/api/v1/catalog/products/${(selectedProduct as any).id}`, formData, config);
-      } else {
-        await axios.post('http://localhost:5000/api/v1/catalog/products', formData, config);
->>>>>>> a9f1ddf04f884b977c71915d684ba0681cbb35f1
       }
       
       setIsDialogOpen(false);
       fetchData();
     } catch (error) {
       console.error('Error saving product:', error);
-<<<<<<< HEAD
       throw error; // Propagation au formulaire pour afficher l'alerte
-=======
->>>>>>> a9f1ddf04f884b977c71915d684ba0681cbb35f1
     }
   };
 
@@ -108,11 +80,7 @@ const ProductsPage = () => {
     if (!window.confirm("Voulez-vous vraiment supprimer ce produit ? Cela supprimera également l'historique des récoltes liées.")) return;
     try {
       const token = authService.getToken();
-<<<<<<< HEAD
       await axios.delete(`http://localhost:5001/api/v1/catalog/products/${id}`, {
-=======
-      await axios.delete(`http://localhost:5000/api/v1/catalog/products/${id}`, {
->>>>>>> a9f1ddf04f884b977c71915d684ba0681cbb35f1
         headers: { Authorization: `Bearer ${token}` }
       });
       fetchData();
@@ -143,9 +111,14 @@ const ProductsPage = () => {
       format: (val: any) => val?.name || 'N/A'
     },
     { 
+      id: 'quantityKg', 
+      label: 'Estimation Récolte',
+      format: (val: number) => <span className="font-medium text-slate-600">{val || 0} KG</span>
+    },
+    { 
       id: 'stock', 
-      label: 'Stock',
-      format: (val: number) => <span className="font-medium text-slate-600">{val} KG</span>
+      label: 'Quantité restante',
+      format: (val: number) => <span className={`font-bold ${val < 10 ? 'text-red-500' : 'text-emerald-600'}`}>{val} KG</span>
     },
     { 
       id: 'priceKg', 
@@ -210,7 +183,4 @@ const ProductsPage = () => {
 };
 
 export default ProductsPage;
-<<<<<<< HEAD
 
-=======
->>>>>>> a9f1ddf04f884b977c71915d684ba0681cbb35f1

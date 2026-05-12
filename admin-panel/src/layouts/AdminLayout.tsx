@@ -21,10 +21,7 @@ import { authService } from '../services/authService';
 
 const AdminLayout = ({ children }: { children: React.ReactNode }) => {
   const [isMobileMenuOpen, setIsMobileMenuOpen] = useState(false);
-<<<<<<< HEAD
   const [isNotificationsOpen, setIsNotificationsOpen] = useState(false);
-=======
->>>>>>> a9f1ddf04f884b977c71915d684ba0681cbb35f1
   const navigate = useNavigate();
   const location = useLocation();
   const user = authService.getCurrentUser();
@@ -34,7 +31,6 @@ const AdminLayout = ({ children }: { children: React.ReactNode }) => {
     navigate('/login');
   };
 
-<<<<<<< HEAD
   const notifications = [
     { id: 1, title: 'Nouvelle commande', message: 'Une nouvelle commande de Maïs Bio a été reçue.', time: 'Il y a 5 min', type: 'order' },
     { id: 2, title: 'Alerte stock', message: 'Le stock de bananes plantains est presque épuisé.', time: 'Il y a 1h', type: 'alert' },
@@ -43,18 +39,14 @@ const AdminLayout = ({ children }: { children: React.ReactNode }) => {
 
   const menuItems = [
     { text: 'E-commerce & ERP', isHeader: true },
-=======
-  const menuItems = [
->>>>>>> a9f1ddf04f884b977c71915d684ba0681cbb35f1
     { text: 'Dashboard', icon: LayoutDashboard, path: '/dashboard' },
     { text: 'Utilisateurs', icon: Users, path: '/users' },
     { text: 'Catalogue Produits', icon: Package, path: '/products' },
     { text: 'Catégories', icon: Tags, path: '/categories' },
     { text: 'Zones Géographiques', icon: Layers, path: '/zones' },
     { text: 'Sites de Culture', icon: MapPin, path: '/sites' },
-    { text: 'Suivi des Récoltes', icon: Sprout, path: '/harvests' },
+    { text: 'Audit Clients', icon: Users, path: '/audit-clients' },
     { text: 'Gestion des Ventes', icon: ShoppingCart, path: '/orders' },
-<<<<<<< HEAD
     { text: 'Contenu Site Vitrine', isHeader: true },
     { text: 'Activités', icon: Sprout, path: '/activities' },
     { text: 'Projets', icon: Layers, path: '/projects' },
@@ -62,15 +54,13 @@ const AdminLayout = ({ children }: { children: React.ReactNode }) => {
     { text: 'Actualités', icon: Tags, path: '/news' },
     { text: 'Compte & Sécurité', isHeader: true },
     { text: 'Mon Profil', icon: Settings, path: '/profile' },
-=======
->>>>>>> a9f1ddf04f884b977c71915d684ba0681cbb35f1
   ];
 
   return (
     <div className="min-h-screen bg-slate-50 flex">
       {/* Sidebar */}
       <aside className={`
-        fixed inset-y-0 left-0 z-50 w-64 bg-white border-r border-slate-200 transform transition-transform duration-300 ease-in-out
+        fixed inset-y-0 left-0 z-50 w-64 bg-white border-r border-slate-200 transform transition-transform duration-300 ease-in-out print:hidden
         ${isMobileMenuOpen ? 'translate-x-0' : '-translate-x-full lg:translate-x-0'}
       `}>
         <div className="flex flex-col h-full">
@@ -85,7 +75,6 @@ const AdminLayout = ({ children }: { children: React.ReactNode }) => {
           </div>
 
           <nav className="flex-1 px-4 py-4 space-y-1 overflow-y-auto">
-<<<<<<< HEAD
             {menuItems.map((item, index) => {
               if (item.isHeader) {
                 return (
@@ -101,14 +90,6 @@ const AdminLayout = ({ children }: { children: React.ReactNode }) => {
                 <Link
                   key={item.text}
                   to={item.path as string}
-=======
-            {menuItems.map((item) => {
-              const isActive = location.pathname === item.path;
-              return (
-                <Link
-                  key={item.text}
-                  to={item.path}
->>>>>>> a9f1ddf04f884b977c71915d684ba0681cbb35f1
                   onClick={() => setIsMobileMenuOpen(false)}
                   className={`
                     flex items-center gap-3 px-4 py-3 rounded-xl text-sm font-medium transition-all group
@@ -117,11 +98,7 @@ const AdminLayout = ({ children }: { children: React.ReactNode }) => {
                       : 'text-slate-600 hover:bg-slate-100 hover:text-slate-900'}
                   `}
                 >
-<<<<<<< HEAD
                   <Icon size={20} className={`${isActive ? 'text-white' : 'text-slate-400 group-hover:text-slate-900'}`} />
-=======
-                  <item.icon size={20} className={`${isActive ? 'text-white' : 'text-slate-400 group-hover:text-slate-900'}`} />
->>>>>>> a9f1ddf04f884b977c71915d684ba0681cbb35f1
                   {item.text}
                   {isActive && <ChevronRight size={16} className="ml-auto opacity-70" />}
                 </Link>
@@ -147,7 +124,7 @@ const AdminLayout = ({ children }: { children: React.ReactNode }) => {
 
       {/* Main Content */}
       <div className="flex-1 lg:ml-64 flex flex-col min-h-screen">
-        <header className="sticky top-0 z-30 bg-white/80 backdrop-blur-md border-b border-slate-200 px-4 md:px-8 h-16 flex items-center justify-between">
+        <header className="sticky top-0 z-30 bg-white/80 backdrop-blur-md border-b border-slate-200 px-4 md:px-8 h-16 flex items-center justify-between print:hidden">
           <div className="flex items-center gap-4">
             <button onClick={() => setIsMobileMenuOpen(true)} className="p-2 text-slate-600 hover:bg-slate-100 rounded-lg lg:hidden">
               <Menu size={24} />
@@ -157,7 +134,6 @@ const AdminLayout = ({ children }: { children: React.ReactNode }) => {
             </h2>
           </div>
           <div className="flex items-center gap-4">
-<<<<<<< HEAD
             <div className="relative">
               <button 
                 onClick={() => setIsNotificationsOpen(!isNotificationsOpen)}
@@ -208,15 +184,6 @@ const AdminLayout = ({ children }: { children: React.ReactNode }) => {
             <Link to="/profile" className="w-8 h-8 rounded-full bg-slate-200 overflow-hidden border border-slate-200 hover:ring-2 hover:ring-primary-500 transition-all">
                <img src={`https://ui-avatars.com/api/?name=${user?.firstName}+${user?.lastName}&background=random`} alt="avatar" />
             </Link>
-=======
-            <button className="p-2 text-slate-400 hover:text-primary-600 relative">
-              <Bell size={20} />
-              <span className="absolute top-2 right-2 w-2 h-2 bg-red-500 rounded-full border-2 border-white"></span>
-            </button>
-            <div className="w-8 h-8 rounded-full bg-slate-200 overflow-hidden border border-slate-200">
-               <img src={`https://ui-avatars.com/api/?name=${user?.firstName}+${user?.lastName}&background=random`} alt="avatar" />
-            </div>
->>>>>>> a9f1ddf04f884b977c71915d684ba0681cbb35f1
           </div>
         </header>
 

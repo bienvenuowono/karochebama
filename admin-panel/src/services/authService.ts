@@ -1,10 +1,6 @@
 import axios from 'axios';
 
-<<<<<<< HEAD
 const API_URL = 'http://localhost:5001/api/v1';
-=======
-const API_URL = 'http://localhost:5000/api/v1';
->>>>>>> a9f1ddf04f884b977c71915d684ba0681cbb35f1
 
 export const authService = {
   async login(email: string, password: string) {
@@ -26,7 +22,6 @@ export const authService = {
   },
 
   getCurrentUser() {
-<<<<<<< HEAD
     try {
       const user = localStorage.getItem('admin_user');
       return user && user !== 'undefined' ? JSON.parse(user) : null;
@@ -34,10 +29,6 @@ export const authService = {
       console.error('Error parsing user from localStorage:', error);
       return null;
     }
-=======
-    const user = localStorage.getItem('admin_user');
-    return user ? JSON.parse(user) : null;
->>>>>>> a9f1ddf04f884b977c71915d684ba0681cbb35f1
   },
 
   getToken() {
@@ -48,7 +39,4 @@ export const authService = {
     return !!localStorage.getItem('admin_token');
   }
 };
-<<<<<<< HEAD
 
-=======
->>>>>>> a9f1ddf04f884b977c71915d684ba0681cbb35f1

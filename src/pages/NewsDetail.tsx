@@ -1,35 +1,56 @@
+import { useState, useEffect } from 'react';
 import { useParams, Link } from 'react-router-dom';
-import { Calendar, ArrowLeft, Share2, Facebook, Twitter, Linkedin } from 'lucide-react';
+import { Calendar, ArrowLeft, Share2, Facebook, Twitter, Linkedin, Loader2 } from 'lucide-react';
+import axios from 'axios';
+import SEO from '../components/SEO';
 
 export default function NewsDetail() {
   const { id } = useParams();
+  const [article, setArticle] = useState<any>(null);
+  const [loading, setLoading] = useState(true);
 
-  // In a real app, fetch news details based on ID
-  const article = {
-    title: 'Lancement de notre nouvelle plateforme agro-industrielle',
-    content: `
-      <p>Nous sommes fiers d'annoncer le lancement officiel de la nouvelle plateforme agro-industrielle Karochebama. Cette initiative marque un tournant majeur dans notre engagement à moderniser la chaîne d'approvisionnement agricole.</p>
-      
-      <h3>Une vision pour l'avenir</h3>
-      <p>Notre nouvelle plateforme a été conçue avec un objectif clair : faciliter la connexion entre les producteurs locaux et les acheteurs professionnels. En numérisant les processus d'achat et de vente, nous réduisons les intermédiaires et garantissons une meilleure traçabilité des produits.</p>
-      
-      <h3>Fonctionnalités clés</h3>
-      <ul>
-        <li><strong>Marketplace B2B :</strong> Un espace dédié aux transactions en gros, sécurisé et transparent.</li>
-        <li><strong>Suivi en temps réel :</strong> Les acheteurs peuvent suivre l'état de leurs commandes de la ferme à la livraison.</li>
-        <li><strong>Gestion des stocks :</strong> Des outils avancés pour aider les producteurs à gérer leurs inventaires.</li>
-      </ul>
-      
-      <p>Nous invitons tous nos partenaires à rejoindre cette nouvelle aventure et à découvrir les nombreuses opportunités qu'offre notre plateforme.</p>
-    `,
-    date: '15 Mars 2024',
-    category: 'Entreprise',
-    author: 'L\'équipe Karochebama',
-    image: 'https://images.unsplash.com/photo-1542838132-92c53300491e?auto=format&fit=crop&w=1200&q=80'
-  };
+  useEffect(() => {
+    const fetchArticle = async () => {
+      try {
+        setLoading(true);
+        const response = await axios.get(`http://localhost:5001/api/v1/news/${id}`);
+        setArticle(response.data);
+      } catch (error) {
+        console.error('Error fetching article:', error);
+      } finally {
+        setLoading(false);
+      }
+    };
+    fetchArticle();
+  }, [id]);
+
+  if (loading) {
+    return (
+      <div className="flex flex-col items-center justify-center min-h-[60vh]">
+        <Loader2 className="w-12 h-12 text-emerald-500 animate-spin mb-4" />
+        <p className="text-gray-500 font-medium">Chargement de l'article...</p>
+      </div>
+    );
+  }
+
+  if (!article) {
+    return (
+      <div className="flex flex-col items-center justify-center min-h-[60vh] text-center px-4">
+        <h2 className="text-2xl font-bold text-gray-900 mb-2">Article introuvable</h2>
+        <Link to="/actualite" className="px-6 py-3 bg-emerald-600 text-white rounded-xl font-bold flex items-center gap-2 mt-4">
+          <ArrowLeft size={18} /> Retour aux actualités
+        </Link>
+      </div>
+    );
+  }
 
   return (
     <div className="bg-[#f8f9fa] min-h-screen font-sans pb-20">
+      <SEO 
+        title={article.title}
+        description={article.content.substring(0, 160).replace(/<[^>]*>/g, '')}
+        image={article.imageUrl ? (article.imageUrl.startsWith('http') ? article.imageUrl : `http://localhost:5001${article.imageUrl}`) : undefined}
+      />
       {/* Article Header */}
       <div className="bg-white border-b border-gray-200">
         <div className="max-w-4xl mx-auto px-4 sm:px-6 lg:px-8 py-12">
@@ -40,11 +61,11 @@ export default function NewsDetail() {
           
           <div className="flex items-center gap-4 mb-6">
             <span className="bg-emerald-100 text-emerald-800 text-xs font-bold px-3 py-1 rounded-full">
-              {article.category}
+              {article.status === 'PUBLISHED' ? 'Article' : 'Brouillon'}
             </span>
             <span className="flex items-center text-gray-500 text-sm">
               <Calendar className="h-4 w-4 mr-2" />
-              {article.date}
+              {new Date(article.publishedAt || article.createdAt).toLocaleDateString('fr-FR')}
             </span>
           </div>
           
@@ -58,7 +79,7 @@ export default function NewsDetail() {
                 K
               </div>
               <div>
-                <p className="text-sm font-semibold text-gray-900">{article.author}</p>
+                <p className="text-sm font-semibold text-gray-900">L'équipe Karochebama</p>
                 <p className="text-xs text-gray-500">Auteur</p>
               </div>
             </div>
@@ -81,14 +102,16 @@ export default function NewsDetail() {
 
       {/* Article Content */}
       <div className="max-w-4xl mx-auto px-4 sm:px-6 lg:px-8 py-12">
-        <div className="rounded-2xl overflow-hidden shadow-lg mb-12">
-          <img 
-            src={article.image} 
-            alt={article.title} 
-            className="w-full h-auto object-cover max-h-[500px]"
-            referrerPolicy="no-referrer"
-          />
-        </div>
+        {article.imageUrl && (
+          <div className="rounded-2xl overflow-hidden shadow-lg mb-12">
+            <img 
+              src={article.imageUrl.startsWith('http') ? article.imageUrl : `http://localhost:5001${article.imageUrl}`} 
+              alt={article.title} 
+              className="w-full h-auto object-cover max-h-[500px]"
+              referrerPolicy="no-referrer"
+            />
+          </div>
+        )}
         
         <div 
           className="prose prose-lg prose-emerald max-w-none text-gray-700"

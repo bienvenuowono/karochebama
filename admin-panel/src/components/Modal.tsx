@@ -6,9 +6,21 @@ interface ModalProps {
   onClose: () => void;
   title: string;
   children: React.ReactNode;
+  size?: 'md' | 'lg' | 'xl' | '2xl' | '3xl' | '4xl' | '5xl' | '6xl' | '7xl';
 }
 
-const Modal = ({ isOpen, onClose, title, children }: ModalProps) => {
+const Modal = ({ isOpen, onClose, title, children, size = 'md' }: ModalProps) => {
+  const sizeClasses = {
+    md: 'max-w-md',
+    lg: 'max-w-lg',
+    xl: 'max-w-xl',
+    '2xl': 'max-w-2xl',
+    '3xl': 'max-w-3xl',
+    '4xl': 'max-w-4xl',
+    '5xl': 'max-w-5xl',
+    '6xl': 'max-w-6xl',
+    '7xl': 'max-w-7xl',
+  };
   useEffect(() => {
     if (isOpen) {
       document.body.style.overflow = 'hidden';
@@ -29,7 +41,7 @@ const Modal = ({ isOpen, onClose, title, children }: ModalProps) => {
       />
       
       {/* Modal Content */}
-      <div className="relative bg-white w-full max-w-md max-h-[90vh] rounded-[32px] shadow-2xl flex flex-col overflow-hidden animate-in fade-in zoom-in duration-300">
+      <div id="modal-content-container" className={`relative bg-white w-full ${sizeClasses[size]} max-h-[90vh] rounded-[32px] shadow-2xl flex flex-col overflow-hidden animate-in fade-in zoom-in duration-300`}>
         {/* Header */}
         <div className="p-6 md:p-8 flex items-center justify-between border-b border-slate-50 bg-white">
           <h3 className="text-2xl font-black text-slate-900 font-outfit tracking-tight">
@@ -64,7 +76,4 @@ const Modal = ({ isOpen, onClose, title, children }: ModalProps) => {
 };
 
 export default Modal;
-<<<<<<< HEAD
 
-=======
->>>>>>> a9f1ddf04f884b977c71915d684ba0681cbb35f1

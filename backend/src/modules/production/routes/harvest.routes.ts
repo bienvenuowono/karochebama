@@ -5,13 +5,13 @@ export class HarvestController {
   // 1. Enregistrer une nouvelle récolte
   create = async (req: Request, res: Response) => {
     try {
-      const { productId, zoneId, quantity, harvestDate, notes } = req.body;
+      const { productId, siteId, quantity, harvestDate, notes } = req.body;
 
       const result = await prisma.$transaction(async (tx) => {
         const harvest = await tx.harvest.create({
           data: {
             productId: parseInt(productId),
-            zoneId: parseInt(zoneId),
+            siteId: parseInt(siteId),
             quantity: parseFloat(quantity),
             harvestDate: new Date(harvestDate),
             notes,
@@ -72,7 +72,7 @@ export class HarvestController {
           product: {
             include: { category: true, variety: true }
           },
-          zone: true
+          site: true
         },
         orderBy: { harvestDate: 'desc' }
       });

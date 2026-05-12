@@ -49,15 +49,9 @@ const HarvestsPage = () => {
       const config = { headers: { Authorization: `Bearer ${token}` } };
       
       const [fRes, hRes, pRes] = await Promise.all([
-<<<<<<< HEAD
         axios.get('http://localhost:5001/api/v1/production/harvests/forecasts', config),
         axios.get('http://localhost:5001/api/v1/production/harvests/history', config),
         axios.get('http://localhost:5001/api/v1/catalog/products', config)
-=======
-        axios.get('http://localhost:5000/api/v1/production/harvests/forecasts', config),
-        axios.get('http://localhost:5000/api/v1/production/harvests/history', config),
-        axios.get('http://localhost:5000/api/v1/catalog/products', config)
->>>>>>> a9f1ddf04f884b977c71915d684ba0681cbb35f1
       ]);
 
       setActiveCultures(fRes.data.data);
@@ -91,11 +85,7 @@ const HarvestsPage = () => {
     e.preventDefault();
     try {
       const token = authService.getToken();
-<<<<<<< HEAD
       await axios.post('http://localhost:5001/api/v1/production/harvests', 
-=======
-      await axios.post('http://localhost:5000/api/v1/production/harvests', 
->>>>>>> a9f1ddf04f884b977c71915d684ba0681cbb35f1
         formData, 
         { headers: { Authorization: `Bearer ${token}` } }
       );
@@ -184,36 +174,57 @@ const HarvestsPage = () => {
           <h3 className="text-xl font-bold text-slate-900 font-outfit">Monitoring de Production</h3>
         </div>
 
-        <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-4">
+        <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
           {filteredCultures.length > 0 ? filteredCultures.map((item: any) => {
             const today = new Date();
             const maturity = new Date(item.maturityDate);
+            const sowing = item.sowingDate ? new Date(item.sowingDate) : null;
             const daysLeft = Math.ceil((maturity.getTime() - today.getTime()) / (1000 * 3600 * 24));
             
             return (
-              <div key={item.id} className="p-5 rounded-3xl border border-slate-100 bg-slate-50/50 group hover:border-primary-200 transition-all">
-                <div className="flex justify-between items-start mb-3">
-                  <div className={`px-2 py-1 rounded-lg text-[8px] font-black uppercase ${daysLeft <= 3 ? 'bg-red-100 text-red-600' : 'bg-blue-100 text-blue-600'}`}>
-                    {daysLeft <= 0 ? 'PRÊT À RÉCOLTER' : `J-${daysLeft}`}
+              <div key={item.id} className="bg-slate-50/50 rounded-3xl border border-slate-100 p-6 group hover:border-emerald-200 hover:bg-white transition-all duration-300">
+                <div className="flex justify-between items-start mb-6">
+                  <div className="flex flex-col gap-1">
+                    <div className={`inline-flex items-center gap-1.5 px-3 py-1 rounded-full text-[10px] font-black uppercase ${item.status === 'en_production' ? 'bg-blue-100 text-blue-600' : 'bg-emerald-100 text-emerald-600'}`}>
+                      <Clock size={12} />
+                      {item.status === 'en_production' ? 'En cours' : 'Récolté'}
+                    </div>
+                    {daysLeft <= 3 && daysLeft > 0 && (
+                      <div className="inline-flex items-center gap-1.5 px-3 py-1 rounded-full text-[10px] font-black uppercase bg-red-100 text-red-600 mt-1">
+                        <AlertCircle size={12} />
+                        Bientôt prêt
+                      </div>
+                    )}
                   </div>
-                  <Sprout size={16} className="text-slate-300 group-hover:text-primary-500 transition-colors" />
-                </div>
-                <h4 className="font-bold text-slate-900 text-sm truncate">{item.name}</h4>
-                <div className="flex items-center gap-1 mt-1">
-                   <div className="w-2 h-2 rounded-full bg-primary-500 animate-pulse"></div>
-                   <p className="text-[10px] text-slate-400 font-bold uppercase">{item.sites?.[0]?.site?.name || 'Multi-sites'}</p>
-                </div>
-                <div className="mt-4 pt-3 border-t border-slate-200/50 flex justify-between items-center">
-                  <div className="flex flex-col">
-                    <span className="text-[10px] font-black text-primary-600 uppercase">Est. {item.quantityKg} KG</span>
-                    <span className="text-[8px] text-slate-400 font-bold uppercase">Prévu: {maturity.toLocaleDateString()}</span>
+                  <div className="w-12 h-12 rounded-2xl bg-white shadow-sm flex items-center justify-center text-emerald-600 border border-slate-100 group-hover:scale-110 transition-transform">
+                    <Sprout size={24} />
                   </div>
+                </div>
+
+                <h4 className="font-extrabold text-slate-900 text-lg mb-2">{item.name}</h4>
+                
+                <div className="space-y-3 mb-6">
+                  <div className="flex items-center justify-between text-xs border-b border-slate-100 pb-2">
+                    <span className="text-slate-400 font-bold uppercase tracking-wider">Date de semis</span>
+                    <span className="text-slate-900 font-black">{sowing ? sowing.toLocaleDateString('fr-FR') : 'N/A'}</span>
+                  </div>
+                  <div className="flex items-center justify-between text-xs border-b border-slate-100 pb-2">
+                    <span className="text-slate-400 font-bold uppercase tracking-wider">Quantité attendue</span>
+                    <span className="text-emerald-600 font-black">{item.quantityKg?.toLocaleString()} KG</span>
+                  </div>
+                  <div className="flex items-center justify-between text-xs">
+                    <span className="text-slate-400 font-bold uppercase tracking-wider">Maturité prévue</span>
+                    <span className="text-slate-900 font-black">{maturity.toLocaleDateString('fr-FR')}</span>
+                  </div>
+                </div>
+
+                <div className="flex items-center gap-3">
                   <button 
                     onClick={() => handleHarvestClick(item)}
-                    className="p-2 bg-white text-primary-600 rounded-lg shadow-sm border border-slate-100 hover:bg-primary-600 hover:text-white transition-all"
-                    title="Lancer la récolte"
+                    className="flex-1 py-3.5 bg-emerald-600 text-white rounded-2xl font-black text-xs uppercase tracking-widest hover:bg-emerald-700 shadow-lg shadow-emerald-600/20 transition-all flex items-center justify-center gap-2"
                   >
-                    <ArrowRight size={14} />
+                    <CheckCircle2 size={16} />
+                    Marquer comme Récolté
                   </button>
                 </div>
               </div>
@@ -275,7 +286,4 @@ const HarvestsPage = () => {
 };
 
 export default HarvestsPage;
-<<<<<<< HEAD
 
-=======
->>>>>>> a9f1ddf04f884b977c71915d684ba0681cbb35f1

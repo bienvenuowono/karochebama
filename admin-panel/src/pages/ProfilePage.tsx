@@ -1,4 +1,4 @@
-import React, { useState, useEffect } from 'react';
+import React, { useState, useEffect, useRef } from 'react';
 import { 
   User, 
   Mail, 
@@ -8,16 +8,19 @@ import {
   Lock,
   Save,
   Loader2,
-  CheckCircle2
+  CheckCircle2,
+  Camera
 } from 'lucide-react';
 import axios from 'axios';
 import { authService } from '../services/authService';
+import { uploadService } from '../services/uploadService';
 
 const ProfilePage = () => {
   const [user, setUser] = useState<any>(null);
   const [loading, setLoading] = useState(true);
   const [saving, setSaving] = useState(false);
   const [success, setSuccess] = useState(false);
+  const fileInputRef = useRef<HTMLInputElement>(null);
   
   const [formData, setFormData] = useState({
     firstName: '',
@@ -27,8 +30,11 @@ const ProfilePage = () => {
     whatsapp: '',
     country: '',
     address: '',
+    photoUrl: '',
     password: ''
   });
+  const [photoFile, setPhotoFile] = useState<File | null>(null);
+  const [photoPreview, setPhotoPreview] = useState<string | null>(null);
 
   useEffect(() => {
     const currentUser = authService.getCurrentUser();
@@ -42,11 +48,20 @@ const ProfilePage = () => {
         whatsapp: currentUser.whatsapp || '',
         country: currentUser.country || 'Cameroun',
         address: currentUser.address || '',
+        photoUrl: currentUser.photoUrl || '',
         password: ''
       });
     }
     setLoading(false);
   }, []);
+
+  const handleFileChange = (e: React.ChangeEvent<HTMLInputElement>) => {
+    if (e.target.files && e.target.files[0]) {
+      const file = e.target.files[0];
+      setPhotoFile(file);
+      setPhotoPreview(URL.createObjectURL(file));
+    }
+  };
 
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
@@ -57,17 +72,23 @@ const ProfilePage = () => {
       const token = authService.getToken();
       const config = { headers: { Authorization: `Bearer ${token}` } };
       
-      const updateData = { ...formData };
+      let finalPhotoUrl = formData.photoUrl;
+      if (photoFile) {
+        finalPhotoUrl = await uploadService.uploadImage(photoFile);
+      }
+
+      const updateData = { ...formData, photoUrl: finalPhotoUrl };
       if (!updateData.password) delete (updateData as any).password;
       
       const response = await axios.patch(`http://localhost:5001/api/v1/users/${user.id}`, updateData, config);
       
       if (response.data.success) {
-        // Mettre à jour le localStorage
-        const updatedUser = { ...user, ...updateData };
-        delete (updatedUser as any).password;
+        const updatedUser = response.data.data;
         localStorage.setItem('admin_user', JSON.stringify(updatedUser));
         setUser(updatedUser);
+        setFormData(prev => ({ ...prev, photoUrl: updatedUser.photoUrl, password: '' }));
+        setPhotoFile(null);
+        setPhotoPreview(null);
         setSuccess(true);
         setTimeout(() => setSuccess(false), 3000);
       }
@@ -87,6 +108,14 @@ const ProfilePage = () => {
     );
   }
 
+  const getPhotoUrl = () => {
+    if (photoPreview) return photoPreview;
+    if (formData.photoUrl) {
+      return formData.photoUrl.startsWith('http') ? formData.photoUrl : `http://localhost:5001${formData.photoUrl}`;
+    }
+    return null;
+  };
+
   return (
     <div className="max-w-4xl mx-auto space-y-8">
       <div>
@@ -98,8 +127,24 @@ const ProfilePage = () => {
         {/* Left Column: Avatar & Summary */}
         <div className="lg:col-span-1 space-y-6">
           <div className="bg-white p-8 rounded-[32px] border border-slate-100 shadow-sm text-center">
-            <div className="w-24 h-24 bg-primary-500 rounded-[32px] flex items-center justify-center text-white text-4xl font-black mx-auto shadow-lg shadow-primary-500/30 mb-4">
-              {user?.firstName?.charAt(0)}{user?.lastName?.charAt(0)}
+            <div 
+              className="group relative w-24 h-24 mx-auto mb-4 cursor-pointer"
+              onClick={() => fileInputRef.current?.click()}
+            >
+              <div className="w-full h-full bg-primary-500 rounded-[32px] flex items-center justify-center text-white text-4xl font-black shadow-lg shadow-primary-500/30 overflow-hidden">
+                {getPhotoUrl() ? (
+                  <img src={getPhotoUrl()!} alt="Profil" className="w-full h-full object-cover" />
+                ) : (
+                  <span>{user?.firstName?.charAt(0)}{user?.lastName?.charAt(0)}</span>
+                )}
+              </div>
+              <div className="absolute inset-0 bg-black/40 rounded-[32px] opacity-0 group-hover:opacity-100 transition-opacity flex items-center justify-center text-white">
+                <Camera size={24} />
+              </div>
+              <input 
+                type="file" ref={fileInputRef} className="hidden" accept="image/*"
+                onChange={handleFileChange}
+              />
             </div>
             <h3 className="text-xl font-bold text-slate-900">{user?.firstName} {user?.lastName}</h3>
             <p className="text-sm text-slate-400 mt-1">{user?.email}</p>

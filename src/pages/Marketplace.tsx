@@ -1,36 +1,46 @@
 import { useState, useEffect, useMemo } from 'react';
 import { Search, ChevronRight, ShoppingCart, MapPin, Loader2 } from 'lucide-react';
-import { Link } from 'react-router-dom';
+import { Link, useSearchParams } from 'react-router-dom';
 import axios from 'axios';
+import SEO from '../components/SEO';
 
 export default function Marketplace() {
-  const [activeType, setActiveType] = useState('Tous les types');
-  const [activeVariety, setActiveVariety] = useState('Toutes les variétés');
-  const [searchQuery, setSearchQuery] = useState('');
+  const [searchParams, setSearchParams] = useSearchParams();
+  
+  const [activeType, setActiveType] = useState(searchParams.get('category') || 'Tous les types');
+  const [searchQuery, setSearchQuery] = useState(searchParams.get('q') || '');
+  const [selectedSite, setSelectedSite] = useState(searchParams.get('site') || '');
   const [priceRange, setPriceRange] = useState({ min: '', max: '' });
   
   const [products, setProducts] = useState<any[]>([]);
   const [categories, setCategories] = useState<any[]>([]);
+  const [sites, setSites] = useState<any[]>([]);
   const [loading, setLoading] = useState(true);
 
   useEffect(() => {
     fetchData();
   }, []);
 
+  // Update URL when filters change (optional but recommended)
+  useEffect(() => {
+    const params = new URLSearchParams();
+    if (searchQuery) params.append('q', searchQuery);
+    if (activeType !== 'Tous les types') params.append('category', activeType);
+    if (selectedSite) params.append('site', selectedSite);
+    setSearchParams(params, { replace: true });
+  }, [searchQuery, activeType, selectedSite]);
+
   const fetchData = async () => {
     try {
       setLoading(true);
-      const [prodRes, catRes] = await Promise.all([
-<<<<<<< HEAD
-        axios.get('http://localhost:5000/api/v1/catalog/products'),
-        axios.get('http://localhost:5000/api/v1/catalog/categories')
-=======
-        axios.get('http://localhost:5000/api/v1/products'),
-        axios.get('http://localhost:5000/api/v1/categories')
->>>>>>> a9f1ddf04f884b977c71915d684ba0681cbb35f1
+      const [prodRes, catRes, siteRes] = await Promise.all([
+        axios.get('http://localhost:5001/api/v1/catalog/products'),
+        axios.get('http://localhost:5001/api/v1/catalog/categories'),
+        axios.get('http://localhost:5001/api/v1/production/sites')
       ]);
       setProducts(prodRes.data.data);
       setCategories(catRes.data.data);
+      setSites(siteRes.data.data);
     } catch (error) {
       console.error('Error fetching marketplace data:', error);
     } finally {
@@ -41,18 +51,23 @@ export default function Marketplace() {
   const filteredProducts = useMemo(() => {
     return products.filter(p => {
       const matchesType = activeType === 'Tous les types' || p.category?.name === activeType;
-      // Note: La variété n'est pas encore gérée en base, on filtre par nom si besoin
       const matchesSearch = p.name.toLowerCase().includes(searchQuery.toLowerCase()) || 
                             (p.description || '').toLowerCase().includes(searchQuery.toLowerCase());
+      const matchesSite = !selectedSite || p.productionSite?.name === selectedSite || p.productionSite?.location === selectedSite;
       const matchesMinPrice = priceRange.min === '' || p.price >= Number(priceRange.min);
       const matchesMaxPrice = priceRange.max === '' || p.price <= Number(priceRange.max);
       
-      return matchesType && matchesSearch && matchesMinPrice && matchesMaxPrice;
+      return matchesType && matchesSearch && matchesSite && matchesMinPrice && matchesMaxPrice;
     });
-  }, [products, activeType, searchQuery, priceRange]);
+  }, [products, activeType, searchQuery, selectedSite, priceRange]);
 
   return (
     <div className="bg-[#f8f9fa] min-h-screen font-sans pb-20">
+      <SEO 
+        title="Boutique" 
+        description="Achetez des produits agricoles et piscicoles de qualité supérieure directement auprès de Karochebama."
+        keywords="marché agricole, vente poisson, achat plantain, produits camerounais"
+      />
       
       {/* Hero Section */}
       <div className="bg-white border-b border-gray-200 py-16 px-4 sm:px-6 lg:px-8 mb-8">
@@ -131,6 +146,23 @@ export default function Marketplace() {
 
               <hr className="border-gray-100" />
 
+              {/* Sites de production */}
+              <div>
+                <h2 className="text-lg font-bold text-gray-900 mb-4">Sites de Production</h2>
+                <select 
+                  className="w-full px-4 py-3 bg-gray-50 border border-gray-200 rounded-xl text-sm outline-none focus:ring-2 focus:ring-emerald-500/20"
+                  value={selectedSite}
+                  onChange={(e) => setSelectedSite(e.target.value)}
+                >
+                  <option value="">Tous les sites</option>
+                  {sites.map(site => (
+                    <option key={site.id} value={site.name}>{site.name}</option>
+                  ))}
+                </select>
+              </div>
+
+              <hr className="border-gray-100" />
+
               {/* Price Range */}
               <div>
                 <h2 className="text-lg font-bold text-gray-900 mb-4">Prix (CFA)</h2>
@@ -167,7 +199,6 @@ export default function Marketplace() {
                 {filteredProducts.map(product => (
                   <div 
                     key={product.id} 
-<<<<<<< HEAD
                     className="bg-white rounded-3xl shadow-sm border border-gray-100 overflow-hidden flex flex-col group transition-all hover:shadow-xl"
                   >
                     {/* Image Area */}
@@ -176,29 +207,15 @@ export default function Marketplace() {
                         {product.category?.name || 'Général'}
                       </div>
                       <img 
-                        src={product.imageUrl ? (product.imageUrl.startsWith('http') ? product.imageUrl : `http://localhost:5000${product.imageUrl}`) : 'https://images.unsplash.com/photo-1574323347407-f5e1ad6d020b?auto=format&fit=crop&w=600&q=80'} 
+                        src={product.imageUrl ? (product.imageUrl.startsWith('http') ? product.imageUrl : `http://localhost:5001${product.imageUrl}`) : 'https://images.unsplash.com/photo-1574323347407-f5e1ad6d020b?auto=format&fit=crop&w=600&q=80'} 
                         alt={product.name} 
                         className="w-full h-full object-cover group-hover:scale-105 transition-transform duration-700" 
-=======
-                    className="bg-white rounded-[2rem] shadow-sm border border-gray-100 overflow-hidden flex flex-col group"
-                  >
-                    {/* Image Area */}
-                    <div className="relative h-64 bg-gray-100 p-0 flex items-center justify-center overflow-hidden">
-                      <span className="absolute top-4 right-4 z-10 bg-white/90 backdrop-blur-md text-emerald-700 text-[11px] font-bold px-3 py-1.5 rounded-full shadow-sm">
-                        {product.category?.name}
-                      </span>
-                      <img 
-                        src={product.imageUrl} 
-                        alt={product.name} 
-                        className="w-full h-full object-cover group-hover:scale-110 transition-transform duration-700" 
->>>>>>> a9f1ddf04f884b977c71915d684ba0681cbb35f1
                         referrerPolicy="no-referrer" 
                       />
                     </div>
                     
                     {/* Content Area */}
                     <div className="p-6 flex flex-col flex-1">
-<<<<<<< HEAD
                       <h3 className="text-xl font-extrabold text-gray-900 mb-2 line-clamp-1">
                         {product.name}
                       </h3>
@@ -209,7 +226,7 @@ export default function Marketplace() {
                       
                       <div className="flex items-center text-sm text-gray-500 mb-4">
                         <MapPin className="w-4 h-4 mr-2 text-emerald-600" />
-                        <span>{product.productionSite?.location || 'Cameroun'}</span>
+                        <span>{product.productionSite?.name || 'Cameroun'}</span>
                       </div>
                       
                       <div className="text-[11px] font-bold uppercase tracking-wider mb-5 text-emerald-700">
@@ -220,47 +237,16 @@ export default function Marketplace() {
                       <div className="bg-[#f8f9fa] border border-gray-100 rounded-2xl p-4 mb-4 mt-auto">
                         <div className="text-xl font-extrabold text-gray-900 text-center">
                           {product.price.toLocaleString('fr-FR')} CFA <span className="text-sm font-medium text-gray-400">/ {product.typeId === 1 ? 'Kg' : (product.typeId === 2 ? 'Litre' : 'Unité')}</span>
-=======
-                      <h3 className="text-lg font-bold text-gray-900 mb-2 line-clamp-2 leading-tight">
-                        {product.name}
-                      </h3>
-                      
-                      <p className="text-sm text-gray-500 mb-4 line-clamp-2">
-                        {product.description}
-                      </p>
-                      
-                      <div className="flex items-center gap-1.5 text-sm text-gray-500 mb-4">
-                        <MapPin className="w-4 h-4 text-emerald-600" />
-                        <span>{product.productionSite?.location || 'Cameroun'}</span>
-                      </div>
-                      
-                      <div className="text-[11px] font-bold uppercase tracking-wider mb-4 text-emerald-600">
-                        Disponibilité: {product.status === 'active' ? 'En Stock' : 'Brouillon'}
-                      </div>
-                      
-                      {/* Price Box */}
-                      <div className="bg-[#f8f9fa] border border-gray-100 rounded-2xl p-5 mb-5 mt-auto">
-                        <div className="text-xl font-extrabold text-gray-900">
-                          {product.price.toLocaleString('fr-FR')} CFA <span className="text-sm font-medium text-gray-500">/ {product.unit}</span>
->>>>>>> a9f1ddf04f884b977c71915d684ba0681cbb35f1
                         </div>
                       </div>
                       
                       {/* Action Button */}
-<<<<<<< HEAD
                       <Link 
                         to={`/product/${product.id}`}
                         className="w-full bg-[#388e3c] hover:bg-[#2e7d32] text-white font-bold py-3.5 rounded-xl flex items-center justify-center transition-colors shadow-sm"
                       >
                         En savoir plus <ChevronRight className="w-4 h-4 ml-1" />
                       </Link>
-=======
-                      <button 
-                        className="w-full bg-emerald-600 hover:bg-emerald-700 text-white font-bold py-3.5 rounded-2xl flex items-center justify-center transition-colors shadow-sm"
-                      >
-                        Acheter maintenant <ChevronRight className="w-4 h-4 ml-1" />
-                      </button>
->>>>>>> a9f1ddf04f884b977c71915d684ba0681cbb35f1
                     </div>
                   </div>
                 ))}
@@ -272,6 +258,7 @@ export default function Marketplace() {
                       onClick={() => {
                         setActiveType('Tous les types');
                         setSearchQuery('');
+                        setSelectedSite('');
                         setPriceRange({ min: '', max: '' });
                       }}
                       className="mt-4 text-emerald-600 font-bold hover:text-emerald-700"

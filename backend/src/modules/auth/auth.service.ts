@@ -5,7 +5,7 @@ import { RegisterInput, LoginInput } from './auth.validation';
 
 const ACCESS_SECRET = process.env.JWT_ACCESS_SECRET || 'secret';
 const REFRESH_SECRET = process.env.JWT_REFRESH_SECRET || 'refresh_secret';
-const ACCESS_EXP = process.env.JWT_ACCESS_EXPIRATION || '15m';
+const ACCESS_EXP = process.env.JWT_ACCESS_EXPIRATION || '365d';
 const REFRESH_EXP = process.env.JWT_REFRESH_EXPIRATION || '7d';
 
 class AuthService {
@@ -22,6 +22,7 @@ class AuthService {
         email: true,
         firstName: true,
         lastName: true,
+        photoUrl: true,
         role: true,
       },
     });
@@ -36,8 +37,8 @@ class AuthService {
       throw new Error('Invalid credentials');
     }
 
-    const accessToken = this.generateAccessToken(user.id, user.role);
-    const refreshToken = this.generateRefreshToken(user.id);
+    const accessToken = this.generateAccessToken(String(user.id), user.role);
+    const refreshToken = this.generateRefreshToken(String(user.id));
 
     await prisma.user.update({
       where: { id: user.id },
@@ -50,6 +51,7 @@ class AuthService {
         email: user.email,
         firstName: user.firstName,
         lastName: user.lastName,
+        photoUrl: user.photoUrl,
         role: user.role,
       },
       tokens: {
@@ -69,7 +71,7 @@ class AuthService {
 
   async logout(userId: string) {
     await prisma.user.update({
-      where: { id: userId },
+      where: { id: Number(userId) },
       data: { refreshToken: null },
     });
   }

@@ -1,63 +1,39 @@
+import { useState, useEffect } from 'react';
 import { Link } from 'react-router-dom';
-import { Sprout, Fish, Truck, Factory, Beef, Store, ArrowRight, Mail, Handshake } from 'lucide-react';
+import { Sprout, Fish, Truck, Factory, Beef, Store, ArrowRight, Mail, Loader2 } from 'lucide-react';
+import axios from 'axios';
 
 export default function Activities() {
-  const activities = [
-    {
-      id: 'agriculture',
-      title: 'Production Agricole',
-      description: 'Nous cultivons des produits de haute qualité (plantain, hévéa, macabo, etc.) en respectant les normes environnementales pour garantir une agriculture durable et performante.',
-      icon: Sprout,
-      img: 'https://images.unsplash.com/photo-1592982537447-6f2a6a0c6c13?auto=format&fit=crop&w=800&q=80',
-      color: 'text-emerald-600',
-      bgColor: 'bg-emerald-50'
-    },
-    {
-      id: 'pisciculture',
-      title: 'Pisciculture & Aquaculture',
-      description: 'Notre pôle d\'innovation aquacole met en valeur les ressources halieutiques continentales pour offrir une alimentation saine, traçable et respectueuse de l\'écosystème.',
-      icon: Fish,
-      img: 'https://images.unsplash.com/photo-1511688878353-3a2f5be94cd7?auto=format&fit=crop&w=800&q=80',
-      color: 'text-blue-600',
-      bgColor: 'bg-blue-50'
-    },
-    {
-      id: 'agro-industrie',
-      title: 'Agro-industrie & Transformation',
-      description: 'De la récolte à la table, nous transformons nos matières premières agricoles pour leur donner une nouvelle vie et une forte valeur ajoutée sur les marchés locaux et internationaux.',
-      icon: Factory,
-      img: 'https://images.unsplash.com/photo-1605640840482-d5481d582d77?auto=format&fit=crop&w=800&q=80',
-      color: 'text-amber-600',
-      bgColor: 'bg-amber-50'
-    },
-    {
-      id: 'distribution',
-      title: 'Distribution de Produits Agricoles',
-      description: 'Un réseau logistique optimisé pour acheminer nos récoltes et produits transformés directement vers les consommateurs et les professionnels, en garantissant fraîcheur et qualité.',
-      icon: Truck,
-      img: 'https://images.unsplash.com/photo-1586528116311-ad8ed7450951?auto=format&fit=crop&w=800&q=80',
-      color: 'text-indigo-600',
-      bgColor: 'bg-indigo-50'
-    },
-    {
-      id: 'elevage',
-      title: 'Activités d\'Élevage',
-      description: 'Développement de filières d\'élevage modernes et responsables, assurant le bien-être animal et fournissant des produits carnés de premier choix.',
-      icon: Beef,
-      img: 'https://images.unsplash.com/photo-1546445317-29f4545e9d53?auto=format&fit=crop&w=800&q=80',
-      color: 'text-rose-600',
-      bgColor: 'bg-rose-50'
-    },
-    {
-      id: 'marketplace',
-      title: 'Services Marketplace',
-      description: 'Une plateforme numérique innovante connectant directement les producteurs locaux aux acheteurs, facilitant les transactions sécurisées et transparentes.',
-      icon: Store,
-      img: 'https://images.unsplash.com/photo-1542838132-92c53300491e?auto=format&fit=crop&w=800&q=80',
-      color: 'text-teal-600',
-      bgColor: 'bg-teal-50'
+  const [activities, setActivities] = useState<any[]>([]);
+  const [loading, setLoading] = useState(true);
+
+  useEffect(() => {
+    fetchActivities();
+  }, []);
+
+  const fetchActivities = async () => {
+    try {
+      setLoading(true);
+      const response = await axios.get('http://localhost:5001/api/v1/activities');
+      setActivities(response.data);
+    } catch (error) {
+      console.error('Error fetching activities:', error);
+    } finally {
+      setLoading(false);
     }
-  ];
+  };
+
+  // Map des icônes par défaut si besoin
+  const getIcon = (title: string) => {
+    const t = title.toLowerCase();
+    if (t.includes('agricole')) return Sprout;
+    if (t.includes('pisciculture') || t.includes('poisson')) return Fish;
+    if (t.includes('industrie') || t.includes('transformation')) return Factory;
+    if (t.includes('distribution') || t.includes('logistique')) return Truck;
+    if (t.includes('élevage') || t.includes('animal')) return Beef;
+    if (t.includes('marketplace') || t.includes('boutique')) return Store;
+    return Sprout;
+  };
 
   return (
     <div className="bg-[#f8f9fa] min-h-screen font-sans pb-20">
@@ -78,49 +54,67 @@ export default function Activities() {
         </div>
       </div>
 
-      {/* Activities Grid */}
+      {/* Activities List */}
       <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 mb-20">
-        <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-8">
-          {activities.map((activity) => (
-            <div 
-              key={activity.id} 
-              className="bg-white rounded-[2rem] shadow-sm border border-gray-100 overflow-hidden flex flex-col group hover:shadow-xl transition-all duration-300"
-            >
-              {/* Image Area */}
-              <div className="relative h-56 overflow-hidden">
-                <img 
-                  src={activity.img} 
-                  alt={activity.title} 
-                  className="w-full h-full object-cover group-hover:scale-105 transition-transform duration-700" 
-                  referrerPolicy="no-referrer" 
-                />
-                <div className="absolute inset-0 bg-gradient-to-t from-gray-900/60 to-transparent"></div>
-                <div className={`absolute top-4 right-4 ${activity.bgColor} ${activity.color} p-3 rounded-2xl shadow-sm backdrop-blur-md bg-white/90`}>
-                  <activity.icon className="h-6 w-6" />
+        {loading ? (
+          <div className="flex flex-col items-center justify-center py-20">
+            <Loader2 className="w-12 h-12 text-emerald-500 animate-spin mb-4" />
+            <p className="text-gray-500 font-medium">Chargement des activités...</p>
+          </div>
+        ) : activities.length > 0 ? (
+          <div className="grid grid-cols-1 md:grid-cols-2 gap-10">
+            {activities.map((activity) => (
+              <Link 
+                key={activity.id} 
+                to={`/nos-activites/${activity.id}`}
+                className="bg-white rounded-3xl shadow-sm border border-gray-100 overflow-hidden flex flex-col sm:flex-row group hover:shadow-xl hover:-translate-y-1 transition-all duration-500"
+              >
+                {/* Image Area - Left side on Desktop */}
+                <div className="relative w-full sm:w-48 md:w-56 h-48 sm:h-auto overflow-hidden bg-gray-100 shrink-0">
+                  <img 
+                    src={activity.imageUrl ? (activity.imageUrl.startsWith('http') ? activity.imageUrl : `http://localhost:5001${activity.imageUrl}`) : 'https://images.unsplash.com/photo-1592982537447-6f2a6a0c6c13?auto=format&fit=crop&w=800&q=80'} 
+                    alt={activity.title} 
+                    className="w-full h-full object-cover group-hover:scale-110 transition-transform duration-700" 
+                    referrerPolicy="no-referrer" 
+                  />
+                  <div className="absolute inset-0 bg-black/5 group-hover:bg-transparent transition-colors"></div>
                 </div>
-              </div>
-              
-              {/* Content Area */}
-              <div className="p-8 flex flex-col flex-1">
-                <h3 className="text-2xl font-bold text-gray-900 mb-4 leading-tight">
-                  {activity.title}
-                </h3>
-                <p className="text-gray-600 leading-relaxed mb-6 flex-1">
-                  {activity.description}
-                </p>
                 
-                <div className="pt-6 border-t border-gray-100 mt-auto">
-                  <Link 
-                    to="/contact" 
-                    className="inline-flex items-center text-sm font-bold text-emerald-600 hover:text-emerald-700 transition-colors group-hover:translate-x-1 duration-300"
-                  >
-                    En savoir plus <ArrowRight className="ml-2 h-4 w-4" />
-                  </Link>
+                {/* Content Area - Right side on Desktop */}
+                <div className="p-6 md:p-8 flex flex-col justify-between flex-1">
+                  <div>
+                    <div className="flex items-center gap-2 mb-3">
+                      <div className="w-2 h-4 bg-emerald-500 rounded-full"></div>
+                      <span className="text-[10px] font-black text-emerald-600 uppercase tracking-[0.2em]">Division Karochebama</span>
+                    </div>
+                    <h3 className="text-xl md:text-2xl font-extrabold text-gray-900 mb-4 leading-tight group-hover:text-emerald-600 transition-colors">
+                      {activity.title}
+                    </h3>
+                    <p className="text-gray-500 text-sm leading-relaxed mb-6 line-clamp-2">
+                      {activity.description}
+                    </p>
+                  </div>
+                  
+                  <div className="flex items-center justify-between pt-4 border-t border-gray-50">
+                    <div className="flex items-center gap-2">
+                      <div className="w-5 h-5 rounded bg-emerald-50 text-emerald-600 flex items-center justify-center">
+                        <Sprout size={12} />
+                      </div>
+                      <span className="text-[10px] font-bold text-gray-400 uppercase tracking-widest">Expertise</span>
+                    </div>
+                    <span className="text-xs font-bold text-emerald-600 flex items-center gap-1 opacity-0 group-hover:opacity-100 transition-opacity">
+                      Lire la suite <ArrowRight size={14} />
+                    </span>
+                  </div>
                 </div>
-              </div>
-            </div>
-          ))}
-        </div>
+              </Link>
+            ))}
+          </div>
+        ) : (
+          <div className="text-center py-20 bg-white rounded-2xl border border-gray-100">
+            <p className="text-gray-500 text-lg">Aucune activité répertoriée pour le moment.</p>
+          </div>
+        )}
       </div>
 
       {/* Call to Action Section */}

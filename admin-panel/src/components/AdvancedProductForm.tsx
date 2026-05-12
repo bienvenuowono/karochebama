@@ -14,11 +14,7 @@ import {
 import axios from 'axios';
 import { authService } from '../services/authService';
 
-<<<<<<< HEAD
 const AdvancedProductForm = ({ onSubmit, onCancel, initialData }: any) => {
-=======
-const AdvancedProductForm = ({ onSubmit, onCancel }: any) => {
->>>>>>> a9f1ddf04f884b977c71915d684ba0681cbb35f1
   const [categories, setCategories] = useState([]);
   const [varieties, setVarieties] = useState([]);
   const [sites, setSites] = useState([]);
@@ -53,13 +49,8 @@ const AdvancedProductForm = ({ onSubmit, onCancel }: any) => {
       const token = authService.getToken();
       const config = { headers: { Authorization: `Bearer ${token}` } };
       const [catRes, siteRes] = await Promise.all([
-<<<<<<< HEAD
         axios.get('http://localhost:5001/api/v1/catalog/categories', config),
         axios.get('http://localhost:5001/api/v1/production/sites', config)
-=======
-        axios.get('http://localhost:5000/api/v1/catalog/categories', config),
-        axios.get('http://localhost:5000/api/v1/production/sites', config)
->>>>>>> a9f1ddf04f884b977c71915d684ba0681cbb35f1
       ]);
       setCategories(catRes.data.data || []);
       setSites(siteRes.data.data || []);
@@ -68,7 +59,6 @@ const AdvancedProductForm = ({ onSubmit, onCancel }: any) => {
     }
   };
 
-<<<<<<< HEAD
   useEffect(() => {
     if (initialData && categories.length > 0) {
       setFormData({
@@ -98,8 +88,6 @@ const AdvancedProductForm = ({ onSubmit, onCancel }: any) => {
     }
   }, [initialData, categories]);
 
-=======
->>>>>>> a9f1ddf04f884b977c71915d684ba0681cbb35f1
   const handleMainImageChange = (e: React.ChangeEvent<HTMLInputElement>) => {
     const file = e.target.files?.[0];
     if (file) {
@@ -142,24 +130,10 @@ const AdvancedProductForm = ({ onSubmit, onCancel }: any) => {
     galleryFiles.forEach(file => data.append('gallery', file));
 
     try {
-<<<<<<< HEAD
       await onSubmit(data); // On délègue l'appel API au parent
     } catch (err: any) {
       console.error('Submit error:', err);
       alert(err.response?.data?.message || err.message || 'Erreur lors de la sauvegarde du produit');
-=======
-      const token = authService.getToken();
-      await axios.post('http://localhost:5000/api/v1/catalog/products', data, {
-        headers: { 
-          'Authorization': `Bearer ${token}`,
-          'Content-Type': 'multipart/form-data'
-        }
-      });
-      onSubmit();
-    } catch (err) {
-      console.error('Submit error:', err);
-      alert('Erreur lors de la création du produit');
->>>>>>> a9f1ddf04f884b977c71915d684ba0681cbb35f1
     } finally {
       setSubmitting(false);
     }
@@ -172,7 +146,7 @@ const AdvancedProductForm = ({ onSubmit, onCancel }: any) => {
   if (loading) return <div className="flex justify-center p-20"><Loader2 className="animate-spin text-primary-500" /></div>;
 
   return (
-    <form onSubmit={handleSubmit} className="space-y-8 pb-20 max-w-sm mx-auto">
+    <form onSubmit={handleSubmit} className="space-y-8 pb-20 w-full">
       
       {/* SECTION 1: GÉNÉRAL (VERTICAL STACK) */}
       <div className="bg-white p-8 rounded-[40px] border border-slate-100 shadow-sm space-y-6">
@@ -215,28 +189,25 @@ const AdvancedProductForm = ({ onSubmit, onCancel }: any) => {
 
           <div>
             <label className={labelClass}>Variété</label>
-<<<<<<< HEAD
             <select className={inputClass} value={formData.varietyId} onChange={(e) => setFormData({...formData, varietyId: e.target.value})}>
               <option value="">Sélectionner une variété (Optionnel)...</option>
-=======
-            <select required className={inputClass} value={formData.varietyId} onChange={(e) => setFormData({...formData, varietyId: e.target.value})}>
-              <option value="">Sélectionner une variété...</option>
->>>>>>> a9f1ddf04f884b977c71915d684ba0681cbb35f1
               {varieties.map((v: any) => <option key={v.id} value={v.id}>{v.name}</option>)}
             </select>
           </div>
 
-          <div>
-            <label className={labelClass}>Sites de Culture</label>
-            <div className="flex flex-wrap gap-2">
-              {sites.map((s: any) => (
-                <button key={s.id} type="button" onClick={() => toggleSite(s.id)} 
-                  className={`px-4 py-2 rounded-xl border text-[10px] font-bold transition-all flex items-center gap-2 ${formData.siteIds.includes(s.id) ? 'bg-primary-500 text-white border-primary-500 shadow-lg shadow-primary-500/20' : 'bg-white text-slate-500 border-slate-200 hover:border-primary-100'}`}>
-                  <MapPin size={12} /> {s.name}
-                </button>
-              ))}
+          {isAgri && (
+            <div>
+              <label className={labelClass}>Sites de Culture</label>
+              <div className="flex flex-wrap gap-2">
+                {sites.map((s: any) => (
+                  <button key={s.id} type="button" onClick={() => toggleSite(s.id)} 
+                    className={`px-4 py-2 rounded-xl border text-[10px] font-bold transition-all flex items-center gap-2 ${formData.siteIds.includes(s.id) ? 'bg-primary-500 text-white border-primary-500 shadow-lg shadow-primary-500/20' : 'bg-white text-slate-500 border-slate-200 hover:border-primary-100'}`}>
+                    <MapPin size={12} /> {s.name}
+                  </button>
+                ))}
+              </div>
             </div>
-          </div>
+          )}
         </div>
       </div>
 
@@ -335,7 +306,4 @@ const AdvancedProductForm = ({ onSubmit, onCancel }: any) => {
 };
 
 export default AdvancedProductForm;
-<<<<<<< HEAD
 
-=======
->>>>>>> a9f1ddf04f884b977c71915d684ba0681cbb35f1

@@ -19,8 +19,9 @@ const ProductDialog = ({ open, onClose, onSave, product, types, sites, varieties
       isOpen={open} 
       onClose={onClose} 
       title={product ? 'Modifier le Produit' : 'Ajouter un Nouveau Produit'}
+      size="3xl"
     >
-      <div className="max-w-3xl mx-auto">
+      <div className="w-full">
         <AdvancedProductForm 
           onSubmit={onSave}
           onCancel={onClose}
@@ -36,7 +37,4 @@ const ProductDialog = ({ open, onClose, onSave, product, types, sites, varieties
 };
 
 export default ProductDialog;
-<<<<<<< HEAD
 
-=======
->>>>>>> a9f1ddf04f884b977c71915d684ba0681cbb35f1

@@ -1,4 +1,4 @@
-import { Link } from 'react-router-dom';
+import { Link, useNavigate } from 'react-router-dom';
 import { useState, useEffect } from 'react';
 import axios from 'axios';
 import { 
@@ -13,17 +13,18 @@ import {
   Sprout,
   Globe,
   Leaf,
-<<<<<<< HEAD
   Store,
   ChevronRight
-=======
-  Store
->>>>>>> a9f1ddf04f884b977c71915d684ba0681cbb35f1
 } from 'lucide-react';
+import SEO from '../components/SEO';
 
 export default function Home() {
+  const navigate = useNavigate();
   const [featuredProducts, setFeaturedProducts] = useState<any[]>([]);
+  const [sites, setSites] = useState<any[]>([]);
   const [loading, setLoading] = useState(true);
+  const [searchQuery, setSearchQuery] = useState('');
+  const [selectedSite, setSelectedSite] = useState('');
 
   const stats = [
     { value: '10+', label: 'sites agricoles', img: 'https://images.unsplash.com/photo-1592982537447-6f2a6a0a3023?auto=format&fit=crop&w=100&q=80' },
@@ -33,34 +34,42 @@ export default function Home() {
   ];
 
   const categories = [
-    { name: 'Produits Agricoles', img: 'https://images.unsplash.com/photo-1574323347407-f5e1ad6d020b?auto=format&fit=crop&w=600&q=80' },
-    { name: 'Produits Piscicoles', img: 'https://images.unsplash.com/photo-1511688878353-3a2f5be94cd7?auto=format&fit=crop&w=600&q=80' },
+    { name: 'Produits Agricoles', img: '/agri-bg.png' },
+    { name: 'Produits Piscicoles', img: '/fish-bg.png' },
   ];
 
   useEffect(() => {
     fetchProducts();
+    fetchSites();
   }, []);
 
   const fetchProducts = async () => {
     try {
       setLoading(true);
-<<<<<<< HEAD
-      const response = await axios.get('http://localhost:5000/api/v1/catalog/products');
-=======
-      const response = await axios.get('http://localhost:5000/api/v1/products');
->>>>>>> a9f1ddf04f884b977c71915d684ba0681cbb35f1
-      // On prend les 8 derniers produits ajoutés
+      const response = await axios.get('http://localhost:5001/api/v1/catalog/products');
       setFeaturedProducts(response.data.data.slice(0, 8));
     } catch (error) {
       console.error('Error fetching products:', error);
-      // Fallback data if API fails
-      setFeaturedProducts([
-        { id: 1, name: 'Blé Bio Premium', category: { name: 'Céréales' }, supplier: { firstName: 'Fermes', lastName: 'de la Vallée' }, location: 'Vallée du Rift', price: 195000, unit: 'Tonne', imageUrl: 'https://images.unsplash.com/photo-1574323347407-f5e1ad6d020b?auto=format&fit=crop&w=600&q=80', status: 'active' },
-        { id: 2, name: 'Avocats Hass Frais', category: { name: 'Fruits' }, supplier: { firstName: 'Producteurs', lastName: 'Locaux' }, location: 'Mont Kenya', price: 900, unit: 'Kg', imageUrl: 'https://images.unsplash.com/photo-1523049673857-eb18f1d7b578?auto=format&fit=crop&w=600&q=80', status: 'active' },
-      ]);
+      setFeaturedProducts([]);
     } finally {
       setLoading(false);
     }
+  };
+
+  const fetchSites = async () => {
+    try {
+      const response = await axios.get('http://localhost:5001/api/v1/production/sites');
+      setSites(response.data.data);
+    } catch (error) {
+      console.error('Error fetching sites:', error);
+    }
+  };
+
+  const handleSearch = () => {
+    const params = new URLSearchParams();
+    if (searchQuery) params.append('q', searchQuery);
+    if (selectedSite) params.append('site', selectedSite);
+    navigate(`/marketplace?${params.toString()}`);
   };
 
   const howItWorks = [
@@ -71,16 +80,16 @@ export default function Home() {
 
   return (
     <div className="bg-white min-h-screen font-sans">
+      <SEO 
+        title="Accueil" 
+        description="Karochebama : leader de l'agro-industrie et de la pisciculture durable au Cameroun. Explorez nos produits et projets agricoles."
+      />
       
       {/* 1. Hero Section */}
       <div className="relative h-[650px] w-full overflow-hidden">
         <div className="absolute inset-0">
           <img 
-<<<<<<< HEAD
             src="/hero-bg.jpg" 
-=======
-            src="https://images.unsplash.com/photo-1500937386664-56d1dfefcb0c?auto=format&fit=crop&w=2000&q=80" 
->>>>>>> a9f1ddf04f884b977c71915d684ba0681cbb35f1
             alt="Agricultural Fields" 
             className="w-full h-full object-cover"
             referrerPolicy="no-referrer"
@@ -112,18 +121,28 @@ export default function Home() {
                 type="text" 
                 placeholder="Que recherchez-vous ? (ex: Maïs, Avocats)" 
                 className="w-full bg-transparent border-none focus:ring-0 px-3 py-4 text-gray-700 placeholder-gray-400"
+                value={searchQuery}
+                onChange={(e) => setSearchQuery(e.target.value)}
+                onKeyPress={(e) => e.key === 'Enter' && handleSearch()}
               />
             </div>
             <div className="sm:w-48 flex items-center px-4 bg-gray-50 rounded-xl border border-gray-100">
               <MapPin className="h-5 w-5 text-gray-400" />
-              <select className="w-full bg-transparent border-none focus:ring-0 px-2 py-4 text-gray-700 text-sm">
+              <select 
+                className="w-full bg-transparent border-none focus:ring-0 px-2 py-4 text-gray-700 text-sm"
+                value={selectedSite}
+                onChange={(e) => setSelectedSite(e.target.value)}
+              >
                 <option value="">Tous les sites</option>
-                <option value="rift-valley">Vallée du Rift</option>
-                <option value="central">Centre</option>
-                <option value="western">Ouest</option>
+                {sites.map(site => (
+                  <option key={site.id} value={site.name}>{site.name}</option>
+                ))}
               </select>
             </div>
-            <button className="bg-emerald-600 hover:bg-emerald-700 text-white font-bold px-8 py-4 rounded-xl transition-colors whitespace-nowrap">
+            <button 
+              onClick={handleSearch}
+              className="bg-emerald-600 hover:bg-emerald-700 text-white font-bold px-8 py-4 rounded-xl transition-colors whitespace-nowrap"
+            >
               Rechercher
             </button>
           </div>
@@ -211,13 +230,12 @@ export default function Home() {
           ) : (
             <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-6">
               {featuredProducts.map((product) => (
-<<<<<<< HEAD
                 <div key={product.id} className="bg-white rounded-3xl border border-gray-100 overflow-hidden hover:shadow-xl transition-all group flex flex-col">
                   <div className="relative h-56 overflow-hidden bg-gray-100 p-0">
                     <div className="absolute top-4 right-4 z-10 bg-white/90 backdrop-blur-md text-emerald-700 text-[11px] font-bold px-3 py-1.5 rounded-full shadow-sm">
                       {product.category?.name || 'Général'}
                     </div>
-                    <img src={product.imageUrl ? (product.imageUrl.startsWith('http') ? product.imageUrl : `http://localhost:5000${product.imageUrl}`) : 'https://images.unsplash.com/photo-1574323347407-f5e1ad6d020b?auto=format&fit=crop&w=600&q=80'} alt={product.name} className="w-full h-full object-cover group-hover:scale-105 transition-transform duration-500" referrerPolicy="no-referrer" />
+                    <img src={product.imageUrl ? (product.imageUrl.startsWith('http') ? product.imageUrl : `http://localhost:5001${product.imageUrl}`) : 'https://images.unsplash.com/photo-1574323347407-f5e1ad6d020b?auto=format&fit=crop&w=600&q=80'} alt={product.name} className="w-full h-full object-cover group-hover:scale-105 transition-transform duration-500" referrerPolicy="no-referrer" />
                   </div>
                   
                   <div className="p-6 flex flex-col flex-grow">
@@ -245,43 +263,6 @@ export default function Home() {
                     <Link to={`/product/${product.id}`} className="w-full bg-[#388e3c] hover:bg-[#2e7d32] text-white font-bold py-3.5 rounded-xl flex items-center justify-center transition-colors shadow-sm">
                       En savoir plus <ChevronRight className="w-4 h-4 ml-1" />
                     </Link>
-=======
-                <div key={product.id} className="bg-white rounded-2xl border border-gray-100 overflow-hidden hover:shadow-xl transition-all group flex flex-col">
-                  <div className="relative h-48 overflow-hidden">
-                    <img src={product.imageUrl} alt={product.name} className="w-full h-full object-cover group-hover:scale-105 transition-transform duration-500" referrerPolicy="no-referrer" />
-                    <div className="absolute top-3 left-3 bg-white/90 backdrop-blur-sm text-gray-900 text-[10px] font-bold px-2.5 py-1 rounded-md shadow-sm uppercase tracking-wider">
-                      {product.category?.name || 'Général'}
-                    </div>
-                    <div className="absolute top-3 right-3 bg-emerald-500 text-white text-[10px] font-bold px-2.5 py-1 rounded-md shadow-sm">
-                      {product.status === 'active' ? 'En Stock' : 'Brouillon'}
-                    </div>
-                  </div>
-                  
-                  <div className="p-5 flex flex-col flex-grow">
-                    <h3 className="font-bold text-gray-900 text-lg mb-1 line-clamp-1">{product.name}</h3>
-                    <div className="flex items-center text-xs text-gray-500 mb-4">
-                      <Store className="h-3.5 w-3.5 mr-1" /> {product.supplier?.firstName} {product.supplier?.lastName}
-                    </div>
-                    
-                    <div className="space-y-2 mb-6 flex-grow">
-                      <div className="flex items-center text-sm text-gray-600">
-                        <MapPin className="h-4 w-4 mr-2 text-gray-400" /> {product.productionSite?.location || 'Cameroun'}
-                      </div>
-                      <div className="flex items-center text-sm text-gray-600">
-                        <CheckCircle2 className="h-4 w-4 mr-2 text-emerald-500" /> Disponible
-                      </div>
-                    </div>
-                    
-                    <div className="flex items-end justify-between pt-4 border-t border-gray-100">
-                      <div>
-                        <div className="text-xs text-gray-500 mb-0.5">Prix Unitaire</div>
-                        <div className="text-xl font-extrabold text-gray-900">{product.price.toLocaleString('fr-FR')} CFA<span className="text-sm font-normal text-gray-500">/{product.unit}</span></div>
-                      </div>
-                      <button className="bg-emerald-50 hover:bg-emerald-100 text-emerald-700 p-2.5 rounded-xl transition-colors">
-                        <ShoppingCart className="h-5 w-5" />
-                      </button>
-                    </div>
->>>>>>> a9f1ddf04f884b977c71915d684ba0681cbb35f1
                   </div>
                 </div>
               ))}

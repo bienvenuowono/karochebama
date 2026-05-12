@@ -14,7 +14,6 @@ export class ProductController {
       // Données textuelles (FormData envoie tout en string)
       const data = req.body;
 
-<<<<<<< HEAD
       const payload = {
         name: data.name || 'Produit sans nom',
         description: data.description || '',
@@ -31,6 +30,7 @@ export class ProductController {
         priceKg: parseFloat(data.priceKg) || 0,
         priceTonne: parseFloat(data.priceTonne) || (parseFloat(data.priceKg) * 1000) || 0,
         status: 'en_production',
+        stock: parseFloat(data.quantityKg) || 0, // Initialise le stock avec l'estimation de récolte
         sites: {
           create: (JSON.parse(data.siteIds || '[]')).map((id: number) => ({
             site: { connect: { id } }
@@ -42,31 +42,6 @@ export class ProductController {
 
       const product = await prisma.product.create({
         data: payload
-=======
-      const product = await prisma.product.create({
-        data: {
-          name: data.name,
-          description: data.description,
-          price: parseFloat(data.price),
-          imageUrl: imageUrl,
-          gallery: gallery,
-          typeId: parseInt(data.typeId),
-          categoryId: parseInt(data.categoryId),
-          varietyId: parseInt(data.varietyId),
-          sowingDate: data.sowingDate ? new Date(data.sowingDate) : null,
-          maturityDate: data.maturityDate ? new Date(data.maturityDate) : null,
-          quantityKg: parseFloat(data.quantityKg) || 0,
-          quantityTonne: parseFloat(data.quantityTonne) || (parseFloat(data.quantityKg) / 1000) || 0,
-          priceKg: parseFloat(data.priceKg) || 0,
-          priceTonne: parseFloat(data.priceTonne) || (parseFloat(data.priceKg) * 1000) || 0,
-          status: 'en_production',
-          sites: {
-            create: (JSON.parse(data.siteIds || '[]')).map((id: number) => ({
-              site: { connect: { id } }
-            }))
-          }
-        }
->>>>>>> a9f1ddf04f884b977c71915d684ba0681cbb35f1
       });
 
       res.status(201).json({ success: true, data: product });
@@ -97,11 +72,7 @@ export class ProductController {
       const { id } = req.params;
       const item = await prisma.product.findUnique({
         where: { id: parseInt(id) },
-<<<<<<< HEAD
         include: { type: true, category: true, variety: true, sites: { include: { site: { include: { geographicZone: true } } } } }
-=======
-        include: { type: true, category: true, variety: true, sites: true }
->>>>>>> a9f1ddf04f884b977c71915d684ba0681cbb35f1
       });
       res.json({ success: true, data: item });
     } catch (error: any) {
@@ -110,7 +81,6 @@ export class ProductController {
   };
 
   update = async (req: Request, res: Response) => {
-<<<<<<< HEAD
     try {
       const { id } = req.params;
       const files = req.files as { [fieldname: string]: Express.Multer.File[] } | undefined;
@@ -145,6 +115,18 @@ export class ProductController {
         status: data.status || existingProduct.status,
       };
 
+      // Calcul du stock : Estimation Récolte - Quantité Réservée
+      if (data.quantityKg !== undefined) {
+        const reservedAggregate = await prisma.orderItem.aggregate({
+          where: { productId: parseInt(id) },
+          _sum: { quantity: true }
+        });
+        const totalReserved = reservedAggregate._sum.quantity || 0;
+        const newQuantityKg = parseFloat(data.quantityKg) || 0;
+        // @ts-ignore
+        payload.stock = Math.max(0, newQuantityKg - totalReserved);
+      }
+
       const product = await prisma.product.update({
         where: { id: parseInt(id) },
         data: {
@@ -163,10 +145,6 @@ export class ProductController {
       console.error('Update product error:', error);
       res.status(500).json({ success: false, message: error.message });
     }
-=======
-    // Logique d'update similaire avec gestion des nouveaux fichiers
-    res.status(501).json({ message: "Not implemented yet with file support" });
->>>>>>> a9f1ddf04f884b977c71915d684ba0681cbb35f1
   };
 
   delete = async (req: Request, res: Response) => {

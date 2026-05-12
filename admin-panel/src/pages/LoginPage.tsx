@@ -16,14 +16,18 @@ const LoginPage = () => {
     setLoading(true);
 
     try {
+      console.log('Tentative de connexion pour:', email);
       const success = await authService.login(email, password);
       if (success) {
+        console.log('Connexion réussie !');
         navigate('/dashboard');
       } else {
         setError('Identifiants incorrects. Veuillez réessayer.');
       }
-    } catch (err) {
-      setError('Une erreur est survenue lors de la connexion.');
+    } catch (err: any) {
+      console.error('Erreur de connexion détaillée:', err);
+      const message = err.response?.data?.error || 'Une erreur est survenue lors de la connexion.';
+      setError(message);
     } finally {
       setLoading(false);
     }
@@ -139,7 +143,4 @@ const LoginPage = () => {
 };
 
 export default LoginPage;
-<<<<<<< HEAD
 
-=======
->>>>>>> a9f1ddf04f884b977c71915d684ba0681cbb35f1

@@ -14,18 +14,16 @@ import {
   MapPin,
   MessageCircle,
   Clock,
-<<<<<<< HEAD
   Briefcase,
   Edit,
   Trash2,
   X,
-  Check
-=======
-  Briefcase
->>>>>>> a9f1ddf04f884b977c71915d684ba0681cbb35f1
+  Check,
+  Camera
 } from 'lucide-react';
 import axios from 'axios';
 import { authService } from '../services/authService';
+import { uploadService } from '../services/uploadService';
 import DataTable from '../components/DataTable';
 import Modal from '../components/Modal';
 
@@ -34,7 +32,6 @@ const UsersPage = () => {
   const [loading, setLoading] = useState(true);
   const [selectedUser, setSelectedUser] = useState<any>(null);
   const [isProfileOpen, setIsProfileOpen] = useState(false);
-<<<<<<< HEAD
   const [isFormOpen, setIsFormOpen] = useState(false);
   const [searchTerm, setSearchTerm] = useState('');
 
@@ -47,13 +44,11 @@ const UsersPage = () => {
     role: 'USER',
     country: 'Cameroun',
     address: '',
+    photoUrl: '',
     password: ''
   });
+  const [imageFile, setImageFile] = useState<File | null>(null);
 
-=======
-  const [searchTerm, setSearchTerm] = useState('');
-
->>>>>>> a9f1ddf04f884b977c71915d684ba0681cbb35f1
   useEffect(() => {
     fetchData();
   }, []);
@@ -63,11 +58,7 @@ const UsersPage = () => {
       setLoading(true);
       const token = authService.getToken();
       const config = { headers: { Authorization: `Bearer ${token}` } };
-<<<<<<< HEAD
       const res = await axios.get('http://localhost:5001/api/v1/users', config);
-=======
-      const res = await axios.get('http://localhost:5000/api/v1/users', config);
->>>>>>> a9f1ddf04f884b977c71915d684ba0681cbb35f1
       setUsers(res.data.data);
     } catch (error) {
       console.error('Error fetching users:', error);
@@ -78,20 +69,11 @@ const UsersPage = () => {
 
   const filteredUsers = useMemo(() => {
     return users.filter((u: any) => 
-<<<<<<< HEAD
       ((u.firstName || '') + ' ' + (u.lastName || '')).toLowerCase().includes(searchTerm.toLowerCase()) ||
       (u.email || '').toLowerCase().includes(searchTerm.toLowerCase())
     );
   }, [users, searchTerm]);
 
-=======
-      (u.firstName + ' ' + u.lastName).toLowerCase().includes(searchTerm.toLowerCase()) ||
-      u.email.toLowerCase().includes(searchTerm.toLowerCase())
-    );
-  }, [users, searchTerm]);
-
-  // CALCULS DU PROFIL CLIENT
->>>>>>> a9f1ddf04f884b977c71915d684ba0681cbb35f1
   const customerStats = useMemo(() => {
     if (!selectedUser) return { ltv: 0, orderCount: 0, recentOrders: [] };
     const paidOrders = selectedUser.orders?.filter((o: any) => o.status === 'PAID') || [];
@@ -103,7 +85,6 @@ const UsersPage = () => {
     };
   }, [selectedUser]);
 
-<<<<<<< HEAD
   const handleOpenForm = (user: any = null) => {
     if (user) {
       setFormData({
@@ -115,6 +96,7 @@ const UsersPage = () => {
         role: user.role || 'USER',
         country: user.country || 'Cameroun',
         address: user.address || '',
+        photoUrl: user.photoUrl || '',
         password: ''
       });
       setSelectedUser(user);
@@ -128,10 +110,12 @@ const UsersPage = () => {
         role: 'USER',
         country: 'Cameroun',
         address: '',
+        photoUrl: '',
         password: ''
       });
       setSelectedUser(null);
     }
+    setImageFile(null);
     setIsFormOpen(true);
   };
 
@@ -141,14 +125,20 @@ const UsersPage = () => {
       const token = authService.getToken();
       const config = { headers: { Authorization: `Bearer ${token}` } };
       
+      let finalPhotoUrl = formData.photoUrl;
+      if (imageFile) {
+        finalPhotoUrl = await uploadService.uploadImage(imageFile);
+      }
+
+      const payload = { ...formData, photoUrl: finalPhotoUrl };
+      if (!payload.password && selectedUser) delete (payload as any).password;
+      
       if (selectedUser) {
         // Modification
-        const updateData = { ...formData };
-        if (!updateData.password) delete (updateData as any).password;
-        await axios.patch(`http://localhost:5001/api/v1/users/${selectedUser.id}`, updateData, config);
+        await axios.patch(`http://localhost:5001/api/v1/users/${selectedUser.id}`, payload, config);
       } else {
         // Création
-        await axios.post('http://localhost:5001/api/v1/users', formData, config);
+        await axios.post('http://localhost:5001/api/v1/users', payload, config);
       }
       
       setIsFormOpen(false);
@@ -173,36 +163,37 @@ const UsersPage = () => {
     }
   };
 
-=======
->>>>>>> a9f1ddf04f884b977c71915d684ba0681cbb35f1
   const columns = [
     { 
       id: 'name', 
       label: 'Utilisateur',
-      format: (_: any, row: any) => (
-        <div className="flex items-center gap-3">
-          <div className="w-10 h-10 rounded-xl bg-primary-50 text-primary-600 flex items-center justify-center font-bold">
-            {row.firstName?.charAt(0)}{row.lastName?.charAt(0)}
+      format: (_: any, row: any) => {
+        const photoUrl = row.photoUrl ? (row.photoUrl.startsWith('http') ? row.photoUrl : `http://localhost:5001${row.photoUrl}`) : null;
+        return (
+          <div className="flex items-center gap-3">
+            <div className="w-10 h-10 rounded-xl bg-primary-50 text-primary-600 flex items-center justify-center font-bold overflow-hidden">
+              {photoUrl ? (
+                <img src={photoUrl} alt="Avatar" className="w-full h-full object-cover" />
+              ) : (
+                <span>{row.firstName?.charAt(0)}{row.lastName?.charAt(0)}</span>
+              )}
+            </div>
+            <div>
+              <p className="font-bold text-slate-900">{row.firstName} {row.lastName}</p>
+              <p className="text-[10px] text-slate-500 font-medium uppercase tracking-tighter">{row.email}</p>
+            </div>
           </div>
-          <div>
-            <p className="font-bold text-slate-900">{row.firstName} {row.lastName}</p>
-            <p className="text-[10px] text-slate-500 font-medium uppercase tracking-tighter">{row.email}</p>
-          </div>
-        </div>
-      )
+        );
+      }
     },
     { 
       id: 'role', 
       label: 'Rôle',
       format: (val: string) => (
         <span className={`px-2 py-1 text-[10px] font-black rounded-lg uppercase border
-<<<<<<< HEAD
           ${val === 'ADMIN' ? 'bg-purple-50 text-purple-600 border-purple-100' : 
             val === 'MANAGER' ? 'bg-orange-50 text-orange-600 border-orange-100' : 
             'bg-blue-50 text-blue-600 border-blue-100'}
-=======
-          ${val === 'ADMIN' ? 'bg-purple-50 text-purple-600 border-purple-100' : 'bg-blue-50 text-blue-600 border-blue-100'}
->>>>>>> a9f1ddf04f884b977c71915d684ba0681cbb35f1
         `}>
           {val}
         </span>
@@ -229,7 +220,6 @@ const UsersPage = () => {
     },
     {
       id: 'actions',
-<<<<<<< HEAD
       label: 'Actions',
       format: (_: any, row: any) => (
         <div className="flex items-center gap-2">
@@ -255,16 +245,6 @@ const UsersPage = () => {
             <Trash2 size={18} />
           </button>
         </div>
-=======
-      label: 'Gérer',
-      format: (_: any, row: any) => (
-        <button 
-          onClick={() => { setSelectedUser(row); setIsProfileOpen(true); }}
-          className="p-2 hover:bg-primary-50 text-primary-600 rounded-xl transition-all flex items-center gap-2 text-xs font-bold"
-        >
-          Voir Profil <ChevronRight size={14} />
-        </button>
->>>>>>> a9f1ddf04f884b977c71915d684ba0681cbb35f1
       )
     }
   ];
@@ -277,15 +257,12 @@ const UsersPage = () => {
           <h1 className="text-3xl font-black text-slate-900 font-outfit tracking-tight">Utilisateurs & CRM</h1>
           <p className="text-sm text-slate-500 mt-1">Gérez votre communauté et vos clients fidèles.</p>
         </div>
-<<<<<<< HEAD
         <button 
           onClick={() => handleOpenForm()}
           className="px-6 py-3 bg-primary-500 text-white rounded-2xl font-bold text-sm hover:bg-primary-600 shadow-lg shadow-primary-500/20 flex items-center gap-2 transition-all active:scale-95"
         >
           <PlusCircle size={20} /> Nouvel Utilisateur
         </button>
-=======
->>>>>>> a9f1ddf04f884b977c71915d684ba0681cbb35f1
       </div>
 
       {/* Barre de Recherche */}
@@ -308,8 +285,16 @@ const UsersPage = () => {
           <div className="space-y-8">
             {/* Header Profil */}
             <div className="flex items-center gap-6 pb-6 border-b border-slate-100">
-              <div className="w-20 h-20 bg-primary-500 rounded-[32px] flex items-center justify-center text-white text-3xl font-black shadow-lg shadow-primary-500/30">
-                {selectedUser.firstName?.charAt(0)}{selectedUser.lastName?.charAt(0)}
+              <div className="w-20 h-20 bg-primary-500 rounded-[32px] flex items-center justify-center text-white text-3xl font-black shadow-lg shadow-primary-500/30 overflow-hidden">
+                {selectedUser.photoUrl ? (
+                  <img 
+                    src={selectedUser.photoUrl.startsWith('http') ? selectedUser.photoUrl : `http://localhost:5001${selectedUser.photoUrl}`} 
+                    alt="Avatar" 
+                    className="w-full h-full object-cover" 
+                  />
+                ) : (
+                  <span>{selectedUser.firstName?.charAt(0)}{selectedUser.lastName?.charAt(0)}</span>
+                )}
               </div>
               <div>
                 <h3 className="text-2xl font-black text-slate-900">{selectedUser.firstName} {selectedUser.lastName}</h3>
@@ -352,11 +337,7 @@ const UsersPage = () => {
                   <Clock size={16} className="text-orange-500" /> Historique récent
                </h4>
                <div className="space-y-2">
-<<<<<<< HEAD
                  {customerStats.recentOrders?.map((o: any) => (
-=======
-                 {customerStats.recentOrders.map((o: any) => (
->>>>>>> a9f1ddf04f884b977c71915d684ba0681cbb35f1
                    <div key={o.id} className="flex justify-between items-center p-3 bg-slate-50 rounded-xl border border-slate-100">
                       <div>
                         <p className="text-xs font-bold text-slate-900">Commande #{o.id}</p>
@@ -365,26 +346,17 @@ const UsersPage = () => {
                       <p className="text-xs font-black text-primary-600">{Number(o.totalAmount).toLocaleString()} FCFA</p>
                    </div>
                  ))}
-<<<<<<< HEAD
                  {(!customerStats.recentOrders || customerStats.recentOrders.length === 0) && <p className="text-xs text-slate-400 italic text-center py-4">Aucune commande passée.</p>}
-=======
-                 {customerStats.recentOrders.length === 0 && <p className="text-xs text-slate-400 italic text-center py-4">Aucune commande passée.</p>}
->>>>>>> a9f1ddf04f884b977c71915d684ba0681cbb35f1
                </div>
             </div>
 
             {/* Boutons d'action */}
             <div className="flex gap-4 pt-4">
-<<<<<<< HEAD
               <button 
                 onClick={() => { setIsProfileOpen(false); handleOpenForm(selectedUser); }}
                 className="flex-1 py-3 bg-slate-100 text-slate-600 rounded-2xl font-bold text-sm hover:bg-slate-200 transition-all flex items-center justify-center gap-2"
               >
                 <Edit size={18} /> Modifier Profil
-=======
-              <button className="flex-1 py-3 bg-slate-100 text-slate-600 rounded-2xl font-bold text-sm hover:bg-slate-200 transition-all flex items-center justify-center gap-2">
-                <Briefcase size={18} /> Modifier le rôle
->>>>>>> a9f1ddf04f884b977c71915d684ba0681cbb35f1
               </button>
               <a 
                 href={`https://wa.me/${selectedUser.whatsapp || selectedUser.phone}`} 
@@ -398,7 +370,6 @@ const UsersPage = () => {
           </div>
         )}
       </Modal>
-<<<<<<< HEAD
 
       {/* MODAL FORMULAIRE UTILISATEUR */}
       <Modal 
@@ -467,6 +438,19 @@ const UsersPage = () => {
           </div>
 
           <div className="space-y-2">
+            <label className="text-[10px] font-bold text-slate-400 uppercase ml-1">Photo de Profil</label>
+            <input 
+              type="file" accept="image/*"
+              className="w-full px-4 py-2 bg-slate-50 border border-slate-200 rounded-xl text-xs outline-none"
+              onChange={(e) => {
+                if (e.target.files && e.target.files.length > 0) {
+                  setImageFile(e.target.files[0]);
+                }
+              }}
+            />
+          </div>
+
+          <div className="space-y-2">
             <label className="text-[10px] font-bold text-slate-400 uppercase ml-1">Adresse</label>
             <textarea 
               rows={2}
@@ -483,8 +467,6 @@ const UsersPage = () => {
           </button>
         </form>
       </Modal>
-=======
->>>>>>> a9f1ddf04f884b977c71915d684ba0681cbb35f1
     </div>
   );
 };

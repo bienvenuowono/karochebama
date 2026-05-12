@@ -19,7 +19,17 @@ class AuthController {
       const result = await authService.login(validatedData);
       res.json(result);
     } catch (error: any) {
-      res.status(401).json({ error: error.message || 'Login failed' });
+      console.error('Login error:', error.message);
+      
+      if (error.message === 'Invalid credentials') {
+        return res.status(401).json({ error: 'Identifiants invalides (email ou mot de passe incorrect).' });
+      }
+      
+      // Handle database connection errors or other issues
+      res.status(500).json({ 
+        error: 'Erreur serveur lors de la connexion',
+        details: process.env.NODE_ENV === 'development' ? error.message : undefined
+      });
     }
   }
 

@@ -18,6 +18,8 @@ const ActivitiesPage = () => {
     status: 'PUBLISHED'
   });
   const [imageFile, setImageFile] = useState<File | null>(null);
+  const [editingId, setEditingId] = useState<number | null>(null);
+  const [saving, setSaving] = useState(false);
 
   useEffect(() => {
     fetchData();
@@ -35,8 +37,20 @@ const ActivitiesPage = () => {
     }
   };
 
+  const handleEdit = (activity: any) => {
+    setFormData({
+      title: activity.title,
+      description: activity.description,
+      imageUrl: activity.imageUrl || '',
+      status: activity.status
+    });
+    setEditingId(activity.id);
+    setIsDialogOpen(true);
+  };
+
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
+    setSaving(true);
     try {
       let finalImageUrl = formData.imageUrl;
       if (imageFile) {
@@ -44,17 +58,30 @@ const ActivitiesPage = () => {
       }
       
       const payload = { ...formData, imageUrl: finalImageUrl };
-
       const token = authService.getToken();
-      await axios.post('http://localhost:5001/api/v1/activities', payload, {
-        headers: { Authorization: `Bearer ${token}` }
-      });
+
+      if (editingId) {
+        await axios.put(`http://localhost:5001/api/v1/activities/${editingId}`, payload, {
+          headers: { Authorization: `Bearer ${token}` }
+        });
+        alert("Activité mise à jour !");
+      } else {
+        await axios.post('http://localhost:5001/api/v1/activities', payload, {
+          headers: { Authorization: `Bearer ${token}` }
+        });
+        alert("Activité enregistrée !");
+      }
+
       setIsDialogOpen(false);
       setFormData({ title: '', description: '', imageUrl: '', status: 'PUBLISHED' });
       setImageFile(null);
+      setEditingId(null);
       fetchData();
-    } catch (error) {
-      console.error('Error creating activity:', error);
+    } catch (error: any) {
+      console.error('Error saving activity:', error);
+      alert("Erreur : " + (error.response?.data?.error || error.message));
+    } finally {
+      setSaving(false);
     }
   };
 
@@ -78,7 +105,7 @@ const ActivitiesPage = () => {
       format: (val: string, row: any) => (
         <div className="flex items-center gap-3">
           {row.imageUrl ? (
-            <img src={row.imageUrl} alt={val} className="w-10 h-10 rounded-xl object-cover" />
+            <img src={row.imageUrl.startsWith('http') ? row.imageUrl : `http://localhost:5001${row.imageUrl}`} alt={val} className="w-10 h-10 rounded-xl object-cover" />
           ) : (
             <div className="w-10 h-10 rounded-xl bg-primary-50 text-primary-600 flex items-center justify-center font-bold">
               <Sprout size={20} />
@@ -108,6 +135,12 @@ const ActivitiesPage = () => {
       format: (_: any, row: any) => (
         <div className="flex items-center gap-2">
           <button 
+            onClick={() => handleEdit(row)}
+            className="p-2 hover:bg-primary-50 text-primary-500 rounded-lg transition-colors"
+          >
+            <Edit size={16} />
+          </button>
+          <button 
             onClick={() => handleDelete(row.id)}
             className="p-2 hover:bg-red-50 text-red-500 rounded-lg transition-colors"
           >
@@ -117,6 +150,13 @@ const ActivitiesPage = () => {
       )
     }
   ];
+
+  const closeDialog = () => {
+    setIsDialogOpen(false);
+    setEditingId(null);
+    setFormData({ title: '', description: '', imageUrl: '', status: 'PUBLISHED' });
+    setImageFile(null);
+  };
 
   return (
     <div className="space-y-6">
@@ -132,7 +172,7 @@ const ActivitiesPage = () => {
 
       <DataTable columns={columns} data={activities} loading={loading} />
 
-      <Modal isOpen={isDialogOpen} onClose={() => setIsDialogOpen(false)} title="Nouvelle Activité">
+      <Modal isOpen={isDialogOpen} onClose={closeDialog} title={editingId ? "Modifier l'Activité" : "Nouvelle Activité"}>
         <form onSubmit={handleSubmit} className="space-y-4">
           <div>
             <label className="block text-xs font-bold text-slate-500 uppercase mb-2 ml-1">Titre</label>
@@ -173,8 +213,12 @@ const ActivitiesPage = () => {
               <option value="DRAFT">Brouillon</option>
             </select>
           </div>
-          <button type="submit" className="w-full py-3 bg-primary-500 text-white rounded-2xl font-bold text-sm hover:bg-primary-600 shadow-lg shadow-primary-500/20">
-            Enregistrer
+          <button 
+            type="submit" 
+            disabled={saving}
+            className={`w-full py-3 bg-primary-500 text-white rounded-2xl font-bold text-sm hover:bg-primary-600 shadow-lg shadow-primary-500/20 ${saving ? 'opacity-50 cursor-not-allowed' : ''}`}
+          >
+            {saving ? 'Enregistrement...' : 'Enregistrer'}
           </button>
         </form>
       </Modal>

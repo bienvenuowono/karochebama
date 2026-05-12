@@ -1,5 +1,5 @@
 import React, { useState, useEffect } from 'react';
-import { PlusCircle, Image as ImageIcon, Video, Trash2 } from 'lucide-react';
+import { PlusCircle, Image as ImageIcon, Video, Trash2, Edit } from 'lucide-react';
 import axios from 'axios';
 import { authService } from '../services/authService';
 import { uploadService } from '../services/uploadService';
@@ -18,6 +18,8 @@ const MediaPage = () => {
     type: 'IMAGE'
   });
   const [mediaFile, setMediaFile] = useState<File | null>(null);
+  const [editingId, setEditingId] = useState<number | null>(null);
+  const [saving, setSaving] = useState(false);
 
   useEffect(() => {
     fetchData();
@@ -35,8 +37,20 @@ const MediaPage = () => {
     }
   };
 
+  const handleEdit = (item: any) => {
+    setFormData({
+      title: item.title || '',
+      description: item.description || '',
+      url: item.url,
+      type: item.type
+    });
+    setEditingId(item.id);
+    setIsDialogOpen(true);
+  };
+
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
+    setSaving(true);
     try {
       let finalUrl = formData.url;
       if (mediaFile) {
@@ -44,17 +58,27 @@ const MediaPage = () => {
       }
       
       const payload = { ...formData, url: finalUrl };
-
       const token = authService.getToken();
-      await axios.post('http://localhost:5001/api/v1/media', payload, {
-        headers: { Authorization: `Bearer ${token}` }
-      });
-      setIsDialogOpen(false);
-      setFormData({ title: '', description: '', url: '', type: 'IMAGE' });
-      setMediaFile(null);
+
+      if (editingId) {
+        await axios.put(`http://localhost:5001/api/v1/media/${editingId}`, payload, {
+          headers: { Authorization: `Bearer ${token}` }
+        });
+        alert("Média mis à jour !");
+      } else {
+        await axios.post('http://localhost:5001/api/v1/media', payload, {
+          headers: { Authorization: `Bearer ${token}` }
+        });
+        alert("Média ajouté !");
+      }
+
+      closeDialog();
       fetchData();
-    } catch (error) {
-      console.error('Error creating media:', error);
+    } catch (error: any) {
+      console.error('Error saving media:', error);
+      alert("Erreur : " + (error.response?.data?.error || error.message));
+    } finally {
+      setSaving(false);
     }
   };
 
@@ -71,6 +95,13 @@ const MediaPage = () => {
     }
   };
 
+  const closeDialog = () => {
+    setIsDialogOpen(false);
+    setEditingId(null);
+    setFormData({ title: '', description: '', url: '', type: 'IMAGE' });
+    setMediaFile(null);
+  };
+
   const columns = [
     { 
       id: 'url', 
@@ -78,7 +109,7 @@ const MediaPage = () => {
       format: (val: string, row: any) => (
         <div className="flex items-center gap-3">
           {row.type === 'IMAGE' ? (
-             <img src={val} alt="media" className="w-12 h-12 rounded-lg object-cover bg-slate-100" />
+             <img src={val ? (val.startsWith('http') ? val : `http://localhost:5001${val}`) : ''} alt="media" className="w-12 h-12 rounded-lg object-cover bg-slate-100" />
           ) : (
             <div className="w-12 h-12 rounded-lg bg-red-50 text-red-500 flex items-center justify-center">
               <Video size={20} />
@@ -101,6 +132,12 @@ const MediaPage = () => {
       label: 'Actions',
       format: (_: any, row: any) => (
         <div className="flex items-center gap-2">
+          <button 
+            onClick={() => handleEdit(row)}
+            className="p-2 hover:bg-primary-50 text-primary-500 rounded-lg transition-colors"
+          >
+            <Edit size={16} />
+          </button>
           <button 
             onClick={() => handleDelete(row.id)}
             className="p-2 hover:bg-red-50 text-red-500 rounded-lg transition-colors"
@@ -126,7 +163,7 @@ const MediaPage = () => {
 
       <DataTable columns={columns} data={media} loading={loading} />
 
-      <Modal isOpen={isDialogOpen} onClose={() => setIsDialogOpen(false)} title="Ajouter Média">
+      <Modal isOpen={isDialogOpen} onClose={closeDialog} title={editingId ? "Modifier Média" : "Ajouter Média"}>
         <form onSubmit={handleSubmit} className="space-y-4">
           <div>
             <label className="block text-xs font-bold text-slate-500 uppercase mb-2 ml-1">Type de Média</label>
@@ -176,8 +213,12 @@ const MediaPage = () => {
               value={formData.description} onChange={(e) => setFormData({...formData, description: e.target.value})}
             ></textarea>
           </div>
-          <button type="submit" className="w-full py-3 bg-primary-500 text-white rounded-2xl font-bold text-sm hover:bg-primary-600 shadow-lg shadow-primary-500/20">
-            Enregistrer
+          <button 
+            type="submit" 
+            disabled={saving}
+            className={`w-full py-3 bg-primary-500 text-white rounded-2xl font-bold text-sm hover:bg-primary-600 shadow-lg shadow-primary-500/20 ${saving ? 'opacity-50 cursor-not-allowed' : ''}`}
+          >
+            {saving ? 'Enregistrement...' : 'Enregistrer'}
           </button>
         </form>
       </Modal>

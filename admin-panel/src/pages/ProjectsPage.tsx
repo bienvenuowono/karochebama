@@ -1,5 +1,5 @@
 import React, { useState, useEffect } from 'react';
-import { PlusCircle, Layers, Trash2 } from 'lucide-react';
+import { PlusCircle, Layers, Trash2, Edit } from 'lucide-react';
 import axios from 'axios';
 import { authService } from '../services/authService';
 import { uploadService } from '../services/uploadService';
@@ -18,6 +18,8 @@ const ProjectsPage = () => {
     status: 'ONGOING'
   });
   const [imageFile, setImageFile] = useState<File | null>(null);
+  const [editingId, setEditingId] = useState<number | null>(null);
+  const [saving, setSaving] = useState(false);
 
   useEffect(() => {
     fetchData();
@@ -35,8 +37,20 @@ const ProjectsPage = () => {
     }
   };
 
+  const handleEdit = (project: any) => {
+    setFormData({
+      title: project.title,
+      description: project.description,
+      imageUrl: project.imageUrl || '',
+      status: project.status
+    });
+    setEditingId(project.id);
+    setIsDialogOpen(true);
+  };
+
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
+    setSaving(true);
     try {
       let finalImageUrl = formData.imageUrl;
       if (imageFile) {
@@ -44,17 +58,27 @@ const ProjectsPage = () => {
       }
       
       const payload = { ...formData, imageUrl: finalImageUrl };
-
       const token = authService.getToken();
-      await axios.post('http://localhost:5001/api/v1/projects', payload, {
-        headers: { Authorization: `Bearer ${token}` }
-      });
-      setIsDialogOpen(false);
-      setFormData({ title: '', description: '', imageUrl: '', status: 'ONGOING' });
-      setImageFile(null);
+
+      if (editingId) {
+        await axios.put(`http://localhost:5001/api/v1/projects/${editingId}`, payload, {
+          headers: { Authorization: `Bearer ${token}` }
+        });
+        alert("Projet mis à jour !");
+      } else {
+        await axios.post('http://localhost:5001/api/v1/projects', payload, {
+          headers: { Authorization: `Bearer ${token}` }
+        });
+        alert("Projet enregistré !");
+      }
+
+      closeDialog();
       fetchData();
-    } catch (error) {
-      console.error('Error creating project:', error);
+    } catch (error: any) {
+      console.error('Error saving project:', error);
+      alert("Erreur : " + (error.response?.data?.error || error.message));
+    } finally {
+      setSaving(false);
     }
   };
 
@@ -71,6 +95,13 @@ const ProjectsPage = () => {
     }
   };
 
+  const closeDialog = () => {
+    setIsDialogOpen(false);
+    setEditingId(null);
+    setFormData({ title: '', description: '', imageUrl: '', status: 'ONGOING' });
+    setImageFile(null);
+  };
+
   const columns = [
     { 
       id: 'title', 
@@ -78,7 +109,7 @@ const ProjectsPage = () => {
       format: (val: string, row: any) => (
         <div className="flex items-center gap-3">
           {row.imageUrl ? (
-            <img src={row.imageUrl} alt={val} className="w-10 h-10 rounded-xl object-cover" />
+            <img src={row.imageUrl.startsWith('http') ? row.imageUrl : `http://localhost:5001${row.imageUrl}`} alt={val} className="w-10 h-10 rounded-xl object-cover" />
           ) : (
             <div className="w-10 h-10 rounded-xl bg-blue-50 text-blue-600 flex items-center justify-center font-bold">
               <Layers size={20} />
@@ -108,6 +139,12 @@ const ProjectsPage = () => {
       format: (_: any, row: any) => (
         <div className="flex items-center gap-2">
           <button 
+            onClick={() => handleEdit(row)}
+            className="p-2 hover:bg-primary-50 text-primary-500 rounded-lg transition-colors"
+          >
+            <Edit size={16} />
+          </button>
+          <button 
             onClick={() => handleDelete(row.id)}
             className="p-2 hover:bg-red-50 text-red-500 rounded-lg transition-colors"
           >
@@ -132,7 +169,7 @@ const ProjectsPage = () => {
 
       <DataTable columns={columns} data={projects} loading={loading} />
 
-      <Modal isOpen={isDialogOpen} onClose={() => setIsDialogOpen(false)} title="Nouveau Projet">
+      <Modal isOpen={isDialogOpen} onClose={closeDialog} title={editingId ? "Modifier le Projet" : "Nouveau Projet"}>
         <form onSubmit={handleSubmit} className="space-y-4">
           <div>
             <label className="block text-xs font-bold text-slate-500 uppercase mb-2 ml-1">Titre</label>
@@ -174,8 +211,12 @@ const ProjectsPage = () => {
               <option value="COMPLETED">Terminé</option>
             </select>
           </div>
-          <button type="submit" className="w-full py-3 bg-primary-500 text-white rounded-2xl font-bold text-sm hover:bg-primary-600 shadow-lg shadow-primary-500/20">
-            Enregistrer
+          <button 
+            type="submit" 
+            disabled={saving}
+            className={`w-full py-3 bg-primary-500 text-white rounded-2xl font-bold text-sm hover:bg-primary-600 shadow-lg shadow-primary-500/20 ${saving ? 'opacity-50 cursor-not-allowed' : ''}`}
+          >
+            {saving ? 'Enregistrement...' : 'Enregistrer'}
           </button>
         </form>
       </Modal>
