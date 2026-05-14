@@ -36,7 +36,7 @@ export class AnalyticsController {
         }),
         // 3. Sites de culture
         prisma.cultureSite.findMany({
-          include: { region: true, products: true }
+          include: { geographicZone: true, products: true }
         }),
         // 4. Nombre de clients
         prisma.user.count({ where: { role: 'USER' } }),

@@ -53,7 +53,7 @@ export class HarvestController {
         },
         include: {
           category: true,
-          site: true,
+          sites: { include: { site: true } },
           variety: true
         },
         orderBy: { maturityDate: 'asc' }

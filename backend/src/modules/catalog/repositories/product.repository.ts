@@ -2,22 +2,17 @@ import prisma from '../../../config/prisma';
 
 export class ProductRepository {
   async findAll(filters: any) {
-    const { regionId, zoneId, typeId, page = 1, limit = 10 } = filters;
+    const { zoneId, typeId, page = 1, limit = 10 } = filters;
     const skip = (page - 1) * limit;
 
     const where: any = {};
     if (typeId) where.typeId = parseInt(typeId);
     
-    if (zoneId || regionId) {
-      where.zones = {
+    if (zoneId) {
+      where.sites = {
         some: {
-          zone: {
-            id: zoneId ? parseInt(zoneId) : undefined,
-            sites: regionId ? {
-              some: {
-                site: { regionId: parseInt(regionId) }
-              }
-            } : undefined
+          site: {
+            geographicZoneId: parseInt(zoneId)
           }
         }
       };
@@ -29,9 +24,8 @@ export class ProductRepository {
         include: {
           type: true,
           variety: { include: { category: true } },
-          site: { include: { region: true } },
+          sites: { include: { site: { include: { geographicZone: true } } } },
           category: true,
-          zones: { include: { zone: true } }
         },
         skip,
         take: parseInt(limit.toString()),
@@ -49,33 +43,32 @@ export class ProductRepository {
       include: {
         type: true,
         variety: true,
-        site: true,
+        sites: { include: { site: true } },
         category: true,
-        zones: { include: { zone: true } }
       }
     });
   }
 
   async create(data: any) {
-    const { zoneIds, ...productData } = data;
+    const { siteIds, ...productData } = data;
     return prisma.product.create({
       data: {
         ...productData,
-        zones: {
-          create: (zoneIds || []).map((id: number) => ({ zoneId: id }))
+        sites: {
+          create: (siteIds || []).map((id: number) => ({ siteId: id }))
         }
       }
     });
   }
 
   async update(id: number, data: any) {
-    const { zoneIds, ...productData } = data;
+    const { siteIds, ...productData } = data;
     const updateData: any = { ...productData };
     
-    if (zoneIds) {
-      updateData.zones = {
+    if (siteIds) {
+      updateData.sites = {
         deleteMany: {},
-        create: zoneIds.map((id: number) => ({ zoneId: id }))
+        create: siteIds.map((id: number) => ({ siteId: id }))
       };
     }
 
@@ -86,11 +79,10 @@ export class ProductRepository {
   }
 
   async delete(id: number) {
-    // Suppression en cascade manuelle pour garantir l'intégrité
     return prisma.$transaction([
       prisma.harvest.deleteMany({ where: { productId: id } }),
       prisma.orderItem.deleteMany({ where: { productId: id } }),
-      prisma.productZone.deleteMany({ where: { productId: id } }),
+      prisma.productSite.deleteMany({ where: { productId: id } }),
       prisma.product.delete({ where: { id } })
     ]);
   }

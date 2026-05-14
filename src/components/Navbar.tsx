@@ -148,7 +148,7 @@ export default function Navbar() {
 
               <div className="flex items-center space-x-4 border-l border-gray-200 pl-6">
                 <a 
-                  href="http://localhost:5175/login"
+                  href="/admin/login"
                   className="ml-2 inline-flex items-center justify-center px-5 py-2.5 border border-transparent text-sm font-bold rounded-xl text-white bg-[#1a2b3c] hover:bg-gray-800 shadow-sm transition-all hover:shadow-md active:scale-95"
                 >
                   <svg className="h-4 w-4 mr-2" fill="none" viewBox="0 0 24 24" stroke="currentColor">
@@ -243,7 +243,7 @@ export default function Navbar() {
                 ))}
                 <div className="pt-4 flex flex-col gap-3">
                   <a 
-                    href="http://localhost:5175/login"
+                    href="/admin/login"
                     className="w-full inline-flex items-center justify-center px-4 py-3 border border-transparent text-base font-bold rounded-xl text-white bg-[#1a2b3c] hover:bg-gray-800 shadow-sm transition-colors"
                     onClick={() => setIsOpen(false)}
                   >

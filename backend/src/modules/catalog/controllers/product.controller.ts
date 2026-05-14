@@ -33,7 +33,7 @@ export class ProductController {
         stock: parseFloat(data.quantityKg) || 0, // Initialise le stock avec l'estimation de récolte
         sites: {
           create: (JSON.parse(data.siteIds || '[]')).map((id: number) => ({
-            site: { connect: { id } }
+            siteId: id
           }))
         }
       };
@@ -72,7 +72,12 @@ export class ProductController {
       const { id } = req.params;
       const item = await prisma.product.findUnique({
         where: { id: parseInt(id) },
-        include: { type: true, category: true, variety: true, sites: { include: { site: { include: { geographicZone: true } } } } }
+        include: { 
+          type: true, 
+          category: true, 
+          variety: true, 
+          sites: { include: { site: { include: { geographicZone: true } } } } 
+        }
       });
       res.json({ success: true, data: item });
     } catch (error: any) {
@@ -134,7 +139,7 @@ export class ProductController {
           sites: data.siteIds ? {
             deleteMany: {},
             create: (JSON.parse(data.siteIds || '[]')).map((siteId: number) => ({
-              site: { connect: { id: siteId } }
+              siteId: siteId
             }))
           } : undefined
         }
