@@ -7,7 +7,7 @@ export class OrderController {
       const { userId, customerName, customerEmail, customerPhone, customerWhatsapp, customerCountry, shippingAddress, notes, items, status = 'PENDING' } = req.body;
       
       let totalAmount = 0;
-      const orderItemsData = [];
+      const orderItemsData: any[] = [];
 
       for (const item of items) {
         const product = await prisma.product.findUnique({ where: { id: item.productId } });
@@ -81,7 +81,7 @@ export class OrderController {
       const { id } = req.params;
       const { status } = req.body;
       const order = await prisma.order.update({
-        where: { id: parseInt(id) },
+        where: { id: parseInt(id as string) },
         data: { status }
       });
       res.json({ success: true, data: order });

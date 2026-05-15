@@ -62,11 +62,11 @@ class AuthService {
   }
 
   generateAccessToken(userId: string, role: string) {
-    return jwt.sign({ userId, role }, ACCESS_SECRET, { expiresIn: ACCESS_EXP });
+    return jwt.sign({ userId, role }, ACCESS_SECRET as string, { expiresIn: ACCESS_EXP as any });
   }
 
   generateRefreshToken(userId: string) {
-    return jwt.sign({ userId }, REFRESH_SECRET, { expiresIn: REFRESH_EXP });
+    return jwt.sign({ userId }, REFRESH_SECRET as string, { expiresIn: REFRESH_EXP as any });
   }
 
   async logout(userId: string) {

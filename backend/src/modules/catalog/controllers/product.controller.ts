@@ -71,7 +71,7 @@ export class ProductController {
     try {
       const { id } = req.params;
       const item = await prisma.product.findUnique({
-        where: { id: parseInt(id) },
+        where: { id: parseInt(id as string) },
         include: { 
           type: true, 
           category: true, 
@@ -91,7 +91,7 @@ export class ProductController {
       const files = req.files as { [fieldname: string]: Express.Multer.File[] } | undefined;
       const data = req.body;
       
-      const existingProduct = await prisma.product.findUnique({ where: { id: parseInt(id) } });
+      const existingProduct = await prisma.product.findUnique({ where: { id: parseInt(id as string) } });
       if (!existingProduct) {
         return res.status(404).json({ success: false, message: 'Produit non trouvé' });
       }
@@ -123,7 +123,7 @@ export class ProductController {
       // Calcul du stock : Estimation Récolte - Quantité Réservée
       if (data.quantityKg !== undefined) {
         const reservedAggregate = await prisma.orderItem.aggregate({
-          where: { productId: parseInt(id) },
+          where: { productId: parseInt(id as string) },
           _sum: { quantity: true }
         });
         const totalReserved = reservedAggregate._sum.quantity || 0;
@@ -133,7 +133,7 @@ export class ProductController {
       }
 
       const product = await prisma.product.update({
-        where: { id: parseInt(id) },
+        where: { id: parseInt(id as string) },
         data: {
           ...payload,
           sites: data.siteIds ? {
@@ -155,7 +155,7 @@ export class ProductController {
   delete = async (req: Request, res: Response) => {
     try {
       const { id } = req.params;
-      await prisma.product.delete({ where: { id: parseInt(id) } });
+      await prisma.product.delete({ where: { id: parseInt(id as string) } });
       res.json({ success: true, message: 'Produit supprimé' });
     } catch (error: any) {
       res.status(400).json({ success: false, message: error.message });

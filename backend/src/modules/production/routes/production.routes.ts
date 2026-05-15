@@ -27,7 +27,7 @@ export class GeographicZoneController {
   delete = async (req: Request, res: Response) => {
     try {
       const { id } = req.params;
-      await prisma.geographicZone.delete({ where: { id: parseInt(id) } });
+      await prisma.geographicZone.delete({ where: { id: parseInt(id as string) } });
       res.json({ success: true, message: 'Zone supprimée' });
     } catch (error: any) {
       res.status(400).json({ success: false, message: error.message });
@@ -62,7 +62,7 @@ export class CultureSiteController {
   delete = async (req: Request, res: Response) => {
     try {
       const { id } = req.params;
-      await prisma.cultureSite.delete({ where: { id: parseInt(id) } });
+      await prisma.cultureSite.delete({ where: { id: parseInt(id as string) } });
       res.json({ success: true, message: 'Site supprimé' });
     } catch (error: any) {
       res.status(400).json({ success: false, message: error.message });

@@ -27,7 +27,7 @@ export class CategoryController {
 
   deleteCategory = async (req: Request, res: Response) => {
     try {
-      const id = parseInt(req.params.id);
+      const id = parseInt(req.params.id as string);
       
       // Cascade Delete using a transaction
       await prisma.$transaction(async (tx) => {
@@ -64,7 +64,7 @@ export class CategoryController {
   // --- VARIÉTÉS ---
   deleteVariety = async (req: Request, res: Response) => {
     try {
-      const id = parseInt(req.params.id);
+      const id = parseInt(req.params.id as string);
       
       await prisma.$transaction(async (tx) => {
         // 1. Supprimer tous les produits utilisant cette variété
@@ -85,7 +85,7 @@ export class CategoryController {
   getVarietiesByCategory = async (req: Request, res: Response) => {
     try {
       const varieties = await prisma.productVariety.findMany({
-        where: { categoryId: parseInt(req.params.categoryId) }
+        where: { categoryId: parseInt(req.params.categoryId as string) }
       });
       res.json({ success: true, data: varieties });
     } catch (error: any) {

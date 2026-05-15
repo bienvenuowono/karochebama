@@ -28,11 +28,10 @@ export class ReportingController {
           orderBy: { _sum: { quantity: 'desc' } },
           take: 5
         }),
-        // 3. Revenus par Site de culture
+        // 3. Revenus (Placeholder simplifié par type de produit)
         prisma.product.groupBy({
-          by: ['siteId'],
-          _sum: { stock: true }, // Placeholder pour CA par site (nécessiterait lien OrderItem->Site)
-          where: { siteId: { not: null } }
+          by: ['typeId'],
+          _sum: { quantityKg: true },
         }),
         // 4. Rendement moyen par catégorie
         prisma.category.findMany({
