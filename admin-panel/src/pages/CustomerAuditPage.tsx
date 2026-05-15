@@ -35,7 +35,7 @@ const CustomerAuditPage = () => {
       setLoading(true);
       const token = authService.getToken();
       const config = { headers: { Authorization: `Bearer ${token}` } };
-      const response = await axios.get('http://localhost:5001/api/v1/catalog/orders', config);
+      const response = await axios.get('https://karochebama.com/api/v1/catalog/orders', config);
       setOrders(response.data?.data || []);
     } catch (err) {
       console.error('Error fetching orders:', err);

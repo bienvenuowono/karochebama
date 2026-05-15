@@ -58,7 +58,7 @@ const UsersPage = () => {
       setLoading(true);
       const token = authService.getToken();
       const config = { headers: { Authorization: `Bearer ${token}` } };
-      const res = await axios.get('http://localhost:5001/api/v1/users', config);
+      const res = await axios.get('https://karochebama.com/api/v1/users', config);
       setUsers(res.data.data);
     } catch (error) {
       console.error('Error fetching users:', error);
@@ -135,10 +135,10 @@ const UsersPage = () => {
       
       if (selectedUser) {
         // Modification
-        await axios.patch(`http://localhost:5001/api/v1/users/${selectedUser.id}`, payload, config);
+        await axios.patch(`https://karochebama.com/api/v1/users/${selectedUser.id}`, payload, config);
       } else {
         // Création
-        await axios.post('http://localhost:5001/api/v1/users', payload, config);
+        await axios.post('https://karochebama.com/api/v1/users', payload, config);
       }
       
       setIsFormOpen(false);
@@ -154,7 +154,7 @@ const UsersPage = () => {
     if (!window.confirm("Supprimer cet utilisateur ?")) return;
     try {
       const token = authService.getToken();
-      await axios.delete(`http://localhost:5001/api/v1/users/${id}`, {
+      await axios.delete(`https://karochebama.com/api/v1/users/${id}`, {
         headers: { Authorization: `Bearer ${token}` }
       });
       fetchData();
@@ -168,7 +168,7 @@ const UsersPage = () => {
       id: 'name', 
       label: 'Utilisateur',
       format: (_: any, row: any) => {
-        const photoUrl = row.photoUrl ? (row.photoUrl.startsWith('http') ? row.photoUrl : `http://localhost:5001${row.photoUrl}`) : null;
+        const photoUrl = row.photoUrl ? (row.photoUrl.startsWith('http') ? row.photoUrl : `https://karochebama.com/api/v1${row.photoUrl}`) : null;
         return (
           <div className="flex items-center gap-3">
             <div className="w-10 h-10 rounded-xl bg-primary-50 text-primary-600 flex items-center justify-center font-bold overflow-hidden">
@@ -288,7 +288,7 @@ const UsersPage = () => {
               <div className="w-20 h-20 bg-primary-500 rounded-[32px] flex items-center justify-center text-white text-3xl font-black shadow-lg shadow-primary-500/30 overflow-hidden">
                 {selectedUser.photoUrl ? (
                   <img 
-                    src={selectedUser.photoUrl.startsWith('http') ? selectedUser.photoUrl : `http://localhost:5001${selectedUser.photoUrl}`} 
+                    src={selectedUser.photoUrl.startsWith('http') ? selectedUser.photoUrl : `https://karochebama.com/api/v1${selectedUser.photoUrl}`} 
                     alt="Avatar" 
                     className="w-full h-full object-cover" 
                   />

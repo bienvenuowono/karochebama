@@ -28,7 +28,7 @@ const MediaPage = () => {
   const fetchData = async () => {
     try {
       setLoading(true);
-      const res = await axios.get('http://localhost:5001/api/v1/media');
+      const res = await axios.get('https://karochebama.com/api/v1/media');
       setMedia(res.data);
     } catch (error) {
       console.error('Error fetching media:', error);
@@ -61,12 +61,12 @@ const MediaPage = () => {
       const token = authService.getToken();
 
       if (editingId) {
-        await axios.put(`http://localhost:5001/api/v1/media/${editingId}`, payload, {
+        await axios.put(`https://karochebama.com/api/v1/media/${editingId}`, payload, {
           headers: { Authorization: `Bearer ${token}` }
         });
         alert("Média mis à jour !");
       } else {
-        await axios.post('http://localhost:5001/api/v1/media', payload, {
+        await axios.post('https://karochebama.com/api/v1/media', payload, {
           headers: { Authorization: `Bearer ${token}` }
         });
         alert("Média ajouté !");
@@ -86,7 +86,7 @@ const MediaPage = () => {
     if (!window.confirm("Êtes-vous sûr de vouloir supprimer ce média ?")) return;
     try {
       const token = authService.getToken();
-      await axios.delete(`http://localhost:5001/api/v1/media/${id}`, {
+      await axios.delete(`https://karochebama.com/api/v1/media/${id}`, {
         headers: { Authorization: `Bearer ${token}` }
       });
       fetchData();
@@ -109,7 +109,7 @@ const MediaPage = () => {
       format: (val: string, row: any) => (
         <div className="flex items-center gap-3">
           {row.type === 'IMAGE' ? (
-             <img src={val ? (val.startsWith('http') ? val : `http://localhost:5001${val}`) : ''} alt="media" className="w-12 h-12 rounded-lg object-cover bg-slate-100" />
+             <img src={val ? (val.startsWith('http') ? val : `https://karochebama.com/api/v1${val}`) : ''} alt="media" className="w-12 h-12 rounded-lg object-cover bg-slate-100" />
           ) : (
             <div className="w-12 h-12 rounded-lg bg-red-50 text-red-500 flex items-center justify-center">
               <Video size={20} />

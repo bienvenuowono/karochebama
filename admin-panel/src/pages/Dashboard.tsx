@@ -39,7 +39,7 @@ const Dashboard = () => {
   const fetchStats = async () => {
     try {
       const token = authService.getToken();
-      const res = await axios.get('http://localhost:5001/api/v1/production/analytics/dashboard-stats', {
+      const res = await axios.get('https://karochebama.com/api/v1/production/analytics/dashboard-stats', {
         headers: { Authorization: `Bearer ${token}` }
       });
       setStats(res.data.data);
@@ -53,7 +53,7 @@ const Dashboard = () => {
   const handleProcessOrder = async (id: number) => {
     try {
       const token = authService.getToken();
-      await axios.patch(`http://localhost:5001/api/v1/catalog/orders/${id}/status`, { isProcessed: true }, {
+      await axios.patch(`https://karochebama.com/api/v1/catalog/orders/${id}/status`, { isProcessed: true }, {
         headers: { Authorization: `Bearer ${token}` }
       });
       fetchStats();
@@ -65,7 +65,7 @@ const Dashboard = () => {
   const handleSetPaid = async (id: number) => {
     try {
       const token = authService.getToken();
-      await axios.patch(`http://localhost:5001/api/v1/catalog/orders/${id}/status`, { status: 'PAID', isProcessed: true }, {
+      await axios.patch(`https://karochebama.com/api/v1/catalog/orders/${id}/status`, { status: 'PAID', isProcessed: true }, {
         headers: { Authorization: `Bearer ${token}` }
       });
       fetchStats();

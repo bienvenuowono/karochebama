@@ -25,8 +25,8 @@ const SitesPage = () => {
       const token = authService.getToken();
       const config = { headers: { Authorization: `Bearer ${token}` } };
       const [sRes, zRes] = await Promise.all([
-        axios.get('http://localhost:5001/api/v1/production/sites', config),
-        axios.get('http://localhost:5001/api/v1/production/zones', config)
+        axios.get('https://karochebama.com/api/v1/production/sites', config),
+        axios.get('https://karochebama.com/api/v1/production/zones', config)
       ]);
       setSites(sRes.data.data);
       setZones(zRes.data.data);
@@ -39,7 +39,7 @@ const SitesPage = () => {
     e.preventDefault();
     try {
       const token = authService.getToken();
-      await axios.post('http://localhost:5001/api/v1/production/sites', 
+      await axios.post('https://karochebama.com/api/v1/production/sites', 
         formData,
         { headers: { Authorization: `Bearer ${token}` } }
       );
@@ -55,7 +55,7 @@ const SitesPage = () => {
     if (!window.confirm('Supprimer ce site ?')) return;
     try {
       const token = authService.getToken();
-      await axios.delete(`http://localhost:5001/api/v1/production/sites/${id}`, {
+      await axios.delete(`https://karochebama.com/api/v1/production/sites/${id}`, {
         headers: { Authorization: `Bearer ${token}` }
       });
       fetchData();

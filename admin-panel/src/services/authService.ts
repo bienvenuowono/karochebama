@@ -1,6 +1,6 @@
 import axios from 'axios';
 
-const API_URL = 'http://localhost:5001/api/v1';
+const API_URL = 'https://karochebama.com/api/v1';
 
 export const authService = {
   async login(email: string, password: string) {

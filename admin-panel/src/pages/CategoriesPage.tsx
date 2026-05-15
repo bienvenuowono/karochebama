@@ -24,7 +24,7 @@ const CategoriesPage = () => {
       setLoading(true);
       const token = authService.getToken();
       const config = { headers: { Authorization: `Bearer ${token}` } };
-      const res = await axios.get('http://localhost:5001/api/v1/catalog/categories', config);
+      const res = await axios.get('https://karochebama.com/api/v1/catalog/categories', config);
       setCategories(res.data.data);
     } catch (error) {
       console.error('Error fetching categories:', error);
@@ -37,7 +37,7 @@ const CategoriesPage = () => {
     e.preventDefault();
     try {
       const token = authService.getToken();
-      await axios.post('http://localhost:5001/api/v1/catalog/categories', { name: newCatName }, {
+      await axios.post('https://karochebama.com/api/v1/catalog/categories', { name: newCatName }, {
         headers: { Authorization: `Bearer ${token}` }
       });
       setNewCatName('');
@@ -59,7 +59,7 @@ const CategoriesPage = () => {
 
     try {
       const token = authService.getToken();
-      await axios.delete(`http://localhost:5001/api/v1/catalog/categories/${category.id}`, {
+      await axios.delete(`https://karochebama.com/api/v1/catalog/categories/${category.id}`, {
         headers: { Authorization: `Bearer ${token}` }
       });
       fetchData();
@@ -72,7 +72,7 @@ const CategoriesPage = () => {
     if (!window.confirm("Supprimer cette variété ?")) return;
     try {
       const token = authService.getToken();
-      await axios.delete(`http://localhost:5001/api/v1/catalog/categories/varieties/${id}`, {
+      await axios.delete(`https://karochebama.com/api/v1/catalog/categories/varieties/${id}`, {
         headers: { Authorization: `Bearer ${token}` }
       });
       fetchData();
@@ -86,7 +86,7 @@ const CategoriesPage = () => {
     e.preventDefault();
     try {
       const token = authService.getToken();
-      await axios.post('http://localhost:5001/api/v1/catalog/categories/varieties', { 
+      await axios.post('https://karochebama.com/api/v1/catalog/categories/varieties', { 
         name: newVarName, 
         categoryId: selectedCategory.id 
       }, {

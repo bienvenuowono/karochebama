@@ -12,7 +12,7 @@ export default function ProjectDetail() {
     const fetchProject = async () => {
       try {
         setLoading(true);
-        const response = await axios.get(`http://localhost:5001/api/v1/projects/${id}`);
+        const response = await axios.get(`https://karochebama.com/api/v1/projects/${id}`);
         setProject(response.data);
       } catch (error) {
         console.error('Error fetching project:', error);
@@ -60,7 +60,7 @@ export default function ProjectDetail() {
       <div className="relative h-[60vh] min-h-[500px] w-full overflow-hidden">
         {project.imageUrl && (
           <img 
-            src={project.imageUrl.startsWith('http') ? project.imageUrl : `http://localhost:5001${project.imageUrl}`} 
+            src={project.imageUrl.startsWith('http') ? project.imageUrl : `https://karochebama.com/api/v1${project.imageUrl}`} 
             alt={project.title} 
             className="w-full h-full object-cover"
             referrerPolicy="no-referrer"

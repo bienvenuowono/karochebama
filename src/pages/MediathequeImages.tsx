@@ -14,7 +14,7 @@ export default function MediathequeImages() {
   const fetchImages = async () => {
     try {
       setLoading(true);
-      const response = await axios.get('http://localhost:5001/api/v1/media');
+      const response = await axios.get('https://karochebama.com/api/v1/media');
       // On filtre uniquement les images
       const filtered = response.data.filter((m: any) => m.type === 'IMAGE');
       setImages(filtered);
@@ -54,7 +54,7 @@ export default function MediathequeImages() {
         ) : images.length > 0 ? (
           <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-6">
             {images.map((image) => {
-              const fullUrl = image.url.startsWith('http') ? image.url : `http://localhost:5001${image.url}`;
+              const fullUrl = image.url.startsWith('http') ? image.url : `https://karochebama.com/api/v1${image.url}`;
               return (
                 <div 
                   key={image.id} 

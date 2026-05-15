@@ -40,7 +40,7 @@ const ReportsPage = () => {
   const fetchData = async () => {
     try {
       const token = authService.getToken();
-      const res = await axios.get('http://localhost:5001/api/v1/production/reporting/financial-summary', {
+      const res = await axios.get('https://karochebama.com/api/v1/production/reporting/financial-summary', {
         headers: { Authorization: `Bearer ${token}` }
       });
       setData(res.data.data);

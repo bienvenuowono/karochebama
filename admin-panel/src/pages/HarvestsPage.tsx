@@ -49,9 +49,9 @@ const HarvestsPage = () => {
       const config = { headers: { Authorization: `Bearer ${token}` } };
       
       const [fRes, hRes, pRes] = await Promise.all([
-        axios.get('http://localhost:5001/api/v1/production/harvests/forecasts', config),
-        axios.get('http://localhost:5001/api/v1/production/harvests/history', config),
-        axios.get('http://localhost:5001/api/v1/catalog/products', config)
+        axios.get('https://karochebama.com/api/v1/production/harvests/forecasts', config),
+        axios.get('https://karochebama.com/api/v1/production/harvests/history', config),
+        axios.get('https://karochebama.com/api/v1/catalog/products', config)
       ]);
 
       setActiveCultures(fRes.data.data);
@@ -85,7 +85,7 @@ const HarvestsPage = () => {
     e.preventDefault();
     try {
       const token = authService.getToken();
-      await axios.post('http://localhost:5001/api/v1/production/harvests', 
+      await axios.post('https://karochebama.com/api/v1/production/harvests', 
         formData, 
         { headers: { Authorization: `Bearer ${token}` } }
       );

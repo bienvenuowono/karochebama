@@ -12,7 +12,7 @@ export default function ActivityDetail() {
     const fetchActivity = async () => {
       try {
         setLoading(true);
-        const response = await axios.get(`http://localhost:5001/api/v1/activities/${id}`);
+        const response = await axios.get(`https://karochebama.com/api/v1/activities/${id}`);
         setActivity(response.data);
       } catch (error) {
         console.error('Error fetching activity:', error);
@@ -98,7 +98,7 @@ export default function ActivityDetail() {
         {activity.imageUrl && (
           <div className="rounded-[2.5rem] overflow-hidden shadow-2xl shadow-emerald-900/10 mb-12">
             <img 
-              src={activity.imageUrl.startsWith('http') ? activity.imageUrl : `http://localhost:5001${activity.imageUrl}`} 
+              src={activity.imageUrl.startsWith('http') ? activity.imageUrl : `https://karochebama.com/api/v1${activity.imageUrl}`} 
               alt={activity.title} 
               className="w-full h-auto object-cover max-h-[600px]"
               referrerPolicy="no-referrer"

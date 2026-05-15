@@ -28,7 +28,7 @@ const ActivitiesPage = () => {
   const fetchData = async () => {
     try {
       setLoading(true);
-      const res = await axios.get('http://localhost:5001/api/v1/activities');
+      const res = await axios.get('https://karochebama.com/api/v1/activities');
       setActivities(res.data);
     } catch (error) {
       console.error('Error fetching activities:', error);
@@ -61,12 +61,12 @@ const ActivitiesPage = () => {
       const token = authService.getToken();
 
       if (editingId) {
-        await axios.put(`http://localhost:5001/api/v1/activities/${editingId}`, payload, {
+        await axios.put(`https://karochebama.com/api/v1/activities/${editingId}`, payload, {
           headers: { Authorization: `Bearer ${token}` }
         });
         alert("Activité mise à jour !");
       } else {
-        await axios.post('http://localhost:5001/api/v1/activities', payload, {
+        await axios.post('https://karochebama.com/api/v1/activities', payload, {
           headers: { Authorization: `Bearer ${token}` }
         });
         alert("Activité enregistrée !");
@@ -89,7 +89,7 @@ const ActivitiesPage = () => {
     if (!window.confirm("Êtes-vous sûr de vouloir supprimer cette activité ?")) return;
     try {
       const token = authService.getToken();
-      await axios.delete(`http://localhost:5001/api/v1/activities/${id}`, {
+      await axios.delete(`https://karochebama.com/api/v1/activities/${id}`, {
         headers: { Authorization: `Bearer ${token}` }
       });
       fetchData();
@@ -105,7 +105,7 @@ const ActivitiesPage = () => {
       format: (val: string, row: any) => (
         <div className="flex items-center gap-3">
           {row.imageUrl ? (
-            <img src={row.imageUrl.startsWith('http') ? row.imageUrl : `http://localhost:5001${row.imageUrl}`} alt={val} className="w-10 h-10 rounded-xl object-cover" />
+            <img src={row.imageUrl.startsWith('http') ? row.imageUrl : `https://karochebama.com/api/v1${row.imageUrl}`} alt={val} className="w-10 h-10 rounded-xl object-cover" />
           ) : (
             <div className="w-10 h-10 rounded-xl bg-primary-50 text-primary-600 flex items-center justify-center font-bold">
               <Sprout size={20} />

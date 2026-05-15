@@ -47,9 +47,9 @@ const OrdersPage = () => {
       
       // Utilisation de allSettled pour ne pas tout bloquer si une API échoue
       const responses = await Promise.allSettled([
-        axios.get('http://localhost:5001/api/v1/catalog/orders', config),
-        axios.get('http://localhost:5001/api/v1/catalog/products', config),
-        axios.get('http://localhost:5001/api/v1/users', config)
+        axios.get('https://karochebama.com/api/v1/catalog/orders', config),
+        axios.get('https://karochebama.com/api/v1/catalog/products', config),
+        axios.get('https://karochebama.com/api/v1/users', config)
       ]);
 
       const [oRes, pRes, uRes] = responses.map(r => r.status === 'fulfilled' ? (r as any).value : { data: { data: [] } });
@@ -67,7 +67,7 @@ const OrdersPage = () => {
   const handleUpdateStatus = async (id: number, updates: any) => {
     try {
       const token = authService.getToken();
-      await axios.patch(`http://localhost:5001/api/v1/catalog/orders/${id}/status`, updates, {
+      await axios.patch(`https://karochebama.com/api/v1/catalog/orders/${id}/status`, updates, {
         headers: { Authorization: `Bearer ${token}` }
       });
       fetchData();

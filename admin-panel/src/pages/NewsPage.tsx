@@ -28,7 +28,7 @@ const NewsPage = () => {
   const fetchData = async () => {
     try {
       setLoading(true);
-      const res = await axios.get('http://localhost:5001/api/v1/news');
+      const res = await axios.get('https://karochebama.com/api/v1/news');
       setNews(res.data);
     } catch (error) {
       console.error('Error fetching news:', error);
@@ -61,12 +61,12 @@ const NewsPage = () => {
       const token = authService.getToken();
 
       if (editingId) {
-        await axios.put(`http://localhost:5001/api/v1/news/${editingId}`, payload, {
+        await axios.put(`https://karochebama.com/api/v1/news/${editingId}`, payload, {
           headers: { Authorization: `Bearer ${token}` }
         });
         alert("Article mis à jour !");
       } else {
-        await axios.post('http://localhost:5001/api/v1/news', payload, {
+        await axios.post('https://karochebama.com/api/v1/news', payload, {
           headers: { Authorization: `Bearer ${token}` }
         });
         alert("Article publié avec succès !");
@@ -86,7 +86,7 @@ const NewsPage = () => {
     if (!window.confirm("Êtes-vous sûr de vouloir supprimer cet article ?")) return;
     try {
       const token = authService.getToken();
-      await axios.delete(`http://localhost:5001/api/v1/news/${id}`, {
+      await axios.delete(`https://karochebama.com/api/v1/news/${id}`, {
         headers: { Authorization: `Bearer ${token}` }
       });
       fetchData();
@@ -109,7 +109,7 @@ const NewsPage = () => {
       format: (val: string, row: any) => (
         <div className="flex items-center gap-3">
           {row.imageUrl ? (
-            <img src={row.imageUrl.startsWith('http') ? row.imageUrl : `http://localhost:5001${row.imageUrl}`} alt={val} className="w-10 h-10 rounded-xl object-cover" />
+            <img src={row.imageUrl.startsWith('http') ? row.imageUrl : `https://karochebama.com/api/v1${row.imageUrl}`} alt={val} className="w-10 h-10 rounded-xl object-cover" />
           ) : (
             <div className="w-10 h-10 rounded-xl bg-indigo-50 text-indigo-600 flex items-center justify-center font-bold">
               <Newspaper size={20} />
