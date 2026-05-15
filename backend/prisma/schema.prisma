@@ -27,6 +27,8 @@ model User {
   orders       Order[]
   createdAt    DateTime @default(now())
   updatedAt    DateTime @updatedAt
+
+  @@map("user")
 }
 
 // --- MODULE PRODUCTION (GÉOGRAPHIQUE) ---
@@ -36,6 +38,8 @@ model GeographicZone {
   name         String        @unique // Centre, Littoral, Sud, etc.
   cultureSites CultureSite[]
   createdAt    DateTime      @default(now())
+
+  @@map("geographiczone")
 }
 
 model CultureSite {
@@ -47,6 +51,8 @@ model CultureSite {
   harvests         Harvest[]
   createdAt        DateTime       @default(now())
   updatedAt        DateTime       @updatedAt
+
+  @@map("culturesite")
 }
 
 // --- MODULE CATALOGUE ---
@@ -58,6 +64,8 @@ model Category {
   products  Product[]
   createdAt DateTime  @default(now())
   updatedAt DateTime  @updatedAt
+
+  @@map("category")
 }
 
 model ProductType {
@@ -65,6 +73,8 @@ model ProductType {
   name      String    @unique
   products  Product[]
   createdAt DateTime  @default(now())
+
+  @@map("producttype")
 }
 
 model ProductVariety {
@@ -75,6 +85,8 @@ model ProductVariety {
   products    Product[]
   createdAt   DateTime @default(now())
   updatedAt   DateTime @updatedAt
+
+  @@map("productvariety")
 }
 
 model Product {
@@ -114,6 +126,8 @@ model Product {
   @@index([typeId])
   @@index([categoryId])
   @@index([varietyId])
+
+  @@map("product")
 }
 
 // Table de liaison entre Produits et Sites de Culture
@@ -123,6 +137,8 @@ model ProductSite {
   product   Product      @relation(fields: [productId], references: [id])
   site      CultureSite  @relation(fields: [siteId], references: [id])
   @@id([productId, siteId])
+
+  @@map("productsite")
 }
 
 // --- MODULE : RÉCOLTES ---
@@ -139,6 +155,8 @@ model Harvest {
   notes       String?        @db.Text
   createdAt   DateTime       @default(now())
   updatedAt   DateTime       @updatedAt
+
+  @@map("harvest")
 
   @@index([productId])
   @@index([siteId])
@@ -163,6 +181,8 @@ model Order {
   createdAt       DateTime    @default(now())
   updatedAt       DateTime    @updatedAt
 
+  @@map("order")
+
   @@index([userId])
 }
 
@@ -177,6 +197,8 @@ model OrderItem {
 
   @@index([orderId])
   @@index([productId])
+
+  @@map("orderitem")
 }
 
 // --- MODULE : CONTACT & MESSAGES ---
@@ -189,6 +211,8 @@ model ContactMessage {
   message   String   @db.Text
   isRead    Boolean  @default(false)
   createdAt DateTime @default(now())
+
+  @@map("contactmessage")
 }
 
 // --- MODULE : SITE VITRINE (CMS) ---
@@ -202,6 +226,8 @@ model Activity {
   status      String   @default("PUBLISHED") // PUBLISHED, DRAFT
   createdAt   DateTime @default(now())
   updatedAt   DateTime @updatedAt
+
+  @@map("activity")
 }
 
 model Project {
@@ -214,6 +240,8 @@ model Project {
   status      String   @default("ONGOING") // ONGOING, COMPLETED, PLANNED
   createdAt   DateTime @default(now())
   updatedAt   DateTime @updatedAt
+
+  @@map("project")
 }
 
 model Media {
@@ -224,6 +252,8 @@ model Media {
   type        String   @default("IMAGE") // IMAGE, VIDEO
   createdAt   DateTime @default(now())
   updatedAt   DateTime @updatedAt
+
+  @@map("media")
 }
 
 model Article {
@@ -235,4 +265,6 @@ model Article {
   status      String   @default("PUBLISHED") // PUBLISHED, DRAFT
   createdAt   DateTime @default(now())
   updatedAt   DateTime @updatedAt
+
+  @@map("article")
 }
