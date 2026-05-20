@@ -10,7 +10,7 @@ router.use(authenticate);
 // Restricted to ADMIN
 router.get('/', authorize(['ADMIN']), userController.getAll);
 router.post('/', authorize(['ADMIN']), userController.create);
-router.patch('/:id', authorize(['ADMIN']), userController.update);
+router.put('/:id', authorize(['ADMIN']), userController.update);
 router.delete('/:id', authorize(['ADMIN']), userController.delete);
 
 export default router;

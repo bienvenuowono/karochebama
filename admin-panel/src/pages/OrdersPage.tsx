@@ -67,7 +67,7 @@ const OrdersPage = () => {
   const handleUpdateStatus = async (id: number, updates: any) => {
     try {
       const token = authService.getToken();
-      await axios.patch(`${import.meta.env.VITE_API_URL || 'http://localhost:5000/api/v1'}/catalog/orders/${id}/status`, updates, {
+      await axios.put(`${import.meta.env.VITE_API_URL || 'http://localhost:5000/api/v1'}/catalog/orders/${id}/status`, updates, {
         headers: { Authorization: `Bearer ${token}` }
       });
       fetchData();

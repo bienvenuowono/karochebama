@@ -111,6 +111,6 @@ const controller = new OrderController();
 
 router.post('/', authenticate, authorize(['ADMIN']), controller.create);
 router.get('/', authenticate, authorize(['ADMIN']), controller.getAll);
-router.patch('/:id/status', authenticate, authorize(['ADMIN']), controller.updateStatus);
+router.put('/:id/status', authenticate, authorize(['ADMIN']), controller.updateStatus);
 
 export default router;

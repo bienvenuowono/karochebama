@@ -19,7 +19,7 @@ router.post('/products', authenticate, authorize(['ADMIN']), uploadImages.fields
   { name: 'gallery', maxCount: 5 }
 ]), controller.create);
 
-router.patch('/products/:id', authenticate, authorize(['ADMIN']), uploadImages.fields([
+router.put('/products/:id', authenticate, authorize(['ADMIN']), uploadImages.fields([
   { name: 'image', maxCount: 1 },
   { name: 'gallery', maxCount: 5 }
 ]), controller.update);

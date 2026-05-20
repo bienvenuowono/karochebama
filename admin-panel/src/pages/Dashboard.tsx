@@ -53,7 +53,7 @@ const Dashboard = () => {
   const handleProcessOrder = async (id: number) => {
     try {
       const token = authService.getToken();
-      await axios.patch(`${import.meta.env.VITE_API_URL || 'http://localhost:5000/api/v1'}/catalog/orders/${id}/status`, { isProcessed: true }, {
+      await axios.put(`${import.meta.env.VITE_API_URL || 'http://localhost:5000/api/v1'}/catalog/orders/${id}/status`, { isProcessed: true }, {
         headers: { Authorization: `Bearer ${token}` }
       });
       fetchStats();
@@ -65,7 +65,7 @@ const Dashboard = () => {
   const handleSetPaid = async (id: number) => {
     try {
       const token = authService.getToken();
-      await axios.patch(`${import.meta.env.VITE_API_URL || 'http://localhost:5000/api/v1'}/catalog/orders/${id}/status`, { status: 'PAID', isProcessed: true }, {
+      await axios.put(`${import.meta.env.VITE_API_URL || 'http://localhost:5000/api/v1'}/catalog/orders/${id}/status`, { status: 'PAID', isProcessed: true }, {
         headers: { Authorization: `Bearer ${token}` }
       });
       fetchStats();

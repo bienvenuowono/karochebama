@@ -80,7 +80,7 @@ const ProfilePage = () => {
       const updateData = { ...formData, photoUrl: finalPhotoUrl };
       if (!updateData.password) delete (updateData as any).password;
       
-      const response = await axios.patch(`${import.meta.env.VITE_API_URL || 'http://localhost:5000/api/v1'}/users/${user.id}`, updateData, config);
+      const response = await axios.put(`${import.meta.env.VITE_API_URL || 'http://localhost:5000/api/v1'}/users/${user.id}`, updateData, config);
       
       if (response.data.success) {
         const updatedUser = response.data.data;

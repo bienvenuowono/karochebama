@@ -63,7 +63,7 @@ const ProductsPage = () => {
       };
       
       if (selectedProduct) {
-        await axios.patch(`${import.meta.env.VITE_API_URL || 'http://localhost:5000/api/v1'}/catalog/products/${(selectedProduct as any).id}`, formData, config);
+        await axios.put(`${import.meta.env.VITE_API_URL || 'http://localhost:5000/api/v1'}/catalog/products/${(selectedProduct as any).id}`, formData, config);
       } else {
         await axios.post(`${import.meta.env.VITE_API_URL || 'http://localhost:5000/api/v1'}/catalog/products`, formData, config);
       }

@@ -48,6 +48,8 @@ const UsersPage = () => {
     password: ''
   });
   const [imageFile, setImageFile] = useState<File | null>(null);
+  const [errorMsg, setErrorMsg] = useState<string | null>(null);
+  const [successMsg, setSuccessMsg] = useState<string | null>(null);
 
   useEffect(() => {
     fetchData();
@@ -116,6 +118,8 @@ const UsersPage = () => {
       setSelectedUser(null);
     }
     setImageFile(null);
+    setErrorMsg(null);
+    setSuccessMsg(null);
     setIsFormOpen(true);
   };
 
@@ -134,19 +138,23 @@ const UsersPage = () => {
       if (!payload.password && selectedUser) delete (payload as any).password;
       
       if (selectedUser) {
-        // Modification
-        await axios.patch(`${import.meta.env.VITE_API_URL || 'http://localhost:5000/api/v1'}/users/${selectedUser.id}`, payload, config);
+        // Modification avec PUT au lieu de PATCH pour contourner les restrictions Apache
+        await axios.put(`${import.meta.env.VITE_API_URL || 'http://localhost:5000/api/v1'}/users/${selectedUser.id}`, payload, config);
+        setSuccessMsg("Utilisateur mis à jour avec succès !");
       } else {
         // Création
         await axios.post(`${import.meta.env.VITE_API_URL || 'http://localhost:5000/api/v1'}/users`, payload, config);
+        setSuccessMsg("Utilisateur créé avec succès !");
       }
       
-      setIsFormOpen(false);
-      fetchData();
+      setTimeout(() => {
+        setIsFormOpen(false);
+        fetchData();
+      }, 1000);
     } catch (error: any) {
       console.error('Error saving user:', error);
       const message = error.response?.data?.message || error.message || 'Erreur inconnue';
-      alert(`Erreur lors de l'enregistrement : ${message}`);
+      setErrorMsg(`Erreur lors de l'enregistrement : ${message}`);
     }
   };
 
@@ -378,6 +386,19 @@ const UsersPage = () => {
         title={selectedUser ? "Modifier l'utilisateur" : "Nouvel Utilisateur"}
       >
         <form onSubmit={handleSubmit} className="space-y-5">
+          {errorMsg && (
+            <div className="p-4 bg-rose-50 border border-rose-100 text-rose-700 text-xs font-bold rounded-2xl flex items-center gap-2.5 animate-fadeIn">
+              <span className="w-2 h-2 rounded-full bg-rose-500 animate-ping"></span>
+              <p className="flex-1">{errorMsg}</p>
+            </div>
+          )}
+          
+          {successMsg && (
+            <div className="p-4 bg-emerald-50 border border-emerald-100 text-emerald-700 text-xs font-bold rounded-2xl flex items-center gap-2.5 animate-fadeIn">
+              <span className="w-2 h-2 rounded-full bg-emerald-500"></span>
+              <p className="flex-1">{successMsg}</p>
+            </div>
+          )}
           <div className="grid grid-cols-2 gap-4">
             <div className="space-y-2">
               <label className="text-[10px] font-bold text-slate-400 uppercase ml-1">Prénom</label>
