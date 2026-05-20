@@ -1,9 +1,12 @@
 import { Request, Response, Router } from 'express';
 import prisma from '../../../config/prisma';
+import { sanitizeObject } from '../../../utils/sanitize';
+import { recalculateProductStock } from '../../../utils/stock';
 
 export class OrderController {
   create = async (req: Request, res: Response) => {
     try {
+      req.body = sanitizeObject(req.body);
       const { userId, customerName, customerEmail, customerPhone, customerWhatsapp, customerCountry, shippingAddress, notes, items, status = 'PENDING' } = req.body;
       
       let totalAmount = 0;
@@ -44,12 +47,9 @@ export class OrderController {
           include: { items: true }
         });
 
-        // Réduction immédiate des stocks lors de la réservation
+        // Recalcul dynamique des stocks lors de la commande
         for (const item of items) {
-          await tx.product.update({
-            where: { id: item.productId },
-            data: { stock: { decrement: item.quantity } }
-          });
+          await recalculateProductStock(item.productId, tx);
         }
 
         return order;
@@ -80,22 +80,37 @@ export class OrderController {
     try {
       const { id } = req.params;
       const { status } = req.body;
-      const order = await prisma.order.update({
-        where: { id: parseInt(id as string) },
-        data: { status }
+      
+      const orderId = parseInt(id as string);
+      
+      const result = await prisma.$transaction(async (tx) => {
+        const updatedOrder = await tx.order.update({
+          where: { id: orderId },
+          data: { status },
+          include: { items: true }
+        });
+        
+        for (const item of updatedOrder.items) {
+          await recalculateProductStock(item.productId, tx);
+        }
+        
+        return updatedOrder;
       });
-      res.json({ success: true, data: order });
+      
+      res.json({ success: true, data: result });
     } catch (error: any) {
       res.status(400).json({ success: false, message: error.message });
     }
   };
 }
 
+import { authenticate, authorize } from '../../../core/auth.middleware';
+
 const router = Router();
 const controller = new OrderController();
 
-router.post('/', controller.create);
-router.get('/', controller.getAll);
-router.patch('/:id/status', controller.updateStatus);
+router.post('/', authenticate, authorize(['ADMIN']), controller.create);
+router.get('/', authenticate, authorize(['ADMIN']), controller.getAll);
+router.patch('/:id/status', authenticate, authorize(['ADMIN']), controller.updateStatus);
 
 export default router;

@@ -2,7 +2,7 @@ import axios from 'axios';
 import { authService } from './authService';
 import { API_URL } from './api';
 
-const UPLOAD_URL = 'https://karochebama.com/api/v1/upload';
+const UPLOAD_URL = `${import.meta.env.VITE_API_URL || 'http://localhost:5000/api/v1'}/upload`;
 
 export const uploadService = {
   async uploadImage(file: File): Promise<string> {

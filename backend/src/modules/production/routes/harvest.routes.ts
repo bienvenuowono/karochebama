@@ -1,5 +1,7 @@
 import { Request, Response, Router } from 'express';
 import prisma from '../../../config/prisma';
+import { getPaginationParams, formatPaginatedResult } from '../../../utils/pagination';
+import { recalculateProductStock } from '../../../utils/stock';
 
 export class HarvestController {
   // 1. Enregistrer une nouvelle récolte
@@ -20,10 +22,10 @@ export class HarvestController {
         });
 
         // Mise à jour du stock et changement de statut
+        await recalculateProductStock(parseInt(productId), tx);
         await tx.product.update({
           where: { id: parseInt(productId) },
           data: { 
-            stock: { increment: parseFloat(quantity) },
             status: 'disponible' // Le produit devient disponible après récolte
           }
         });
@@ -40,25 +42,33 @@ export class HarvestController {
   // 2. Obtenir TOUTES les cultures en cours (Suivi de production)
   getForecasts = async (req: Request, res: Response) => {
     try {
-      const activeCultures = await prisma.product.findMany({
-        where: {
-          OR: [
-            { status: 'en_production' },
-            { 
-              maturityDate: {
-                gte: new Date()
-              } 
-            }
-          ]
-        },
-        include: {
-          category: true,
-          sites: { include: { site: true } },
-          variety: true
-        },
-        orderBy: { maturityDate: 'asc' }
-      });
-      res.json({ success: true, data: activeCultures });
+      const { page, limit, skip } = getPaginationParams(req);
+      const queryWhere = {
+        OR: [
+          { status: 'en_production' },
+          { 
+            maturityDate: {
+              gte: new Date()
+            } 
+          }
+        ]
+      };
+
+      const [items, total] = await Promise.all([
+        prisma.product.findMany({
+          where: queryWhere,
+          include: {
+            category: true,
+            sites: { include: { site: true } },
+            variety: true
+          },
+          orderBy: { maturityDate: 'asc' },
+          skip,
+          take: limit
+        }),
+        prisma.product.count({ where: queryWhere })
+      ]);
+      res.json(formatPaginatedResult(items, total, page, limit));
     } catch (error: any) {
       res.status(500).json({ success: false, message: error.message });
     }
@@ -67,16 +77,22 @@ export class HarvestController {
   // 3. Historique des récoltes
   getHistory = async (req: Request, res: Response) => {
     try {
-      const history = await prisma.harvest.findMany({
-        include: {
-          product: {
-            include: { category: true, variety: true }
+      const { page, limit, skip } = getPaginationParams(req);
+      const [items, total] = await Promise.all([
+        prisma.harvest.findMany({
+          include: {
+            product: {
+              include: { category: true, variety: true }
+            },
+            site: true
           },
-          site: true
-        },
-        orderBy: { harvestDate: 'desc' }
-      });
-      res.json({ success: true, data: history });
+          orderBy: { harvestDate: 'desc' },
+          skip,
+          take: limit
+        }),
+        prisma.harvest.count()
+      ]);
+      res.json(formatPaginatedResult(items, total, page, limit));
     } catch (error: any) {
       res.status(500).json({ success: false, message: error.message });
     }

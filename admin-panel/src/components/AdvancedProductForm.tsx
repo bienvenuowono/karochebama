@@ -49,8 +49,8 @@ const AdvancedProductForm = ({ onSubmit, onCancel, initialData }: any) => {
       const token = authService.getToken();
       const config = { headers: { Authorization: `Bearer ${token}` } };
       const [catRes, siteRes] = await Promise.all([
-        axios.get('https://karochebama.com/api/v1/catalog/categories', config),
-        axios.get('https://karochebama.com/api/v1/production/sites', config)
+        axios.get(`${import.meta.env.VITE_API_URL || 'http://localhost:5000/api/v1'}/catalog/categories`, config),
+        axios.get(`${import.meta.env.VITE_API_URL || 'http://localhost:5000/api/v1'}/production/sites`, config)
       ]);
       setCategories(catRes.data.data || []);
       setSites(siteRes.data.data || []);
@@ -76,11 +76,11 @@ const AdvancedProductForm = ({ onSubmit, onCancel, initialData }: any) => {
       });
 
       if (initialData.imageUrl) {
-        setMainPreview(initialData.imageUrl.startsWith('http') ? initialData.imageUrl : `https://karochebama.com/api/v1${initialData.imageUrl}`);
+        setMainPreview(initialData.imageUrl.startsWith('http') ? initialData.imageUrl : `${import.meta.env.VITE_API_URL || 'http://localhost:5000/api/v1'}${initialData.imageUrl}`);
       }
 
       if (initialData.gallery && Array.isArray(initialData.gallery)) {
-        setGalleryPreviews(initialData.gallery.map((url: string) => url.startsWith('http') ? url : `https://karochebama.com/api/v1${url}`));
+        setGalleryPreviews(initialData.gallery.map((url: string) => url.startsWith('http') ? url : `${import.meta.env.VITE_API_URL || 'http://localhost:5000/api/v1'}${url}`));
       }
       
       const cat: any = categories.find((c: any) => c.id === parseInt(initialData.categoryId));

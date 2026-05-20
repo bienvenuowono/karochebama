@@ -18,7 +18,7 @@ const ZonesPage = () => {
   const fetchZones = async () => {
     try {
       const token = authService.getToken();
-      const res = await axios.get('https://karochebama.com/api/v1/production/zones', {
+      const res = await axios.get(`${import.meta.env.VITE_API_URL || 'http://localhost:5000/api/v1'}/production/zones`, {
         headers: { Authorization: `Bearer ${token}` }
       });
       setZones(res.data.data);
@@ -31,7 +31,7 @@ const ZonesPage = () => {
     e.preventDefault();
     try {
       const token = authService.getToken();
-      await axios.post('https://karochebama.com/api/v1/production/zones', 
+      await axios.post(`${import.meta.env.VITE_API_URL || 'http://localhost:5000/api/v1'}/production/zones`, 
         { name: newZoneName },
         { headers: { Authorization: `Bearer ${token}` } }
       );
@@ -47,7 +47,7 @@ const ZonesPage = () => {
     if (!window.confirm('Supprimer cette zone ?')) return;
     try {
       const token = authService.getToken();
-      await axios.delete(`https://karochebama.com/api/v1/production/zones/${id}`, {
+      await axios.delete(`${import.meta.env.VITE_API_URL || 'http://localhost:5000/api/v1'}/production/zones/${id}`, {
         headers: { Authorization: `Bearer ${token}` }
       });
       fetchZones();

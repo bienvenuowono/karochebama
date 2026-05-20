@@ -1,5 +1,6 @@
 import { Request, Response, Router } from 'express';
 import prisma from '../../../config/prisma';
+import { sanitizeObject } from '../../../utils/sanitize';
 
 export class CategoryController {
   // --- CATÉGORIES ---
@@ -16,6 +17,7 @@ export class CategoryController {
 
   createCategory = async (req: Request, res: Response) => {
     try {
+      req.body = sanitizeObject(req.body);
       const category = await prisma.category.create({
         data: { name: req.body.name }
       });
@@ -95,6 +97,7 @@ export class CategoryController {
 
   createVariety = async (req: Request, res: Response) => {
     try {
+      req.body = sanitizeObject(req.body);
       const { name, categoryId } = req.body;
       const variety = await prisma.productVariety.create({
         data: { 
@@ -120,15 +123,17 @@ export class CategoryController {
   };
 }
 
+import { authenticate, authorize } from '../../../core/auth.middleware';
+
 const router = Router();
 const controller = new CategoryController();
 
 router.get('/', controller.getCategories);
-router.post('/', controller.createCategory);
-router.delete('/:id', controller.deleteCategory);
+router.post('/', authenticate, authorize(['ADMIN']), controller.createCategory);
+router.delete('/:id', authenticate, authorize(['ADMIN']), controller.deleteCategory);
 router.get('/varieties', controller.getAllVarieties);
-router.post('/varieties', controller.createVariety);
-router.delete('/varieties/:id', controller.deleteVariety);
+router.post('/varieties', authenticate, authorize(['ADMIN']), controller.createVariety);
+router.delete('/varieties/:id', authenticate, authorize(['ADMIN']), controller.deleteVariety);
 router.get('/:categoryId/varieties', controller.getVarietiesByCategory);
 
 export default router;

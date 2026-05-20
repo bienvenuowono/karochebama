@@ -2,33 +2,39 @@ import prisma from '../../config/prisma';
 import bcrypt from 'bcryptjs';
 
 class UserService {
-  async getAllUsers() {
-    return prisma.user.findMany({
-      select: {
-        id: true,
-        email: true,
-        firstName: true,
-        lastName: true,
-        phone: true,
-        whatsapp: true,
-        country: true,
-        address: true,
-        photoUrl: true,
-        role: true,
-        createdAt: true,
-        orders: {
-          select: {
-            id: true,
-            totalAmount: true,
-            status: true,
-            createdAt: true
+  async getAllUsers(skip?: number, take?: number) {
+    const [items, total] = await Promise.all([
+      prisma.user.findMany({
+        select: {
+          id: true,
+          email: true,
+          firstName: true,
+          lastName: true,
+          phone: true,
+          whatsapp: true,
+          country: true,
+          address: true,
+          photoUrl: true,
+          role: true,
+          createdAt: true,
+          orders: {
+            select: {
+              id: true,
+              totalAmount: true,
+              status: true,
+              createdAt: true
+            }
           }
-        }
-      },
-      orderBy: {
-        createdAt: 'desc'
-      }
-    });
+        },
+        orderBy: {
+          createdAt: 'desc'
+        },
+        skip,
+        take
+      }),
+      prisma.user.count()
+    ]);
+    return { items, total };
   }
 
   async getUserById(id: number) {

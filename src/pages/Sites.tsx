@@ -1,42 +1,94 @@
-import { MapPin, ArrowRight, Sprout, Building, Fish } from 'lucide-react';
+import { useState, useEffect } from 'react';
+import { MapPin, ArrowRight, Sprout, Building, Fish, Loader2 } from 'lucide-react';
 import { Link } from 'react-router-dom';
+import axios from 'axios';
+import { API_BASE } from '../api';
 
 export default function Sites() {
-  const sites = [
-    {
-      id: 'site-ambam',
-      name: 'Site Agricole Ambam',
-      description: 'Notre plus grand site de production agricole, spécialisé dans les cultures vivrières et de rente avec des techniques agro-écologiques modernes.',
-      location: 'Ambam, Sud Cameroun',
-      img: 'https://images.unsplash.com/photo-1592982537447-6f2a6a0c6c13?auto=format&fit=crop&w=1200&q=80',
-      icon: Sprout,
-      color: 'text-emerald-600',
-      bgColor: 'bg-emerald-50',
-      products: ['Banane Plantain', 'Macabo', 'Manioc']
-    },
-    {
-      id: 'site-niete',
-      name: 'Site Agro-industriel de Niété',
-      description: 'Complexe agro-industriel intégré comprenant des plantations d\'hévéa et une unité de première transformation.',
-      location: 'Niété, Sud Cameroun',
-      img: 'https://images.unsplash.com/photo-1500937386664-56d1dfefcb0c?auto=format&fit=crop&w=1200&q=80',
-      icon: Building,
-      color: 'text-amber-600',
-      bgColor: 'bg-amber-50',
-      products: ['Hévéa', 'Cacao']
-    },
-    {
-      id: 'site-kribi',
-      name: 'Complexe Piscicole de Kribi',
-      description: 'Bassins modernes d\'élevage de poissons d\'eau douce, garantissant une production saine et respectueuse de l\'environnement.',
-      location: 'Kribi, Sud Cameroun',
-      img: 'https://images.unsplash.com/photo-1511688878353-3a2f5be94cd7?auto=format&fit=crop&w=1200&q=80',
-      icon: Fish,
-      color: 'text-blue-600',
-      bgColor: 'bg-blue-50',
-      products: ['Tilapia', 'Silure']
-    }
-  ];
+  const [sites, setSites] = useState<any[]>([]);
+  const [loading, setLoading] = useState(true);
+
+  useEffect(() => {
+    const fetchSites = async () => {
+      try {
+        const response = await axios.get(`${API_BASE}/production/sites`);
+        if (response.data?.success && Array.isArray(response.data?.data)) {
+          const mapped = response.data.data.map((site: any) => {
+            const nameLower = site.name.toLowerCase();
+            let details = {
+              description: 'Site de production moderne de Karochebama.',
+              img: 'https://images.unsplash.com/photo-1592982537447-6f2a6a0c6c13?auto=format&fit=crop&w=1200&q=80',
+              icon: Sprout,
+              color: 'text-emerald-600',
+              bgColor: 'bg-emerald-50',
+            };
+
+            if (nameLower.includes('ambam')) {
+              details = {
+                description: 'Notre plus grand site de production agricole, spécialisé dans les cultures vivrières et de rente avec des techniques agro-écologiques modernes.',
+                img: 'https://images.unsplash.com/photo-1592982537447-6f2a6a0c6c13?auto=format&fit=crop&w=1200&q=80',
+                icon: Sprout,
+                color: 'text-emerald-600',
+                bgColor: 'bg-emerald-50',
+              };
+            } else if (nameLower.includes('niété') || nameLower.includes('niete')) {
+              details = {
+                description: 'Complexe agro-industriel intégré comprenant des plantations d\'hévéa et une unité de première transformation.',
+                img: 'https://images.unsplash.com/photo-1500937386664-56d1dfefcb0c?auto=format&fit=crop&w=1200&q=80',
+                icon: Building,
+                color: 'text-amber-600',
+                bgColor: 'bg-amber-50',
+              };
+            } else if (nameLower.includes('kribi')) {
+              details = {
+                description: 'Bassins modernes d\'élevage de poissons d\'eau douce, garantissant une production saine et respectueuse de l\'environnement.',
+                img: 'https://images.unsplash.com/photo-1511688878353-3a2f5be94cd7?auto=format&fit=crop&w=1200&q=80',
+                icon: Fish,
+                color: 'text-blue-600',
+                bgColor: 'bg-blue-50',
+              };
+            }
+
+            let products = site.products?.map((p: any) => p.product?.name) || [];
+            if (products.length === 0) {
+              if (nameLower.includes('ambam')) products = ['Banane Plantain', 'Macabo', 'Manioc'];
+              else if (nameLower.includes('niété') || nameLower.includes('niete')) products = ['Hévéa', 'Cacao'];
+              else if (nameLower.includes('kribi')) products = ['Tilapia', 'Silure'];
+              else products = ['Agriculture', 'Élevage'];
+            }
+
+            return {
+              id: site.id,
+              name: site.name,
+              description: details.description,
+              location: site.geographicZone?.name || 'Cameroun',
+              img: details.img,
+              icon: details.icon,
+              color: details.color,
+              bgColor: details.bgColor,
+              products
+            };
+          });
+          setSites(mapped);
+        }
+      } catch (error) {
+        console.error('Error fetching sites:', error);
+      } finally {
+        setLoading(false);
+      }
+    };
+
+    fetchSites();
+  }, []);
+
+  if (loading) {
+    return (
+      <div className="flex flex-col items-center justify-center min-h-screen bg-[#f8f9fa] gap-3">
+        <Loader2 className="w-10 h-10 text-emerald-600 animate-spin" />
+        <p className="text-gray-500 font-medium">Chargement des sites de production...</p>
+      </div>
+    );
+  }
 
   return (
     <div className="bg-[#f8f9fa] min-h-screen font-sans pb-20">

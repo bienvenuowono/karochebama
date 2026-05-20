@@ -1,5 +1,8 @@
 import { useState } from 'react';
-import { Mail, Phone, MapPin, Clock, Send, MessageSquare } from 'lucide-react';
+import { Mail, Phone, MapPin, Clock, Send, MessageSquare, CheckCircle2, AlertCircle, Loader2 } from 'lucide-react';
+import axios from 'axios';
+import { API_BASE } from '../api';
+import SEO from '../components/SEO';
 
 export default function Contact() {
   const [formData, setFormData] = useState({
@@ -8,13 +11,25 @@ export default function Contact() {
     subject: '',
     message: ''
   });
+  const [submitting, setSubmitting] = useState(false);
+  const [submitted, setSubmitted] = useState(false);
+  const [error, setError] = useState<string | null>(null);
 
-  const handleSubmit = (e: React.FormEvent) => {
+  const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
-    // Handle form submission
-    console.log('Form submitted:', formData);
-    alert('Votre message a été envoyé avec succès !');
-    setFormData({ name: '', email: '', subject: '', message: '' });
+    setSubmitting(true);
+    setError(null);
+    try {
+      await axios.post(`${API_BASE}/contact`, formData);
+      setSubmitted(true);
+      setFormData({ name: '', email: '', subject: '', message: '' });
+      setTimeout(() => setSubmitted(false), 5000);
+    } catch (err: any) {
+      console.error('Error submitting contact form:', err);
+      setError(err.response?.data?.error || 'Une erreur est survenue lors de l\'envoi du message.');
+    } finally {
+      setSubmitting(false);
+    }
   };
 
   const handleChange = (e: React.ChangeEvent<HTMLInputElement | HTMLTextAreaElement | HTMLSelectElement>) => {
@@ -26,6 +41,10 @@ export default function Contact() {
 
   return (
     <div className="bg-[#f8f9fa] min-h-screen font-sans pb-20">
+      <SEO 
+        title="Contact" 
+        description="Contactez les équipes de Karochebama au Cameroun. Posez vos questions sur nos cultures, nos fermes aquacoles et notre marketplace."
+      />
       {/* Hero Section */}
       <div className="bg-[#1a2b3c] py-20 relative overflow-hidden">
         <div className="absolute inset-0 opacity-10">
@@ -99,6 +118,20 @@ export default function Contact() {
               <h2 className="text-2xl font-bold text-gray-900 mb-2">Envoyez-nous un message</h2>
               <p className="text-gray-500 mb-8">Remplissez le formulaire ci-dessous et nous vous répondrons dans les plus brefs délais.</p>
               
+              {submitted && (
+                <div className="mb-6 p-4 bg-emerald-50 border border-emerald-200 rounded-xl flex items-center gap-3 text-emerald-800 animate-fadeIn">
+                  <CheckCircle2 className="w-5 h-5 text-emerald-600 flex-shrink-0" />
+                  <p className="font-medium text-sm">Votre message a été envoyé avec succès ! Nous vous répondrons très vite.</p>
+                </div>
+              )}
+
+              {error && (
+                <div className="mb-6 p-4 bg-red-50 border border-red-200 rounded-xl flex items-center gap-3 text-red-800 animate-fadeIn">
+                  <AlertCircle className="w-5 h-5 text-red-600 flex-shrink-0" />
+                  <p className="font-medium text-sm">{error}</p>
+                </div>
+              )}
+              
               <form onSubmit={handleSubmit} className="space-y-6">
                 <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
                   <div>
@@ -114,6 +147,7 @@ export default function Contact() {
                       onChange={handleChange}
                       className="w-full px-4 py-3 rounded-xl border border-gray-200 focus:ring-2 focus:ring-emerald-500 focus:border-transparent outline-none transition-all bg-gray-50 focus:bg-white"
                       placeholder="Jean Dupont"
+                      disabled={submitting}
                     />
                   </div>
                   <div>
@@ -129,6 +163,7 @@ export default function Contact() {
                       onChange={handleChange}
                       className="w-full px-4 py-3 rounded-xl border border-gray-200 focus:ring-2 focus:ring-emerald-500 focus:border-transparent outline-none transition-all bg-gray-50 focus:bg-white"
                       placeholder="jean.dupont@exemple.com"
+                      disabled={submitting}
                     />
                   </div>
                 </div>
@@ -144,6 +179,7 @@ export default function Contact() {
                     value={formData.subject}
                     onChange={handleChange}
                     className="w-full px-4 py-3 rounded-xl border border-gray-200 focus:ring-2 focus:ring-emerald-500 focus:border-transparent outline-none transition-all bg-gray-50 focus:bg-white text-gray-700"
+                    disabled={submitting}
                   >
                     <option value="">Sélectionnez un sujet</option>
                     <option value="Demande d'information">Demande d'information</option>
@@ -166,16 +202,27 @@ export default function Contact() {
                     onChange={handleChange}
                     className="w-full px-4 py-3 rounded-xl border border-gray-200 focus:ring-2 focus:ring-emerald-500 focus:border-transparent outline-none transition-all bg-gray-50 focus:bg-white resize-none"
                     placeholder="Comment pouvons-nous vous aider ?"
+                    disabled={submitting}
                   ></textarea>
                 </div>
 
                 <div className="pt-2">
                   <button
                     type="submit"
-                    className="w-full sm:w-auto inline-flex items-center justify-center px-8 py-4 text-base font-bold rounded-xl text-white bg-emerald-600 hover:bg-emerald-700 shadow-lg transition-all hover:-translate-y-0.5"
+                    disabled={submitting}
+                    className={`w-full sm:w-auto inline-flex items-center justify-center px-8 py-4 text-base font-bold rounded-xl text-white bg-emerald-600 hover:bg-emerald-700 shadow-lg transition-all hover:-translate-y-0.5 ${submitting ? 'opacity-70 cursor-not-allowed' : ''}`}
                   >
-                    <Send className="w-5 h-5 mr-2" />
-                    Envoyer le message
+                    {submitting ? (
+                      <>
+                        <Loader2 className="w-5 h-5 mr-2 animate-spin" />
+                        Envoi en cours...
+                      </>
+                    ) : (
+                      <>
+                        <Send className="w-5 h-5 mr-2" />
+                        Envoyer le message
+                      </>
+                    )}
                   </button>
                 </div>
               </form>

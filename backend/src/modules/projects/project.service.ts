@@ -2,10 +2,16 @@ import prisma from '../../config/prisma';
 import { ProjectInput } from './project.validation';
 
 class ProjectService {
-  async getAll() {
-    return prisma.project.findMany({
-      orderBy: { createdAt: 'desc' }
-    });
+  async getAll(skip?: number, take?: number) {
+    const [items, total] = await Promise.all([
+      prisma.project.findMany({
+        orderBy: { createdAt: 'desc' },
+        skip,
+        take
+      }),
+      prisma.project.count()
+    ]);
+    return { items, total };
   }
 
   async getById(id: number) {

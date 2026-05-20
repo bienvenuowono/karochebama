@@ -6,11 +6,11 @@ import DataTable from '../components/DataTable';
 import ProductDialog from '../components/ProductDialog';
 
 const ProductsPage = () => {
-  const [products, setProducts] = useState([]);
-  const [types, setTypes] = useState([]);
-  const [sites, setSites] = useState([]);
-  const [categories, setCategories] = useState([]);
-  const [varieties, setVarieties] = useState([]);
+  const [products, setProducts] = useState<any[]>([]);
+  const [types, setTypes] = useState<any[]>([]);
+  const [sites, setSites] = useState<any[]>([]);
+  const [categories, setCategories] = useState<any[]>([]);
+  const [varieties, setVarieties] = useState<any[]>([]);
   const [loading, setLoading] = useState(true);
   const [isDialogOpen, setIsDialogOpen] = useState(false);
   const [selectedProduct, setSelectedProduct] = useState(null);
@@ -26,11 +26,11 @@ const ProductsPage = () => {
       const config = { headers: { Authorization: `Bearer ${token}` } };
       
       const responses = await Promise.allSettled([
-        axios.get('https://karochebama.com/api/v1/catalog/products', config),
-        axios.get('https://karochebama.com/api/v1/production/regions', config),
-        axios.get('https://karochebama.com/api/v1/production/sites', config),
-        axios.get('https://karochebama.com/api/v1/catalog/categories', config),
-        axios.get('https://karochebama.com/api/v1/catalog/categories/varieties', config)
+        axios.get(`${import.meta.env.VITE_API_URL || 'http://localhost:5000/api/v1'}/catalog/products`, config),
+        axios.get(`${import.meta.env.VITE_API_URL || 'http://localhost:5000/api/v1'}/production/regions`, config),
+        axios.get(`${import.meta.env.VITE_API_URL || 'http://localhost:5000/api/v1'}/production/sites`, config),
+        axios.get(`${import.meta.env.VITE_API_URL || 'http://localhost:5000/api/v1'}/catalog/categories`, config),
+        axios.get(`${import.meta.env.VITE_API_URL || 'http://localhost:5000/api/v1'}/catalog/categories/varieties`, config)
       ]);
 
       const [pRes, , sRes, cRes, vRes] = responses.map(r => r.status === 'fulfilled' ? (r as any).value : { data: { data: [] } });
@@ -63,9 +63,9 @@ const ProductsPage = () => {
       };
       
       if (selectedProduct) {
-        await axios.patch(`https://karochebama.com/api/v1/catalog/products/${(selectedProduct as any).id}`, formData, config);
+        await axios.patch(`${import.meta.env.VITE_API_URL || 'http://localhost:5000/api/v1'}/catalog/products/${(selectedProduct as any).id}`, formData, config);
       } else {
-        await axios.post('https://karochebama.com/api/v1/catalog/products', formData, config);
+        await axios.post(`${import.meta.env.VITE_API_URL || 'http://localhost:5000/api/v1'}/catalog/products`, formData, config);
       }
       
       setIsDialogOpen(false);
@@ -80,7 +80,7 @@ const ProductsPage = () => {
     if (!window.confirm("Voulez-vous vraiment supprimer ce produit ? Cela supprimera également l'historique des récoltes liées.")) return;
     try {
       const token = authService.getToken();
-      await axios.delete(`https://karochebama.com/api/v1/catalog/products/${id}`, {
+      await axios.delete(`${import.meta.env.VITE_API_URL || 'http://localhost:5000/api/v1'}/catalog/products/${id}`, {
         headers: { Authorization: `Bearer ${token}` }
       });
       fetchData();

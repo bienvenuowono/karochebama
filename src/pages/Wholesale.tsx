@@ -1,8 +1,13 @@
 import { Truck, ShieldCheck, Clock, CheckCircle } from 'lucide-react';
+import SEO from '../components/SEO';
 
 export default function Wholesale() {
   return (
     <div className="bg-gray-50 min-h-screen py-12">
+      <SEO 
+        title="Vente en Gros" 
+        description="Devenez partenaire de Karochebama pour un approvisionnement fiable et en vrac de produits agricoles et piscicoles de qualité supérieure."
+      />
       <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
         <div className="text-center mb-16">
           <h1 className="text-4xl font-extrabold text-gray-900 tracking-tight sm:text-5xl">

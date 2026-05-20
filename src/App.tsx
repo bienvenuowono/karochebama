@@ -24,6 +24,7 @@ import NewsDetail from './pages/NewsDetail';
 import Contact from './pages/Contact';
 import PartnerForm from './pages/PartnerForm';
 import PlaceholderPage from './pages/PlaceholderPage';
+import NotFound from './pages/NotFound';
 
 export default function App() {
   return (
@@ -49,6 +50,7 @@ export default function App() {
           <Route path="devenir-partenaire" element={<PartnerForm />} />
           <Route path="login" element={<PlaceholderPage title="Sign In" />} />
           <Route path="signup" element={<PlaceholderPage title="Create Account" />} />
+          <Route path="*" element={<NotFound />} />
         </Route>
 
       </Routes>

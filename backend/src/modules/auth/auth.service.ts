@@ -3,9 +3,9 @@ import jwt from 'jsonwebtoken';
 import prisma from '../../config/prisma';
 import { RegisterInput, LoginInput } from './auth.validation';
 
-const ACCESS_SECRET = process.env.JWT_ACCESS_SECRET || 'secret';
-const REFRESH_SECRET = process.env.JWT_REFRESH_SECRET || 'refresh_secret';
-const ACCESS_EXP = process.env.JWT_ACCESS_EXPIRATION || '365d';
+const ACCESS_SECRET = process.env.JWT_ACCESS_SECRET;
+const REFRESH_SECRET = process.env.JWT_REFRESH_SECRET;
+const ACCESS_EXP = process.env.JWT_ACCESS_EXPIRATION || '15m';
 const REFRESH_EXP = process.env.JWT_REFRESH_EXPIRATION || '7d';
 
 class AuthService {
@@ -62,11 +62,17 @@ class AuthService {
   }
 
   generateAccessToken(userId: string, role: string) {
-    return jwt.sign({ userId, role }, ACCESS_SECRET as string, { expiresIn: ACCESS_EXP as any });
+    if (!ACCESS_SECRET) {
+      throw new Error('FATAL: JWT_ACCESS_SECRET is not configured');
+    }
+    return jwt.sign({ userId, role }, ACCESS_SECRET, { expiresIn: ACCESS_EXP as any });
   }
 
   generateRefreshToken(userId: string) {
-    return jwt.sign({ userId }, REFRESH_SECRET as string, { expiresIn: REFRESH_EXP as any });
+    if (!REFRESH_SECRET) {
+      throw new Error('FATAL: JWT_REFRESH_SECRET is not configured');
+    }
+    return jwt.sign({ userId }, REFRESH_SECRET, { expiresIn: REFRESH_EXP as any });
   }
 
   async logout(userId: string) {
@@ -74,6 +80,42 @@ class AuthService {
       where: { id: Number(userId) },
       data: { refreshToken: null },
     });
+  }
+
+  async refresh(refreshToken: string) {
+    if (!refreshToken) {
+      throw new Error('Refresh token is required');
+    }
+
+    if (!REFRESH_SECRET) {
+      throw new Error('JWT_REFRESH_SECRET is not configured');
+    }
+
+    try {
+      const decoded = jwt.verify(refreshToken, REFRESH_SECRET) as { userId: string };
+      const user = await prisma.user.findUnique({
+        where: { id: Number(decoded.userId) },
+      });
+
+      if (!user || user.refreshToken !== refreshToken) {
+        throw new Error('Invalid refresh token');
+      }
+
+      const accessToken = this.generateAccessToken(String(user.id), user.role);
+      const newRefreshToken = this.generateRefreshToken(String(user.id));
+
+      await prisma.user.update({
+        where: { id: user.id },
+        data: { refreshToken: newRefreshToken },
+      });
+
+      return {
+        accessToken,
+        refreshToken: newRefreshToken,
+      };
+    } catch (error: any) {
+      throw new Error(error.message || 'Invalid or expired refresh token');
+    }
   }
 }
 

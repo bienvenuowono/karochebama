@@ -2,6 +2,7 @@ import { useState, useEffect } from 'react';
 import { useParams, Link } from 'react-router-dom';
 import { ArrowLeft, Share2, Facebook, Twitter, Linkedin, Loader2, Sprout, Calendar } from 'lucide-react';
 import axios from 'axios';
+import { API_BASE } from '../api';
 
 export default function ActivityDetail() {
   const { id } = useParams();
@@ -12,7 +13,7 @@ export default function ActivityDetail() {
     const fetchActivity = async () => {
       try {
         setLoading(true);
-        const response = await axios.get(`https://karochebama.com/api/v1/activities/${id}`);
+        const response = await axios.get(`${API_BASE}/activities/${id}`);
         setActivity(response.data);
       } catch (error) {
         console.error('Error fetching activity:', error);
@@ -98,7 +99,7 @@ export default function ActivityDetail() {
         {activity.imageUrl && (
           <div className="rounded-[2.5rem] overflow-hidden shadow-2xl shadow-emerald-900/10 mb-12">
             <img 
-              src={activity.imageUrl.startsWith('http') ? activity.imageUrl : `https://karochebama.com/api/v1${activity.imageUrl}`} 
+              src={activity.imageUrl.startsWith('http') ? activity.imageUrl : `${API_BASE.replace('/api/v1', '')}${activity.imageUrl}`} 
               alt={activity.title} 
               className="w-full h-auto object-cover max-h-[600px]"
               referrerPolicy="no-referrer"

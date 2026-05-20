@@ -1,13 +1,44 @@
 import { useState } from 'react';
-import { Handshake, Send, CheckCircle2 } from 'lucide-react';
+import { Handshake, Send, CheckCircle2, AlertCircle, Loader2 } from 'lucide-react';
+import axios from 'axios';
+import { API_BASE } from '../api';
 
 export default function PartnerForm() {
+  const [submitting, setSubmitting] = useState(false);
   const [submitted, setSubmitted] = useState(false);
+  const [error, setError] = useState<string | null>(null);
 
-  const handleSubmit = (e: React.FormEvent) => {
+  const [partnerData, setPartnerData] = useState({
+    name: '',
+    type: '',
+    email: '',
+    phone: '',
+    location: '',
+    description: ''
+  });
+
+  const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
-    setSubmitted(true);
-    setTimeout(() => setSubmitted(false), 3000);
+    setSubmitting(true);
+    setError(null);
+    try {
+      await axios.post(`${API_BASE}/partners`, partnerData);
+      setSubmitted(true);
+      setPartnerData({
+        name: '',
+        type: '',
+        email: '',
+        phone: '',
+        location: '',
+        description: ''
+      });
+      setTimeout(() => setSubmitted(false), 5000);
+    } catch (err: any) {
+      console.error('Error submitting partner form:', err);
+      setError(err.response?.data?.error || 'Une erreur est survenue lors de la soumission du formulaire.');
+    } finally {
+      setSubmitting(false);
+    }
   };
 
   return (
@@ -37,15 +68,36 @@ export default function PartnerForm() {
             </div>
           )}
 
+          {error && (
+            <div className="mb-8 p-4 bg-red-50 border border-red-200 rounded-xl flex items-center gap-3 text-red-800">
+              <AlertCircle className="w-5 h-5 text-red-600 animate-bounce" />
+              <p className="font-medium">{error}</p>
+            </div>
+          )}
+
           <form onSubmit={handleSubmit} className="space-y-6">
             <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
               <div>
                 <label className="block text-sm font-bold text-gray-900 mb-2">Nom complet / Raison sociale</label>
-                <input required type="text" className="w-full px-4 py-3 border border-gray-200 rounded-xl focus:ring-2 focus:ring-emerald-500 focus:border-transparent outline-none transition-shadow" placeholder="Votre nom ou celui de votre entreprise" />
+                <input
+                  required
+                  type="text"
+                  disabled={submitting}
+                  value={partnerData.name}
+                  onChange={(e) => setPartnerData({ ...partnerData, name: e.target.value })}
+                  className="w-full px-4 py-3 border border-gray-200 rounded-xl focus:ring-2 focus:ring-emerald-500 focus:border-transparent outline-none transition-shadow"
+                  placeholder="Votre nom ou celui de votre entreprise"
+                />
               </div>
               <div>
                 <label className="block text-sm font-bold text-gray-900 mb-2">Type de partenariat</label>
-                <select required className="w-full px-4 py-3 border border-gray-200 rounded-xl focus:ring-2 focus:ring-emerald-500 focus:border-transparent outline-none transition-shadow bg-white">
+                <select
+                  required
+                  disabled={submitting}
+                  value={partnerData.type}
+                  onChange={(e) => setPartnerData({ ...partnerData, type: e.target.value })}
+                  className="w-full px-4 py-3 border border-gray-200 rounded-xl focus:ring-2 focus:ring-emerald-500 focus:border-transparent outline-none transition-shadow bg-white"
+                >
                   <option value="">Sélectionnez un type</option>
                   <option value="producteur">Producteur agricole</option>
                   <option value="distributeur">Distributeur / Revendeur</option>
@@ -58,27 +110,72 @@ export default function PartnerForm() {
             <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
               <div>
                 <label className="block text-sm font-bold text-gray-900 mb-2">Email</label>
-                <input required type="email" className="w-full px-4 py-3 border border-gray-200 rounded-xl focus:ring-2 focus:ring-emerald-500 focus:border-transparent outline-none transition-shadow" placeholder="votre@email.com" />
+                <input
+                  required
+                  type="email"
+                  disabled={submitting}
+                  value={partnerData.email}
+                  onChange={(e) => setPartnerData({ ...partnerData, email: e.target.value })}
+                  className="w-full px-4 py-3 border border-gray-200 rounded-xl focus:ring-2 focus:ring-emerald-500 focus:border-transparent outline-none transition-shadow"
+                  placeholder="votre@email.com"
+                />
               </div>
               <div>
                 <label className="block text-sm font-bold text-gray-900 mb-2">Téléphone</label>
-                <input required type="tel" className="w-full px-4 py-3 border border-gray-200 rounded-xl focus:ring-2 focus:ring-emerald-500 focus:border-transparent outline-none transition-shadow" placeholder="+237 ..." />
+                <input
+                  required
+                  type="tel"
+                  disabled={submitting}
+                  value={partnerData.phone}
+                  onChange={(e) => setPartnerData({ ...partnerData, phone: e.target.value })}
+                  className="w-full px-4 py-3 border border-gray-200 rounded-xl focus:ring-2 focus:ring-emerald-500 focus:border-transparent outline-none transition-shadow"
+                  placeholder="+237 ..."
+                />
               </div>
             </div>
 
             <div>
               <label className="block text-sm font-bold text-gray-900 mb-2">Localisation / Zone d'activité</label>
-              <input required type="text" className="w-full px-4 py-3 border border-gray-200 rounded-xl focus:ring-2 focus:ring-emerald-500 focus:border-transparent outline-none transition-shadow" placeholder="Ville, Région, Pays" />
+              <input
+                required
+                type="text"
+                disabled={submitting}
+                value={partnerData.location}
+                onChange={(e) => setPartnerData({ ...partnerData, location: e.target.value })}
+                className="w-full px-4 py-3 border border-gray-200 rounded-xl focus:ring-2 focus:ring-emerald-500 focus:border-transparent outline-none transition-shadow"
+                placeholder="Ville, Région, Pays"
+              />
             </div>
 
             <div>
               <label className="block text-sm font-bold text-gray-900 mb-2">Description de votre activité</label>
-              <textarea required rows={5} className="w-full px-4 py-3 border border-gray-200 rounded-xl focus:ring-2 focus:ring-emerald-500 focus:border-transparent outline-none transition-shadow resize-none" placeholder="Décrivez brièvement votre activité, vos produits ou services, et ce que vous attendez de ce partenariat..."></textarea>
+              <textarea
+                required
+                rows={5}
+                disabled={submitting}
+                value={partnerData.description}
+                onChange={(e) => setPartnerData({ ...partnerData, description: e.target.value })}
+                className="w-full px-4 py-3 border border-gray-200 rounded-xl focus:ring-2 focus:ring-emerald-500 focus:border-transparent outline-none transition-shadow resize-none"
+                placeholder="Décrivez brièvement votre activité, vos produits ou services, et ce que vous attendez de ce partenariat..."
+              ></textarea>
             </div>
 
-            <button type="submit" className="w-full bg-emerald-600 hover:bg-emerald-700 text-white font-bold py-4 rounded-xl flex items-center justify-center transition-colors shadow-sm">
-              <Send className="w-5 h-5 mr-2" />
-              Envoyer la demande
+            <button
+              type="submit"
+              disabled={submitting}
+              className={`w-full bg-emerald-600 hover:bg-emerald-700 text-white font-bold py-4 rounded-xl flex items-center justify-center transition-colors shadow-sm ${submitting ? 'opacity-70 cursor-not-allowed' : ''}`}
+            >
+              {submitting ? (
+                <>
+                  <Loader2 className="w-5 h-5 mr-2 animate-spin" />
+                  Envoi en cours...
+                </>
+              ) : (
+                <>
+                  <Send className="w-5 h-5 mr-2" />
+                  Envoyer la demande
+                </>
+              )}
             </button>
           </form>
         </div>

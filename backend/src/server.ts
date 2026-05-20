@@ -13,11 +13,39 @@ import mediaRoutes from './modules/media/media.routes';
 import newsRoutes from './modules/news/news.routes';
 import uploadRoutes from './modules/upload/upload.routes';
 import userRoutes from './modules/users/user.routes';
+import contactRoutes from './modules/contact/contact.routes';
+import commercialRoutes from './modules/commercial/commercial.routes';
+import partnerRoutes from './modules/partners/partners.routes';
+
+import rateLimit from 'express-rate-limit';
 
 dotenv.config();
 
 const app = express();
 const PORT = process.env.PORT || 5000;
+
+// Rate Limiters
+const apiLimiter = rateLimit({
+  windowMs: 15 * 60 * 1000, // 15 minutes
+  max: 100, // Limite à 100 requêtes par IP
+  standardHeaders: true, // Renvoie les headers standard RateLimit-*
+  legacyHeaders: false, // Désactive les headers X-RateLimit-* legacy
+  message: {
+    success: false,
+    error: "Trop de requêtes effectuées depuis cette IP, veuillez réessayer après 15 minutes."
+  }
+});
+
+const authLimiter = rateLimit({
+  windowMs: 15 * 60 * 1000, // 15 minutes
+  max: 15, // Limite à 15 tentatives de connexion par IP
+  standardHeaders: true,
+  legacyHeaders: false,
+  message: {
+    success: false,
+    error: "Trop de tentatives de connexion, veuillez réessayer après 15 minutes."
+  }
+});
 
 // Middlewares
 app.use(helmet({ crossOriginResourcePolicy: { policy: "cross-origin" } }));
@@ -32,6 +60,11 @@ app.use(cors({
 }));
 app.use(express.json());
 app.use('/uploads', express.static('uploads'));
+app.use('/api/v1/uploads', express.static('uploads'));
+
+// Apply rate limiting
+app.use('/api/v1', apiLimiter);
+app.use('/api/v1/auth/login', authLimiter);
 
 // Routes - Clean Architecture Implementation
 app.use('/api/v1/auth', authRoutes);
@@ -43,6 +76,9 @@ app.use('/api/v1/media', mediaRoutes);
 app.use('/api/v1/news', newsRoutes);
 app.use('/api/v1/upload', uploadRoutes);
 app.use('/api/v1/users', userRoutes);
+app.use('/api/v1/contact', contactRoutes);
+app.use('/api/v1/commercial', commercialRoutes);
+app.use('/api/v1/partners', partnerRoutes);
 
 // Basic health check
 app.get('/health', (req, res) => {
@@ -59,6 +95,15 @@ app.use((err: any, req: express.Request, res: express.Response, next: express.Ne
 });
 
 const bootstrap = async () => {
+  if (!process.env.JWT_ACCESS_SECRET) {
+    console.error('FATAL ERROR: JWT_ACCESS_SECRET environment variable is missing.');
+    process.exit(1);
+  }
+  if (!process.env.JWT_REFRESH_SECRET) {
+    console.error('FATAL ERROR: JWT_REFRESH_SECRET environment variable is missing.');
+    process.exit(1);
+  }
+
   try {
     // Check if admin exists
     const adminEmail = 'admin@karochebama.com';

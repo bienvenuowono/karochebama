@@ -1,10 +1,13 @@
 import { Request, Response } from 'express';
 import prisma from '../../../config/prisma';
 import { z } from 'zod';
+import { sanitizeObject } from '../../../utils/sanitize';
+import { getPaginationParams, formatPaginatedResult } from '../../../utils/pagination';
 
 export class ProductController {
   create = async (req: Request, res: Response) => {
     try {
+      req.body = sanitizeObject(req.body);
       const files = req.files as { [fieldname: string]: Express.Multer.File[] };
       
       // Extraction des chemins de fichiers
@@ -53,15 +56,21 @@ export class ProductController {
 
   getAll = async (req: Request, res: Response) => {
     try {
-      const items = await prisma.product.findMany({
-        include: {
-          type: true,
-          category: true,
-          variety: true,
-          sites: { include: { site: { include: { geographicZone: true } } } }
-        }
-      });
-      res.json({ success: true, data: items });
+      const { page, limit, skip } = getPaginationParams(req);
+      const [items, total] = await Promise.all([
+        prisma.product.findMany({
+          include: {
+            type: true,
+            category: true,
+            variety: true,
+            sites: { include: { site: { include: { geographicZone: true } } } }
+          },
+          skip,
+          take: limit
+        }),
+        prisma.product.count()
+      ]);
+      res.json(formatPaginatedResult(items, total, page, limit));
     } catch (error: any) {
       res.status(500).json({ success: false, message: error.message });
     }
@@ -89,6 +98,7 @@ export class ProductController {
     try {
       const { id } = req.params;
       const files = req.files as { [fieldname: string]: Express.Multer.File[] } | undefined;
+      req.body = sanitizeObject(req.body);
       const data = req.body;
       
       const existingProduct = await prisma.product.findUnique({ where: { id: parseInt(id as string) } });

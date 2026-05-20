@@ -2,10 +2,16 @@ import prisma from '../../config/prisma';
 import { ArticleInput } from './news.validation';
 
 class NewsService {
-  async getAll() {
-    return prisma.article.findMany({
-      orderBy: { createdAt: 'desc' }
-    });
+  async getAll(skip?: number, take?: number) {
+    const [items, total] = await Promise.all([
+      prisma.article.findMany({
+        orderBy: { createdAt: 'desc' },
+        skip,
+        take
+      }),
+      prisma.article.count()
+    ]);
+    return { items, total };
   }
 
   async getById(id: number) {

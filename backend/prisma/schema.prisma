@@ -268,3 +268,35 @@ model Article {
 
   @@map("article")
 }
+
+model CommercialForm {
+  id          Int      @id @default(autoincrement())
+  type        String   // COMMERCIAL ou DEMARCHEUR
+  agentName   String
+  clientName  String
+  contact     String?
+  product     String
+  quantity    String
+  location    String
+  comment     String?  @db.Text
+  isProcessed Boolean  @default(false)
+  createdAt   DateTime @default(now())
+  updatedAt   DateTime @updatedAt
+
+  @@map("commercialform")
+}
+
+model PartnerApplication {
+  id          Int      @id @default(autoincrement())
+  name        String
+  type        String
+  email       String
+  phone       String
+  location    String
+  description String   @db.Text
+  isProcessed Boolean  @default(false)
+  createdAt   DateTime @default(now())
+  updatedAt   DateTime @updatedAt
+
+  @@map("partnerapplication")
+}

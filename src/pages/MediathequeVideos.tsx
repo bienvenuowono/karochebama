@@ -1,6 +1,7 @@
 import { useState, useEffect } from 'react';
 import { Play, Video, X, Loader2 } from 'lucide-react';
 import axios from 'axios';
+import { API_BASE } from '../api';
 
 export default function MediathequeVideos() {
   const [selectedVideo, setSelectedVideo] = useState<string | null>(null);
@@ -14,7 +15,7 @@ export default function MediathequeVideos() {
   const fetchVideos = async () => {
     try {
       setLoading(true);
-      const response = await axios.get('https://karochebama.com/api/v1/media');
+      const response = await axios.get(`${API_BASE}/media`);
       const filtered = response.data.filter((m: any) => m.type === 'VIDEO');
       setVideos(filtered);
     } catch (error) {
@@ -53,7 +54,7 @@ export default function MediathequeVideos() {
         ) : videos.length > 0 ? (
           <div className="grid grid-cols-1 md:grid-cols-2 gap-8">
             {videos.map((video) => {
-              const videoUrl = video.url.startsWith('http') ? video.url : `https://karochebama.com/api/v1${video.url}`;
+              const videoUrl = video.url.startsWith('http') ? video.url : `${API_BASE.replace('/api/v1', '')}${video.url}`;
               const isEmbed = videoUrl.includes('youtube.com') || videoUrl.includes('vimeo.com');
               
               return (

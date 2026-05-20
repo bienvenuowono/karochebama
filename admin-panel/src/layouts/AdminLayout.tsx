@@ -15,7 +15,10 @@ import {
   Menu,
   X,
   ChevronRight,
-  Bell
+  Bell,
+  Mail,
+  Handshake,
+  FileText
 } from 'lucide-react';
 import { authService } from '../services/authService';
 
@@ -47,6 +50,10 @@ const AdminLayout = ({ children }: { children: React.ReactNode }) => {
     { text: 'Sites de Culture', icon: MapPin, path: '/sites' },
     { text: 'Audit Clients', icon: Users, path: '/audit-clients' },
     { text: 'Gestion des Ventes', icon: ShoppingCart, path: '/orders' },
+    { text: 'Communications', isHeader: true },
+    { text: 'Messages Contact', icon: Mail, path: '/communications/contact' },
+    { text: 'Demandes Partenaires', icon: Handshake, path: '/communications/partners' },
+    { text: 'Espace Commercial', icon: FileText, path: '/communications/commercial' },
     { text: 'Contenu Site Vitrine', isHeader: true },
     { text: 'Activités', icon: Sprout, path: '/activities' },
     { text: 'Projets', icon: Layers, path: '/projects' },

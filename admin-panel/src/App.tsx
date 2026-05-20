@@ -15,6 +15,9 @@ import ProjectsPage from './pages/ProjectsPage';
 import MediaPage from './pages/MediaPage';
 import NewsPage from './pages/NewsPage';
 import ProfilePage from './pages/ProfilePage';
+import ContactMessagesPage from './pages/ContactMessagesPage';
+import PartnerApplicationsPage from './pages/PartnerApplicationsPage';
+import CommercialFormsPage from './pages/CommercialFormsPage';
 import { authService } from './services/authService';
 
 const ProtectedRoute = ({ children }: { children: React.ReactNode }) => {
@@ -44,6 +47,11 @@ function App() {
         <Route path="/media" element={<ProtectedRoute><MediaPage /></ProtectedRoute>} />
         <Route path="/news" element={<ProtectedRoute><NewsPage /></ProtectedRoute>} />
         <Route path="/profile" element={<ProtectedRoute><ProfilePage /></ProtectedRoute>} />
+        
+        {/* Communications Protected Routes */}
+        <Route path="/communications/contact" element={<ProtectedRoute><ContactMessagesPage /></ProtectedRoute>} />
+        <Route path="/communications/partners" element={<ProtectedRoute><PartnerApplicationsPage /></ProtectedRoute>} />
+        <Route path="/communications/commercial" element={<ProtectedRoute><CommercialFormsPage /></ProtectedRoute>} />
         
         {/* Redirects */}
         <Route path="/" element={<Navigate to="/dashboard" replace />} />

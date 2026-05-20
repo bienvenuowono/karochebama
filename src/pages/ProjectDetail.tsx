@@ -2,6 +2,7 @@ import { useState, useEffect } from 'react';
 import { useParams, Link } from 'react-router-dom';
 import { ArrowLeft, MapPin, Calendar, CheckCircle2, Sprout, Building, Fish, Leaf, ArrowRight, Loader2 } from 'lucide-react';
 import axios from 'axios';
+import { API_BASE } from '../api';
 
 export default function ProjectDetail() {
   const { id } = useParams();
@@ -12,7 +13,7 @@ export default function ProjectDetail() {
     const fetchProject = async () => {
       try {
         setLoading(true);
-        const response = await axios.get(`https://karochebama.com/api/v1/projects/${id}`);
+        const response = await axios.get(`${API_BASE}/projects/${id}`);
         setProject(response.data);
       } catch (error) {
         console.error('Error fetching project:', error);
@@ -60,7 +61,7 @@ export default function ProjectDetail() {
       <div className="relative h-[60vh] min-h-[500px] w-full overflow-hidden">
         {project.imageUrl && (
           <img 
-            src={project.imageUrl.startsWith('http') ? project.imageUrl : `https://karochebama.com/api/v1${project.imageUrl}`} 
+            src={project.imageUrl.startsWith('http') ? project.imageUrl : `${API_BASE.replace('/api/v1', '')}${project.imageUrl}`} 
             alt={project.title} 
             className="w-full h-full object-cover"
             referrerPolicy="no-referrer"

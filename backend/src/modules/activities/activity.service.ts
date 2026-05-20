@@ -2,10 +2,16 @@ import prisma from '../../config/prisma';
 import { ActivityInput } from './activity.validation';
 
 class ActivityService {
-  async getAll() {
-    return prisma.activity.findMany({
-      orderBy: { createdAt: 'desc' }
-    });
+  async getAll(skip?: number, take?: number) {
+    const [items, total] = await Promise.all([
+      prisma.activity.findMany({
+        orderBy: { createdAt: 'desc' },
+        skip,
+        take
+      }),
+      prisma.activity.count()
+    ]);
+    return { items, total };
   }
 
   async getById(id: number) {

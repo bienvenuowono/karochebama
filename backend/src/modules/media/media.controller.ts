@@ -1,6 +1,7 @@
 import { Request, Response } from 'express';
 import mediaService from './media.service';
 import { mediaSchema } from './media.validation';
+import { sanitizeObject } from '../../utils/sanitize';
 
 class MediaController {
   async getAll(req: Request, res: Response) {
@@ -26,6 +27,7 @@ class MediaController {
 
   async create(req: Request, res: Response) {
     try {
+      req.body = sanitizeObject(req.body);
       const validatedData = mediaSchema.parse(req.body);
       const media = await mediaService.create(validatedData);
       res.status(201).json(media);
@@ -38,6 +40,7 @@ class MediaController {
     try {
       const id = Number(req.params.id);
       if (isNaN(id)) return res.status(400).json({ error: 'Invalid ID' });
+      req.body = sanitizeObject(req.body);
       const validatedData = mediaSchema.partial().parse(req.body);
       const media = await mediaService.update(id, validatedData);
       res.json(media);

@@ -28,7 +28,7 @@ const ProjectsPage = () => {
   const fetchData = async () => {
     try {
       setLoading(true);
-      const res = await axios.get('https://karochebama.com/api/v1/projects');
+      const res = await axios.get(`${import.meta.env.VITE_API_URL || 'http://localhost:5000/api/v1'}/projects`);
       setProjects(res.data);
     } catch (error) {
       console.error('Error fetching projects:', error);
@@ -61,12 +61,12 @@ const ProjectsPage = () => {
       const token = authService.getToken();
 
       if (editingId) {
-        await axios.put(`https://karochebama.com/api/v1/projects/${editingId}`, payload, {
+        await axios.put(`${import.meta.env.VITE_API_URL || 'http://localhost:5000/api/v1'}/projects/${editingId}`, payload, {
           headers: { Authorization: `Bearer ${token}` }
         });
         alert("Projet mis à jour !");
       } else {
-        await axios.post('https://karochebama.com/api/v1/projects', payload, {
+        await axios.post(`${import.meta.env.VITE_API_URL || 'http://localhost:5000/api/v1'}/projects`, payload, {
           headers: { Authorization: `Bearer ${token}` }
         });
         alert("Projet enregistré !");
@@ -86,7 +86,7 @@ const ProjectsPage = () => {
     if (!window.confirm("Êtes-vous sûr de vouloir supprimer ce projet ?")) return;
     try {
       const token = authService.getToken();
-      await axios.delete(`https://karochebama.com/api/v1/projects/${id}`, {
+      await axios.delete(`${import.meta.env.VITE_API_URL || 'http://localhost:5000/api/v1'}/projects/${id}`, {
         headers: { Authorization: `Bearer ${token}` }
       });
       fetchData();
@@ -109,7 +109,7 @@ const ProjectsPage = () => {
       format: (val: string, row: any) => (
         <div className="flex items-center gap-3">
           {row.imageUrl ? (
-            <img src={row.imageUrl.startsWith('http') ? row.imageUrl : `https://karochebama.com/api/v1${row.imageUrl}`} alt={val} className="w-10 h-10 rounded-xl object-cover" />
+            <img src={row.imageUrl.startsWith('http') ? row.imageUrl : `${import.meta.env.VITE_API_URL || 'http://localhost:5000/api/v1'}${row.imageUrl}`} alt={val} className="w-10 h-10 rounded-xl object-cover" />
           ) : (
             <div className="w-10 h-10 rounded-xl bg-blue-50 text-blue-600 flex items-center justify-center font-bold">
               <Layers size={20} />

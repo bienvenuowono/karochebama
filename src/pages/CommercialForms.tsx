@@ -1,20 +1,86 @@
 import { useState } from 'react';
-import { Briefcase, Users, Send, CheckCircle2 } from 'lucide-react';
+import { Briefcase, Users, Send, CheckCircle2, AlertCircle, Loader2 } from 'lucide-react';
+import axios from 'axios';
+import { API_BASE } from '../api';
 
 export default function CommercialForms() {
   const [activeTab, setActiveTab] = useState<'commercial' | 'demarcheur'>('commercial');
+  const [submitting, setSubmitting] = useState(false);
   const [submitted, setSubmitted] = useState(false);
+  const [error, setError] = useState<string | null>(null);
 
-  const handleCommercialSubmit = (e: React.FormEvent) => {
+  const [commercialData, setCommercialData] = useState({
+    agentName: '',
+    clientName: '',
+    product: '',
+    quantity: '',
+    location: '',
+    comment: ''
+  });
+
+  const [demarcheurData, setDemarcheurData] = useState({
+    agentName: '',
+    clientName: '', // Nom du prospect
+    contact: '', // Contact du prospect
+    location: '',
+    product: '',
+    quantity: '', // Quantité estimée
+    comment: ''
+  });
+
+  const handleCommercialSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
-    setSubmitted(true);
-    setTimeout(() => setSubmitted(false), 3000);
+    setSubmitting(true);
+    setError(null);
+    try {
+      await axios.post(`${API_BASE}/commercial`, {
+        type: 'COMMERCIAL',
+        ...commercialData
+      });
+      setSubmitted(true);
+      setCommercialData({
+        agentName: '',
+        clientName: '',
+        product: '',
+        quantity: '',
+        location: '',
+        comment: ''
+      });
+      setTimeout(() => setSubmitted(false), 5000);
+    } catch (err: any) {
+      console.error('Error submitting commercial form:', err);
+      setError(err.response?.data?.error || 'Une erreur est survenue lors de la soumission du formulaire.');
+    } finally {
+      setSubmitting(false);
+    }
   };
 
-  const handleDemarcheurSubmit = (e: React.FormEvent) => {
+  const handleDemarcheurSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
-    setSubmitted(true);
-    setTimeout(() => setSubmitted(false), 3000);
+    setSubmitting(true);
+    setError(null);
+    try {
+      await axios.post(`${API_BASE}/commercial`, {
+        type: 'DEMARCHEUR',
+        ...demarcheurData
+      });
+      setSubmitted(true);
+      setDemarcheurData({
+        agentName: '',
+        clientName: '',
+        contact: '',
+        location: '',
+        product: '',
+        quantity: '',
+        comment: ''
+      });
+      setTimeout(() => setSubmitted(false), 5000);
+    } catch (err: any) {
+      console.error('Error submitting demarcheur form:', err);
+      setError(err.response?.data?.error || 'Une erreur est survenue lors de la soumission du formulaire.');
+    } finally {
+      setSubmitting(false);
+    }
   };
 
   return (
@@ -72,43 +138,110 @@ export default function CommercialForms() {
               </div>
             )}
 
+            {error && (
+              <div className="mb-8 p-4 bg-red-50 border border-red-200 rounded-xl flex items-center gap-3 text-red-800">
+                <AlertCircle className="w-5 h-5 text-red-600" />
+                <p className="font-medium">{error}</p>
+              </div>
+            )}
+
             {activeTab === 'commercial' ? (
               <form onSubmit={handleCommercialSubmit} className="space-y-6">
                 <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
                   <div>
                     <label className="block text-sm font-bold text-gray-900 mb-2">Nom du commercial</label>
-                    <input required type="text" className="w-full px-4 py-3 border border-gray-200 rounded-xl focus:ring-2 focus:ring-emerald-500 focus:border-transparent outline-none transition-shadow" placeholder="Votre nom" />
+                    <input
+                      required
+                      type="text"
+                      disabled={submitting}
+                      value={commercialData.agentName}
+                      onChange={(e) => setCommercialData({ ...commercialData, agentName: e.target.value })}
+                      className="w-full px-4 py-3 border border-gray-200 rounded-xl focus:ring-2 focus:ring-emerald-500 focus:border-transparent outline-none transition-shadow"
+                      placeholder="Votre nom"
+                    />
                   </div>
                   <div>
                     <label className="block text-sm font-bold text-gray-900 mb-2">Client</label>
-                    <input required type="text" className="w-full px-4 py-3 border border-gray-200 rounded-xl focus:ring-2 focus:ring-emerald-500 focus:border-transparent outline-none transition-shadow" placeholder="Nom du client" />
+                    <input
+                      required
+                      type="text"
+                      disabled={submitting}
+                      value={commercialData.clientName}
+                      onChange={(e) => setCommercialData({ ...commercialData, clientName: e.target.value })}
+                      className="w-full px-4 py-3 border border-gray-200 rounded-xl focus:ring-2 focus:ring-emerald-500 focus:border-transparent outline-none transition-shadow"
+                      placeholder="Nom du client"
+                    />
                   </div>
                 </div>
 
                 <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
                   <div>
                     <label className="block text-sm font-bold text-gray-900 mb-2">Produit</label>
-                    <input required type="text" className="w-full px-4 py-3 border border-gray-200 rounded-xl focus:ring-2 focus:ring-emerald-500 focus:border-transparent outline-none transition-shadow" placeholder="Produit concerné" />
+                    <input
+                      required
+                      type="text"
+                      disabled={submitting}
+                      value={commercialData.product}
+                      onChange={(e) => setCommercialData({ ...commercialData, product: e.target.value })}
+                      className="w-full px-4 py-3 border border-gray-200 rounded-xl focus:ring-2 focus:ring-emerald-500 focus:border-transparent outline-none transition-shadow"
+                      placeholder="Produit concerné"
+                    />
                   </div>
                   <div>
                     <label className="block text-sm font-bold text-gray-900 mb-2">Quantité demandée</label>
-                    <input required type="text" className="w-full px-4 py-3 border border-gray-200 rounded-xl focus:ring-2 focus:ring-emerald-500 focus:border-transparent outline-none transition-shadow" placeholder="Ex: 50 Tonnes" />
+                    <input
+                      required
+                      type="text"
+                      disabled={submitting}
+                      value={commercialData.quantity}
+                      onChange={(e) => setCommercialData({ ...commercialData, quantity: e.target.value })}
+                      className="w-full px-4 py-3 border border-gray-200 rounded-xl focus:ring-2 focus:ring-emerald-500 focus:border-transparent outline-none transition-shadow"
+                      placeholder="Ex: 50 Tonnes"
+                    />
                   </div>
                 </div>
 
                 <div>
                   <label className="block text-sm font-bold text-gray-900 mb-2">Localisation</label>
-                  <input required type="text" className="w-full px-4 py-3 border border-gray-200 rounded-xl focus:ring-2 focus:ring-emerald-500 focus:border-transparent outline-none transition-shadow" placeholder="Lieu de livraison ou d'activité" />
+                  <input
+                    required
+                    type="text"
+                    disabled={submitting}
+                    value={commercialData.location}
+                    onChange={(e) => setCommercialData({ ...commercialData, location: e.target.value })}
+                    className="w-full px-4 py-3 border border-gray-200 rounded-xl focus:ring-2 focus:ring-emerald-500 focus:border-transparent outline-none transition-shadow"
+                    placeholder="Lieu de livraison ou d'activité"
+                  />
                 </div>
 
                 <div>
                   <label className="block text-sm font-bold text-gray-900 mb-2">Commentaire</label>
-                  <textarea rows={4} className="w-full px-4 py-3 border border-gray-200 rounded-xl focus:ring-2 focus:ring-emerald-500 focus:border-transparent outline-none transition-shadow resize-none" placeholder="Détails supplémentaires..."></textarea>
+                  <textarea
+                    rows={4}
+                    disabled={submitting}
+                    value={commercialData.comment}
+                    onChange={(e) => setCommercialData({ ...commercialData, comment: e.target.value })}
+                    className="w-full px-4 py-3 border border-gray-200 rounded-xl focus:ring-2 focus:ring-emerald-500 focus:border-transparent outline-none transition-shadow resize-none"
+                    placeholder="Détails supplémentaires..."
+                  ></textarea>
                 </div>
 
-                <button type="submit" className="w-full bg-emerald-600 hover:bg-emerald-700 text-white font-bold py-4 rounded-xl flex items-center justify-center transition-colors shadow-sm">
-                  <Send className="w-5 h-5 mr-2" />
-                  Soumettre la demande
+                <button
+                  type="submit"
+                  disabled={submitting}
+                  className={`w-full bg-emerald-600 hover:bg-emerald-700 text-white font-bold py-4 rounded-xl flex items-center justify-center transition-colors shadow-sm ${submitting ? 'opacity-70 cursor-not-allowed' : ''}`}
+                >
+                  {submitting ? (
+                    <>
+                      <Loader2 className="w-5 h-5 mr-2 animate-spin" />
+                      Envoi en cours...
+                    </>
+                  ) : (
+                    <>
+                      <Send className="w-5 h-5 mr-2" />
+                      Soumettre la demande
+                    </>
+                  )}
                 </button>
               </form>
             ) : (
@@ -116,44 +249,112 @@ export default function CommercialForms() {
                 <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
                   <div>
                     <label className="block text-sm font-bold text-gray-900 mb-2">Nom du démarcheur</label>
-                    <input required type="text" className="w-full px-4 py-3 border border-gray-200 rounded-xl focus:ring-2 focus:ring-emerald-500 focus:border-transparent outline-none transition-shadow" placeholder="Votre nom" />
+                    <input
+                      required
+                      type="text"
+                      disabled={submitting}
+                      value={demarcheurData.agentName}
+                      onChange={(e) => setDemarcheurData({ ...demarcheurData, agentName: e.target.value })}
+                      className="w-full px-4 py-3 border border-gray-200 rounded-xl focus:ring-2 focus:ring-emerald-500 focus:border-transparent outline-none transition-shadow"
+                      placeholder="Votre nom"
+                    />
                   </div>
                   <div>
                     <label className="block text-sm font-bold text-gray-900 mb-2">Nom du prospect</label>
-                    <input required type="text" className="w-full px-4 py-3 border border-gray-200 rounded-xl focus:ring-2 focus:ring-emerald-500 focus:border-transparent outline-none transition-shadow" placeholder="Nom de l'entreprise ou de la personne" />
+                    <input
+                      required
+                      type="text"
+                      disabled={submitting}
+                      value={demarcheurData.clientName}
+                      onChange={(e) => setDemarcheurData({ ...demarcheurData, clientName: e.target.value })}
+                      className="w-full px-4 py-3 border border-gray-200 rounded-xl focus:ring-2 focus:ring-emerald-500 focus:border-transparent outline-none transition-shadow"
+                      placeholder="Nom de l'entreprise ou de la personne"
+                    />
                   </div>
                 </div>
 
                 <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
                   <div>
                     <label className="block text-sm font-bold text-gray-900 mb-2">Contact du prospect</label>
-                    <input required type="text" className="w-full px-4 py-3 border border-gray-200 rounded-xl focus:ring-2 focus:ring-emerald-500 focus:border-transparent outline-none transition-shadow" placeholder="Téléphone ou Email" />
+                    <input
+                      required
+                      type="text"
+                      disabled={submitting}
+                      value={demarcheurData.contact}
+                      onChange={(e) => setDemarcheurData({ ...demarcheurData, contact: e.target.value })}
+                      className="w-full px-4 py-3 border border-gray-200 rounded-xl focus:ring-2 focus:ring-emerald-500 focus:border-transparent outline-none transition-shadow"
+                      placeholder="Téléphone ou Email"
+                    />
                   </div>
                   <div>
                     <label className="block text-sm font-bold text-gray-900 mb-2">Localisation</label>
-                    <input required type="text" className="w-full px-4 py-3 border border-gray-200 rounded-xl focus:ring-2 focus:ring-emerald-500 focus:border-transparent outline-none transition-shadow" placeholder="Ville, Quartier..." />
+                    <input
+                      required
+                      type="text"
+                      disabled={submitting}
+                      value={demarcheurData.location}
+                      onChange={(e) => setDemarcheurData({ ...demarcheurData, location: e.target.value })}
+                      className="w-full px-4 py-3 border border-gray-200 rounded-xl focus:ring-2 focus:ring-emerald-500 focus:border-transparent outline-none transition-shadow"
+                      placeholder="Ville, Quartier..."
+                    />
                   </div>
                 </div>
 
                 <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
                   <div>
                     <label className="block text-sm font-bold text-gray-900 mb-2">Produit demandé</label>
-                    <input required type="text" className="w-full px-4 py-3 border border-gray-200 rounded-xl focus:ring-2 focus:ring-emerald-500 focus:border-transparent outline-none transition-shadow" placeholder="Produit d'intérêt" />
+                    <input
+                      required
+                      type="text"
+                      disabled={submitting}
+                      value={demarcheurData.product}
+                      onChange={(e) => setDemarcheurData({ ...demarcheurData, product: e.target.value })}
+                      className="w-full px-4 py-3 border border-gray-200 rounded-xl focus:ring-2 focus:ring-emerald-500 focus:border-transparent outline-none transition-shadow"
+                      placeholder="Produit d'intérêt"
+                    />
                   </div>
                   <div>
                     <label className="block text-sm font-bold text-gray-900 mb-2">Quantité estimée</label>
-                    <input required type="text" className="w-full px-4 py-3 border border-gray-200 rounded-xl focus:ring-2 focus:ring-emerald-500 focus:border-transparent outline-none transition-shadow" placeholder="Volume potentiel" />
+                    <input
+                      required
+                      type="text"
+                      disabled={submitting}
+                      value={demarcheurData.quantity}
+                      onChange={(e) => setDemarcheurData({ ...demarcheurData, quantity: e.target.value })}
+                      className="w-full px-4 py-3 border border-gray-200 rounded-xl focus:ring-2 focus:ring-emerald-500 focus:border-transparent outline-none transition-shadow"
+                      placeholder="Volume potentiel"
+                    />
                   </div>
                 </div>
 
                 <div>
                   <label className="block text-sm font-bold text-gray-900 mb-2">Commentaire</label>
-                  <textarea rows={4} className="w-full px-4 py-3 border border-gray-200 rounded-xl focus:ring-2 focus:ring-emerald-500 focus:border-transparent outline-none transition-shadow resize-none" placeholder="Notes sur l'échange, prochaines étapes..."></textarea>
+                  <textarea
+                    rows={4}
+                    disabled={submitting}
+                    value={demarcheurData.comment}
+                    onChange={(e) => setDemarcheurData({ ...demarcheurData, comment: e.target.value })}
+                    className="w-full px-4 py-3 border border-gray-200 rounded-xl focus:ring-2 focus:ring-emerald-500 focus:border-transparent outline-none transition-shadow resize-none"
+                    placeholder="Notes sur l'échange, prochaines étapes..."
+                  ></textarea>
                 </div>
 
-                <button type="submit" className="w-full bg-emerald-600 hover:bg-emerald-700 text-white font-bold py-4 rounded-xl flex items-center justify-center transition-colors shadow-sm">
-                  <Send className="w-5 h-5 mr-2" />
-                  Enregistrer le prospect
+                <button
+                  type="submit"
+                  disabled={submitting}
+                  className={`w-full bg-emerald-600 hover:bg-emerald-700 text-white font-bold py-4 rounded-xl flex items-center justify-center transition-colors shadow-sm ${submitting ? 'opacity-70 cursor-not-allowed' : ''}`}
+                >
+                  {submitting ? (
+                    <>
+                      <Loader2 className="w-5 h-5 mr-2 animate-spin" />
+                      Envoi en cours...
+                    </>
+                  ) : (
+                    <>
+                      <Send className="w-5 h-5 mr-2" />
+                      Enregistrer le prospect
+                    </>
+                  )}
                 </button>
               </form>
             )}

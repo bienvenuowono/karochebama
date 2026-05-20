@@ -39,7 +39,14 @@ export class CultureSiteController {
   getAll = async (req: Request, res: Response) => {
     try {
       const items = await prisma.cultureSite.findMany({
-        include: { geographicZone: true }
+        include: {
+          geographicZone: true,
+          products: {
+            include: {
+              product: true
+            }
+          }
+        }
       });
       res.json({ success: true, data: items });
     } catch (error: any) {

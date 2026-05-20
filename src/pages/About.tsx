@@ -1,8 +1,13 @@
 import { CheckCircle2, MapPin, Award, Users } from 'lucide-react';
+import SEO from '../components/SEO';
 
 export default function About() {
   return (
     <div className="bg-white min-h-screen">
+      <SEO 
+        title="À Propos" 
+        description="Découvrez l'histoire de Karochebama, notre mission d'agriculture durable, d'agro-industrie et de pisciculture au Cameroun."
+      />
       {/* Hero */}
       <div className="relative bg-emerald-900 py-24 sm:py-32 overflow-hidden">
         <div className="absolute inset-0 opacity-20">
