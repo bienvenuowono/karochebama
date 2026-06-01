@@ -1,68 +1,40 @@
 version: '3.8'
 
 services:
-  db:
-    image: mysql:8.0
+  mysql:
+    image: mysql:8.0.33
+    container_name: gtk_mysql
     restart: always
     environment:
       MYSQL_DATABASE: karochebama
-      MYSQL_ROOT_PASSWORD: root_password_here
-      MYSQL_PASSWORD: db_password_here
-      MYSQL_USER: bama_user
+      MYSQL_USER: gtk_user
+      MYSQL_PASSWORD: gtk_password
+      MYSQL_ROOT_PASSWORD: root_secure_password
     ports:
       - "3306:3306"
     volumes:
       - mysql_data:/var/lib/mysql
-    healthcheck:
-      test: ["CMD", "mysqladmin", "ping", "-h", "localhost", "-u", "bama_user", "-pdb_password_here"]
-      interval: 10s
-      timeout: 5s
-      retries: 5
+    networks:
+      - gtk_network
 
-  backend:
-    build:
-      context: ./backend
-      dockerfile: Dockerfile
+  redis:
+    image: redis:7.0-alpine
+    container_name: gtk_redis
     restart: always
-    environment:
-      DATABASE_URL: mysql://bama_user:db_password_here@db:3306/karochebama
-      PORT: 3000
-      JWT_SECRET: your_jwt_secret_key_here
-      JWT_REFRESH_SECRET: your_jwt_refresh_secret_key_here
-      SMTP_HOST: smtp.gmail.com
-      SMTP_PORT: 587
-      SMTP_USER: change_me@gmail.com
-      SMTP_PASS: change_me_password
-      SMTP_FROM: noreply@karochebama.com
-      ADMIN_EMAIL: admin@karochebama.com
+    command: redis-server --appendonly yes
     ports:
-      - "3000:3000"
+      - "6379:6379"
     volumes:
-      - uploads_data:/usr/src/app/uploads
-    depends_on:
-      db:
-        condition: service_healthy
+      - redis_data:/data
+    networks:
+      - gtk_network
 
-  frontend:
-    build:
-      context: .
-      dockerfile: Dockerfile
-    restart: always
-    ports:
-      - "8080:80"
-    depends_on:
-      - backend
-
-  admin-panel:
-    build:
-      context: ./admin-panel
-      dockerfile: Dockerfile
-    restart: always
-    ports:
-      - "8081:80"
-    depends_on:
-      - backend
+networks:
+  gtk_network:
+    driver: bridge
 
 volumes:
   mysql_data:
-  uploads_data:
+    driver: local
+  redis_data:
+    driver: local

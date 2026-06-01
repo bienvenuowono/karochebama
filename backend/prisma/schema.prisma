@@ -1,302 +1,288 @@
-// This is your Prisma schema file,
-// learn more about it in the docs: https://pris.ly/d/prisma-schema
-
-generator client {
-  provider = "prisma-client-js"
-}
-
 datasource db {
   provider = "mysql"
   url      = env("DATABASE_URL")
 }
 
-// --- MODULE AUTH & USERS ---
+generator client {
+  provider = "prisma-client-js"
+}
+
+model Organization {
+  id         String      @id @default(uuid())
+  name       String
+  slug       String      @unique @db.VarChar(191)
+  createdAt  DateTime    @default(now())
+  updatedAt  DateTime    @updatedAt
+  deletedAt  DateTime?   // Soft delete
+  users      User[]
+  products   Product[]
+  harvests   Harvest[]
+  projects   Project[]
+  orders     Order[]
+  invoices   Invoice[]
+  blogs      Blog[]
+  mediaFiles MediaFile[]
+
+  @@index([deletedAt])
+}
+
+model Role {
+  id          String           @id @default(uuid())
+  name        String           @unique @db.VarChar(191)
+  description String?          @db.VarChar(255)
+  createdAt   DateTime         @default(now())
+  updatedAt   DateTime         @updatedAt
+  users       User[]
+  permissions RolePermission[]
+}
+
+model Permission {
+  id          String           @id @default(uuid())
+  name        String           @unique @db.VarChar(191)
+  description String?          @db.VarChar(255)
+  createdAt   DateTime         @default(now())
+  updatedAt   DateTime         @updatedAt
+  roles       RolePermission[]
+}
+
+model RolePermission {
+  roleId       String
+  permissionId String
+  role         Role       @relation(fields: [roleId], references: [id], onDelete: Cascade)
+  permission   Permission @relation(fields: [permissionId], references: [id], onDelete: Cascade)
+  createdAt    DateTime   @default(now())
+
+  @@id([roleId, permissionId])
+  @@index([roleId])
+  @@index([permissionId])
+}
+
 model User {
-  id        Int      @id @default(autoincrement())
-  email     String   @unique
-  password  String
-  firstName String?
-  lastName  String?
-  phone     String?
-  whatsapp  String?
-  country   String?   @default("Cameroun")
-  address      String?
-  refreshToken String?  @db.Text
-  photoUrl     String?
-  role         String   @default("USER") // ADMIN, USER, MANAGER
-  orders       Order[]
-  createdAt    DateTime @default(now())
-  updatedAt    DateTime @updatedAt
+  id             String         @id @default(uuid())
+  email          String         @unique @db.VarChar(191)
+  passwordHash   String
+  firstName      String?
+  lastName       String?
+  roleId         String
+  role           Role           @relation(fields: [roleId], references: [id], onDelete: Restrict)
+  organizationId String
+  organization   Organization   @relation(fields: [organizationId], references: [id], onDelete: Cascade)
+  createdAt      DateTime       @default(now())
+  updatedAt      DateTime       @updatedAt
+  deletedAt      DateTime?      // Soft delete
+  isEmailVerified Boolean       @default(false)
+  refreshTokens  RefreshToken[]
+  orders         Order[]
+  blogs          Blog[]
+  mediaFiles     MediaFile[]
+  notifications  Notification[]
+  auditLogs      AuditLog[]
 
-  @@map("user")
+  @@index([organizationId])
+  @@index([roleId])
+  @@index([organizationId, deletedAt])
 }
 
-// --- MODULE PRODUCTION (GÉOGRAPHIQUE) ---
-
-model GeographicZone {
-  id           Int           @id @default(autoincrement())
-  name         String        @unique // Centre, Littoral, Sud, etc.
-  cultureSites CultureSite[]
-  createdAt    DateTime      @default(now())
-
-  @@map("geographiczone")
-}
-
-model CultureSite {
-  id               Int            @id @default(autoincrement())
-  name             String         @unique // Le lieu précis : Ferme X, Plantation Y
-  geographicZoneId Int
-  geographicZone   GeographicZone @relation(fields: [geographicZoneId], references: [id])
-  products         ProductSite[]
-  harvests         Harvest[]
-  createdAt        DateTime       @default(now())
-  updatedAt        DateTime       @updatedAt
-
-  @@map("culturesite")
-}
-
-// --- MODULE CATALOGUE ---
-
-model Category {
-  id        Int       @id @default(autoincrement())
-  name      String    @unique
-  varieties ProductVariety[]
-  products  Product[]
+model RefreshToken {
+  id        String    @id @default(uuid())
+  token     String    @unique @db.VarChar(255)
+  userId    String
+  user      User      @relation(fields: [userId], references: [id], onDelete: Cascade)
+  expiresAt DateTime
   createdAt DateTime  @default(now())
-  updatedAt DateTime  @updatedAt
-
-  @@map("category")
-}
-
-model ProductType {
-  id        Int       @id @default(autoincrement())
-  name      String    @unique
-  products  Product[]
-  createdAt DateTime  @default(now())
-
-  @@map("producttype")
-}
-
-model ProductVariety {
-  id          Int      @id @default(autoincrement())
-  name        String   @unique 
-  categoryId  Int
-  category    Category @relation(fields: [categoryId], references: [id])
-  products    Product[]
-  createdAt   DateTime @default(now())
-  updatedAt   DateTime @updatedAt
-
-  @@map("productvariety")
-}
-
-model Product {
-  id            Int           @id @default(autoincrement())
-  name          String        @unique
-  description   String?       @db.Text
-  price         Decimal       @db.Decimal(10, 2)
-  stock         Int           @default(0)
-  imageUrl      String?
-  gallery       Json?
-
-  typeId        Int
-  type          ProductType   @relation(fields: [typeId], references: [id])
-  
-  categoryId    Int
-  category      Category      @relation(fields: [categoryId], references: [id])
-  
-  varietyId     Int?
-  variety       ProductVariety? @relation(fields: [varietyId], references: [id])
-  
-  // Paramètres de production
-  sowingDate       DateTime?
-  maturityDate     DateTime?
-  quantityKg       Float?
-  quantityTonne    Float?
-  priceKg          Decimal?   @db.Decimal(10, 2)
-  priceTonne       Decimal?   @db.Decimal(10, 2)
-  status           String     @default("en_production")
-  
-  // Liens avec les sites (Plusieurs à Plusieurs)
-  sites         ProductSite[]
-  harvests      Harvest[]     
-  orderItems    OrderItem[]   
-  createdAt     DateTime      @default(now())
-  updatedAt     DateTime      @updatedAt
-
-  @@index([typeId])
-  @@index([categoryId])
-  @@index([varietyId])
-
-  @@map("product")
-}
-
-// Table de liaison entre Produits et Sites de Culture
-model ProductSite {
-  productId Int
-  siteId    Int
-  product   Product      @relation(fields: [productId], references: [id])
-  site      CultureSite  @relation(fields: [siteId], references: [id])
-  @@id([productId, siteId])
-
-  @@map("productsite")
-}
-
-// --- MODULE : RÉCOLTES ---
-model Harvest {
-  id          Int            @id @default(autoincrement())
-  productId   Int
-  product     Product        @relation(fields: [productId], references: [id])
-  siteId      Int
-  site        CultureSite    @relation(fields: [siteId], references: [id])
-  quantity    Float          
-  unit        String         @default("kg")
-  harvestDate DateTime       @default(now())
-  status      String         @default("COMPLETED")
-  notes       String?        @db.Text
-  createdAt   DateTime       @default(now())
-  updatedAt   DateTime       @updatedAt
-
-  @@map("harvest")
-
-  @@index([productId])
-  @@index([siteId])
-}
-
-// --- MODULE : VENTES & COMMANDES ---
-model Order {
-  id              Int         @id @default(autoincrement())
-  userId          Int?
-  user            User?       @relation(fields: [userId], references: [id])
-  customerName    String?
-  customerEmail   String?
-  customerPhone   String?
-  customerWhatsapp String?
-  customerCountry  String?
-  shippingAddress String?
-  notes           String?     @db.Text
-  totalAmount     Decimal     @db.Decimal(10, 2)
-  status          String      @default("PENDING") 
-  isProcessed     Boolean     @default(false)    
-  items           OrderItem[]
-  createdAt       DateTime    @default(now())
-  updatedAt       DateTime    @updatedAt
-
-  @@map("order")
+  revokedAt DateTime?
 
   @@index([userId])
 }
 
-model OrderItem {
-  id        Int     @id @default(autoincrement())
-  orderId   Int
-  order     Order   @relation(fields: [orderId], references: [id])
-  productId Int
-  product   Product @relation(fields: [productId], references: [id])
-  quantity  Int
-  price     Decimal @db.Decimal(10, 2) 
+model Category {
+  id          String    @id @default(uuid())
+  name        String
+  slug        String    @unique @db.VarChar(191)
+  description String?   @db.VarChar(500)
+  createdAt   DateTime  @default(now())
+  updatedAt   DateTime  @updatedAt
+  deletedAt   DateTime? // Soft delete
+  products    Product[]
 
-  @@index([orderId])
+  @@index([deletedAt])
+}
+
+model Product {
+  id             String       @id @default(uuid())
+  name           String
+  price          Decimal      @db.Decimal(10, 2)
+  sku            String?      @db.VarChar(50)
+  description    String?      @db.Text
+  categoryId     String
+  category       Category     @relation(fields: [categoryId], references: [id], onDelete: Restrict)
+  organizationId String
+  organization   Organization @relation(fields: [organizationId], references: [id], onDelete: Cascade)
+  createdAt      DateTime     @default(now())
+  updatedAt      DateTime     @updatedAt
+  deletedAt      DateTime?    // Soft delete
+  imageUrl       String?      @db.Text
+  harvests       Harvest[]
+  orderItems     OrderItem[]
+
+  @@index([categoryId])
+  @@index([organizationId])
+  @@index([organizationId, deletedAt])
+}
+
+model Harvest {
+  id             String       @id @default(uuid())
+  productId      String
+  product        Product      @relation(fields: [productId], references: [id], onDelete: Restrict)
+  quantity       Decimal      @db.Decimal(12, 4)
+  unit           String       @db.VarChar(20) // Régime, tonnes, litres, etc.
+  harvestDate    DateTime
+  organizationId String
+  organization   Organization @relation(fields: [organizationId], references: [id], onDelete: Cascade)
+  createdAt      DateTime     @default(now())
+  updatedAt      DateTime     @updatedAt
+  deletedAt      DateTime?    // Soft delete
+
   @@index([productId])
-
-  @@map("orderitem")
-}
-
-// --- MODULE : CONTACT & MESSAGES ---
-model ContactMessage {
-  id        Int      @id @default(autoincrement())
-  name      String
-  email     String
-  phone     String?
-  subject   String?
-  message   String   @db.Text
-  isRead    Boolean  @default(false)
-  createdAt DateTime @default(now())
-
-  @@map("contactmessage")
-}
-
-// --- MODULE : SITE VITRINE (CMS) ---
-
-model Activity {
-  id          Int      @id @default(autoincrement())
-  title       String
-  description String   @db.Text
-  imageUrl    String?
-  date        DateTime?
-  status      String   @default("PUBLISHED") // PUBLISHED, DRAFT
-  createdAt   DateTime @default(now())
-  updatedAt   DateTime @updatedAt
-
-  @@map("activity")
+  @@index([organizationId])
+  @@index([organizationId, deletedAt])
 }
 
 model Project {
-  id          Int      @id @default(autoincrement())
-  title       String
-  description String   @db.Text
-  imageUrl    String?
-  startDate   DateTime?
-  endDate     DateTime?
-  status      String   @default("ONGOING") // ONGOING, COMPLETED, PLANNED
-  createdAt   DateTime @default(now())
-  updatedAt   DateTime @updatedAt
+  id             String       @id @default(uuid())
+  name           String
+  description    String?      @db.Text
+  status         String       @db.VarChar(30) // PLANNED, ACTIVE, COMPLETED, SUSPENDED
+  startDate      DateTime?
+  endDate        DateTime?
+  organizationId String
+  organization   Organization @relation(fields: [organizationId], references: [id], onDelete: Cascade)
+  createdAt      DateTime     @default(now())
+  updatedAt      DateTime     @updatedAt
+  deletedAt      DateTime?    // Soft delete
 
-  @@map("project")
+  @@index([organizationId])
+  @@index([organizationId, deletedAt])
 }
 
-model Media {
-  id          Int      @id @default(autoincrement())
-  title       String?
-  description String?  @db.Text
-  url         String
-  type        String   @default("IMAGE") // IMAGE, VIDEO
-  createdAt   DateTime @default(now())
-  updatedAt   DateTime @updatedAt
+model Order {
+  id             String       @id @default(uuid())
+  userId         String
+  user           User         @relation(fields: [userId], references: [id], onDelete: Restrict)
+  organizationId String
+  organization   Organization @relation(fields: [organizationId], references: [id], onDelete: Cascade)
+  status         String       @db.VarChar(30) // PENDING, PAID, SHIPPED, CANCELLED, REFUNDED
+  totalAmount    Decimal      @db.Decimal(12, 2)
+  createdAt      DateTime     @default(now())
+  updatedAt      DateTime     @updatedAt
+  deletedAt      DateTime?    // Soft delete
+  items          OrderItem[]
+  invoice        Invoice?
 
-  @@map("media")
+  @@index([userId])
+  @@index([organizationId])
+  @@index([organizationId, deletedAt])
 }
 
-model Article {
-  id          Int      @id @default(autoincrement())
-  title       String
-  content     String   @db.Text
-  imageUrl    String?
-  publishedAt DateTime?
-  status      String   @default("PUBLISHED") // PUBLISHED, DRAFT
-  createdAt   DateTime @default(now())
-  updatedAt   DateTime @updatedAt
+model OrderItem {
+  id        String   @id @default(uuid())
+  orderId   String
+  order     Order    @relation(fields: [orderId], references: [id], onDelete: Cascade)
+  productId String
+  product   Product  @relation(fields: [productId], references: [id], onDelete: Restrict)
+  quantity  Decimal  @db.Decimal(10, 2)
+  price     Decimal  @db.Decimal(10, 2) // Prix historique lors de l'achat
+  createdAt DateTime @default(now())
 
-  @@map("article")
+  @@index([orderId])
+  @@index([productId])
 }
 
-model CommercialForm {
-  id          Int      @id @default(autoincrement())
-  type        String   // COMMERCIAL ou DEMARCHEUR
-  agentName   String
-  clientName  String
-  contact     String?
-  product     String
-  quantity    String
-  location    String
-  comment     String?  @db.Text
-  isProcessed Boolean  @default(false)
-  createdAt   DateTime @default(now())
-  updatedAt   DateTime @updatedAt
+model Invoice {
+  id             String       @id @default(uuid())
+  orderId        String       @unique
+  order          Order        @relation(fields: [orderId], references: [id], onDelete: Restrict)
+  organizationId String
+  organization   Organization @relation(fields: [organizationId], references: [id], onDelete: Cascade)
+  invoiceNumber  String       @unique @db.VarChar(50)
+  amount         Decimal      @db.Decimal(12, 2)
+  status         String       @db.VarChar(30) // DRAFT, SENT, PAID, OVERDUE, VOIDED
+  issuedAt       DateTime     @default(now())
+  dueDate        DateTime
+  createdAt      DateTime     @default(now())
+  updatedAt      DateTime     @updatedAt
+  deletedAt      DateTime?    // Soft delete
 
-  @@map("commercialform")
+  @@index([orderId])
+  @@index([organizationId])
+  @@index([organizationId, deletedAt])
 }
 
-model PartnerApplication {
-  id          Int      @id @default(autoincrement())
-  name        String
-  type        String
-  email       String
-  phone       String
-  location    String
-  description String   @db.Text
-  isProcessed Boolean  @default(false)
-  createdAt   DateTime @default(now())
-  updatedAt   DateTime @updatedAt
+model Blog {
+  id             String       @id @default(uuid())
+  title          String       @db.VarChar(255)
+  slug           String       @unique @db.VarChar(255)
+  content        String       @db.LongText
+  authorId       String
+  author         User         @relation(fields: [authorId], references: [id], onDelete: Restrict)
+  organizationId String
+  organization   Organization @relation(fields: [organizationId], references: [id], onDelete: Cascade)
+  publishedAt    DateTime?
+  createdAt      DateTime     @default(now())
+  updatedAt      DateTime     @updatedAt
+  deletedAt      DateTime?    // Soft delete
 
-  @@map("partnerapplication")
+  @@index([authorId])
+  @@index([organizationId])
+  @@index([organizationId, deletedAt])
+}
+
+model MediaFile {
+  id             String       @id @default(uuid())
+  url            String       @db.Text
+  key            String       @db.VarChar(512) // Cle unique S3
+  mimeType       String       @db.VarChar(100)
+  size           Int          // Taille en octets
+  uploadedById   String
+  uploadedBy     User         @relation(fields: [uploadedById], references: [id], onDelete: Restrict)
+  organizationId String
+  organization   Organization @relation(fields: [organizationId], references: [id], onDelete: Cascade)
+  createdAt      DateTime     @default(now())
+  updatedAt      DateTime     @updatedAt
+  deletedAt      DateTime?    // Soft delete
+
+  @@index([uploadedById])
+  @@index([organizationId])
+  @@index([organizationId, deletedAt])
+}
+
+model Notification {
+  id        String    @id @default(uuid())
+  userId    String
+  user      User      @relation(fields: [userId], references: [id], onDelete: Cascade)
+  title     String    @db.VarChar(255)
+  message   String    @db.Text
+  readAt    DateTime?
+  createdAt DateTime  @default(now())
+
+  @@index([userId])
+  @@index([userId, readAt])
+}
+
+model AuditLog {
+  id         String   @id @default(uuid())
+  userId     String?  // Nullable pour les actions anonymes (ex: echec de connexion)
+  user       User?    @relation(fields: [userId], references: [id], onDelete: SetNull)
+  action     String   @db.VarChar(100) // Ex: product:create, user:login
+  entityName String   @db.VarChar(100) // Ex: Product, Order
+  entityId   String?  @db.VarChar(100)
+  oldValues  Json?    // MySQL native Json block
+  newValues  Json?    // MySQL native Json block
+  ipAddress  String?  @db.VarChar(45)
+  userAgent  String?  @db.VarChar(500)
+  createdAt  DateTime @default(now())
+
+  @@index([userId])
+  @@index([entityName, entityId])
+  @@index([createdAt])
 }

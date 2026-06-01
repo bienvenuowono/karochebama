@@ -1,14 +1,42 @@
+# Dependency directories
 node_modules/
-build/
+**/node_modules/
+
+# Build outputs
 dist/
-coverage/
-.DS_Store
+**/dist/
+build/
+**/build/
+out/
+**/out/
+
+# Environment files
+.env
+.env.local
+.env.development.local
+.env.test.local
+.env.production.local
+**/.env
+**/.env.local
+
+# Logs
+npm-debug.log*
+yarn-debug.log*
+yarn-error.log*
+pnpm-debug.log*
+lerna-debug.log*
+logs/
 *.log
-.env*
-!.env.example
 
-# Uploads
-backend/uploads/
+# Editor directories and files
+.vscode/
+.idea/
+*.suo
+*.ntvs*
+*.njsproj
+*.sln
+*.sw?
 
-# Prisma
-backend/prisma/migrations/
+# OS files
+.DS_Store
+Thumbs.db

@@ -1,0 +1,102 @@
+{
+  "openapi": "3.0.0",
+  "info": {
+    "title": "KAROCHEBAMA API Documentation",
+    "version": "1.0.0",
+    "description": "Spécification complète de la fondation d'API pour le projet KAROCHEBAMA (GTK)."
+  },
+  "servers": [
+    {
+      "url": "http://localhost:5000/api/v1",
+      "description": "Serveur de développement local"
+    }
+  ],
+  "paths": {
+    "/health": {
+      "get": {
+        "summary": "Vérifie la santé du serveur",
+        "responses": {
+          "200": {
+            "description": "Le serveur fonctionne correctement."
+          }
+        }
+      }
+    },
+    "/auth/login": {
+      "post": {
+        "summary": "Authentifie un utilisateur et renvoie des jetons",
+        "requestBody": {
+          "required": true,
+          "content": {
+            "application/json": {
+              "schema": {
+                "type": "object",
+                "properties": {
+                  "email": { "type": "string", "format": "email" },
+                  "password": { "type": "string" }
+                },
+                "required": ["email", "password"]
+              }
+            }
+          }
+        },
+        "responses": {
+          "200": {
+            "description": "Connexion réussie."
+          },
+          "400": {
+            "description": "Champs manquants ou invalides."
+          },
+          "401": {
+            "description": "Identifiants incorrects."
+          }
+        }
+      }
+    },
+    "/users/me": {
+      "get": {
+        "summary": "Récupère les informations de l'utilisateur connecté",
+        "security": [
+          {
+            "BearerAuth": []
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "Détails de l'utilisateur."
+          },
+          "401": {
+            "description": "Non authentifié."
+          }
+        }
+      }
+    },
+    "/products": {
+      "get": {
+        "summary": "Récupère les produits filtrés par locataire/organisation",
+        "security": [
+          {
+            "BearerAuth": []
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "Liste des produits."
+          },
+          "401": {
+            "description": "Non authentifié."
+          }
+        }
+      }
+    }
+  },
+  "components": {
+    "securitySchemes": {
+      "BearerAuth": {
+        "type": "http",
+        "scheme": "bearer",
+        "bearerFormat": "JWT"
+      }
+    }
+  }
+}
