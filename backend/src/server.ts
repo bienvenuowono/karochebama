@@ -1,52 +1,142 @@
-import app from './app';
-import { env } from './config/env';
-import logger from './config/logger';
-import prisma from './config/database';
-import { connectRedis } from './config/redis';
+import express from 'express';
+import cors from 'cors';
+import bcrypt from 'bcryptjs';
+import prisma from './config/prisma';
+import helmet from 'helmet';
+import dotenv from 'dotenv';
+import authRoutes from './modules/auth/auth.routes';
+import catalogRoutes from './modules/catalog/routes/catalog.routes';
+import productionRoutes from './modules/production/routes/production.routes';
+import activityRoutes from './modules/activities/activity.routes';
+import projectRoutes from './modules/projects/project.routes';
+import mediaRoutes from './modules/media/media.routes';
+import newsRoutes from './modules/news/news.routes';
+import uploadRoutes from './modules/upload/upload.routes';
+import userRoutes from './modules/users/user.routes';
+import contactRoutes from './modules/contact/contact.routes';
+import commercialRoutes from './modules/commercial/commercial.routes';
+import partnerRoutes from './modules/partners/partners.routes';
 
-const startServer = async (): Promise<void> => {
+import rateLimit from 'express-rate-limit';
+
+dotenv.config();
+
+const app = express();
+app.set('trust proxy', 1);
+const PORT = process.env.PORT || 5000;
+
+// Rate Limiters
+const apiLimiter = rateLimit({
+  windowMs: 15 * 60 * 1000, // 15 minutes
+  max: 100, // Limite à 100 requêtes par IP
+  standardHeaders: true, // Renvoie les headers standard RateLimit-*
+  legacyHeaders: false, // Désactive les headers X-RateLimit-* legacy
+  message: {
+    success: false,
+    error: "Trop de requêtes effectuées depuis cette IP, veuillez réessayer après 15 minutes."
+  }
+});
+
+const authLimiter = rateLimit({
+  windowMs: 15 * 60 * 1000, // 15 minutes
+  max: 15, // Limite à 15 tentatives de connexion par IP
+  standardHeaders: true,
+  legacyHeaders: false,
+  message: {
+    success: false,
+    error: "Trop de tentatives de connexion, veuillez réessayer après 15 minutes."
+  }
+});
+
+// Middlewares
+app.use(helmet({ crossOriginResourcePolicy: { policy: "cross-origin" } }));
+app.use(cors({
+  origin: [
+    process.env.FRONTEND_URL || 'http://localhost:5173',
+    'http://localhost:5174',
+    'http://localhost:5175',
+    'http://localhost:5176'
+  ],
+  credentials: true,
+}));
+app.use(express.json());
+app.use('/uploads', express.static('uploads'));
+app.use('/api/v1/uploads', express.static('uploads'));
+
+// Apply rate limiting
+app.use('/api/v1', apiLimiter);
+app.use('/api/v1/auth/login', authLimiter);
+
+// Routes - Clean Architecture Implementation
+app.use('/api/v1/auth', authRoutes);
+app.use('/api/v1/catalog', catalogRoutes);
+app.use('/api/v1/production', productionRoutes);
+app.use('/api/v1/activities', activityRoutes);
+app.use('/api/v1/projects', projectRoutes);
+app.use('/api/v1/media', mediaRoutes);
+app.use('/api/v1/news', newsRoutes);
+app.use('/api/v1/upload', uploadRoutes);
+app.use('/api/v1/users', userRoutes);
+app.use('/api/v1/contact', contactRoutes);
+app.use('/api/v1/commercial', commercialRoutes);
+app.use('/api/v1/partners', partnerRoutes);
+
+// Basic health check
+app.get('/health', (req, res) => {
+  res.json({ status: 'OK', message: 'Karochebama Pro Backend is running' });
+});
+
+// Global Error Handler
+app.use((err: any, req: express.Request, res: express.Response, next: express.NextFunction) => {
+  console.error(err.stack);
+  res.status(500).json({ 
+    error: 'Internal Server Error',
+    message: process.env.NODE_ENV === 'development' ? err.message : undefined 
+  });
+});
+
+const bootstrap = async () => {
+  if (!process.env.JWT_ACCESS_SECRET) {
+    console.error('FATAL ERROR: JWT_ACCESS_SECRET environment variable is missing.');
+    process.exit(1);
+  }
+  if (!process.env.JWT_REFRESH_SECRET) {
+    console.error('FATAL ERROR: JWT_REFRESH_SECRET environment variable is missing.');
+    process.exit(1);
+  }
+
   try {
-    // 1. Vérification de la connexion à la base de données MySQL via Prisma
-    logger.info('Vérification de la connexion base de données MySQL...');
-    await prisma.$connect();
-    logger.info('Connexion MySQL établie avec succès.');
-
-    // 2. Connexion à Redis
-    logger.info('Connexion à Redis...');
-    await connectRedis();
-
-    // 3. Lancement de l'écoute HTTP
-    const server = app.listen(env.PORT, () => {
-      logger.info(`🚀 Serveur démarré en mode [${env.NODE_ENV}] sur le port ${env.PORT}`);
-    });
-
-    // 4. Gestion de l'arrêt gracieux (Graceful Shutdown)
-    const gracefulShutdown = async (signal: string) => {
-      logger.info(`Signal ${signal} reçu. Fermeture du serveur HTTP...`);
-      
-      server.close(async () => {
-        logger.info('Serveur HTTP fermé.');
-        
-        try {
-          logger.info('Fermeture du client Prisma...');
-          await prisma.$disconnect();
-          
-          logger.info('Arrêt complet de l\'application.');
-          process.exit(0);
-        } catch (err) {
-          logger.error('Erreur lors de la fermeture des connexions:', err);
-          process.exit(1);
-        }
+    // Check if admin exists
+    const adminEmail = 'admin@karochebama.com';
+    const admin = await prisma.user.findUnique({ where: { email: adminEmail } });
+    
+    if (!admin) {
+      console.log('--- Creating Default Admin User ---');
+      const hashedPassword = await bcrypt.hash('Admin2024!', 10);
+      await prisma.user.create({
+        data: {
+          email: adminEmail,
+          password: hashedPassword,
+          firstName: 'Admin',
+          lastName: 'Karochebama',
+          role: 'ADMIN',
+        },
       });
-    };
+      console.log('Admin user created successfully.');
+    } else {
+      console.log('Admin user already exists.');
+    }
 
-    process.on('SIGTERM', () => gracefulShutdown('SIGTERM'));
-    process.on('SIGINT', () => gracefulShutdown('SIGINT'));
-
+    app.listen(PORT, () => {
+      console.log(`Server is running on port ${PORT}`);
+      console.log(`API documentation available at http://localhost:${PORT}/health`);
+    });
   } catch (error) {
-    logger.error('❌ Échec du démarrage du serveur:', error);
+    console.error('Fatal error during bootstrap:', error);
     process.exit(1);
   }
 };
 
-startServer();
+bootstrap();
+
+export default app;

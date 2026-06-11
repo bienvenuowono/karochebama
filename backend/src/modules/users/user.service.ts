@@ -1,0 +1,81 @@
+import prisma from '../../config/prisma';
+import bcrypt from 'bcryptjs';
+
+class UserService {
+  async getAllUsers(skip?: number, take?: number) {
+    const [items, total] = await Promise.all([
+      prisma.user.findMany({
+        select: {
+          id: true,
+          email: true,
+          firstName: true,
+          lastName: true,
+          phone: true,
+          whatsapp: true,
+          country: true,
+          address: true,
+          photoUrl: true,
+          role: true,
+          createdAt: true,
+          orders: {
+            select: {
+              id: true,
+              totalAmount: true,
+              status: true,
+              createdAt: true
+            }
+          }
+        },
+        orderBy: {
+          createdAt: 'desc'
+        },
+        skip,
+        take
+      }),
+      prisma.user.count()
+    ]);
+    return { items, total };
+  }
+
+  async getUserById(id: number) {
+    return prisma.user.findUnique({
+      where: { id },
+      include: {
+        orders: true
+      }
+    });
+  }
+
+  async createUser(data: any) {
+    const email = data.email ? data.email.toLowerCase().trim() : undefined;
+    const hashedPassword = await bcrypt.hash(data.password || 'password123', 10);
+    return prisma.user.create({
+      data: {
+        ...data,
+        email,
+        password: hashedPassword
+      }
+    });
+  }
+
+  async updateUser(id: number, data: any) {
+    if (data.email) {
+      data.email = data.email.toLowerCase().trim();
+    }
+    if (data.password) {
+      data.password = await bcrypt.hash(data.password, 10);
+    }
+    return prisma.user.update({
+      where: { id },
+      data
+    });
+  }
+
+  async deleteUser(id: number) {
+    return prisma.user.delete({
+      where: { id }
+    });
+  }
+}
+
+export default new UserService();

@@ -1,0 +1,174 @@
+import { Request, Response } from 'express';
+import prisma from '../../../config/prisma';
+import { z } from 'zod';
+import { sanitizeObject } from '../../../utils/sanitize';
+import { getPaginationParams, formatPaginatedResult } from '../../../utils/pagination';
+
+export class ProductController {
+  create = async (req: Request, res: Response) => {
+    try {
+      req.body = sanitizeObject(req.body);
+      const files = req.files as { [fieldname: string]: Express.Multer.File[] };
+      
+      // Extraction des chemins de fichiers
+      const imageUrl = files['image'] ? `/uploads/products/${files['image'][0].filename}` : null;
+      const gallery = files['gallery'] ? files['gallery'].map(f => `/uploads/products/${f.filename}`) : [];
+
+      // Données textuelles (FormData envoie tout en string)
+      const data = req.body;
+
+      const payload = {
+        name: data.name || 'Produit sans nom',
+        description: data.description || '',
+        price: parseFloat(data.price) || 0,
+        imageUrl: imageUrl,
+        gallery: gallery,
+        typeId: parseInt(data.typeId) || 1,
+        categoryId: parseInt(data.categoryId) || 1,
+        varietyId: (data.varietyId && data.varietyId !== 'undefined' && data.varietyId !== 'null') ? parseInt(data.varietyId) : null,
+        sowingDate: data.sowingDate ? new Date(data.sowingDate) : null,
+        maturityDate: data.maturityDate ? new Date(data.maturityDate) : null,
+        quantityKg: parseFloat(data.quantityKg) || 0,
+        quantityTonne: parseFloat(data.quantityTonne) || (parseFloat(data.quantityKg) / 1000) || 0,
+        priceKg: parseFloat(data.priceKg) || 0,
+        priceTonne: parseFloat(data.priceTonne) || (parseFloat(data.priceKg) * 1000) || 0,
+        status: 'en_production',
+        stock: parseFloat(data.quantityKg) || 0, // Initialise le stock avec l'estimation de récolte
+        sites: {
+          create: (JSON.parse(data.siteIds || '[]')).map((id: number) => ({
+            siteId: id
+          }))
+        }
+      };
+
+      console.log("Tentative d'insertion du produit avec payload :", JSON.stringify(payload, null, 2));
+
+      const product = await prisma.product.create({
+        data: payload
+      });
+
+      res.status(201).json({ success: true, data: product });
+    } catch (error: any) {
+      console.error('Create product error:', error);
+      res.status(500).json({ success: false, message: error.message });
+    }
+  };
+
+  getAll = async (req: Request, res: Response) => {
+    try {
+      const { page, limit, skip } = getPaginationParams(req);
+      const [items, total] = await Promise.all([
+        prisma.product.findMany({
+          include: {
+            type: true,
+            category: true,
+            variety: true,
+            sites: { include: { site: { include: { geographicZone: true } } } }
+          },
+          skip,
+          take: limit
+        }),
+        prisma.product.count()
+      ]);
+      res.json(formatPaginatedResult(items, total, page, limit));
+    } catch (error: any) {
+      res.status(500).json({ success: false, message: error.message });
+    }
+  };
+
+  getOne = async (req: Request, res: Response) => {
+    try {
+      const { id } = req.params;
+      const item = await prisma.product.findUnique({
+        where: { id: parseInt(id as string) },
+        include: { 
+          type: true, 
+          category: true, 
+          variety: true, 
+          sites: { include: { site: { include: { geographicZone: true } } } } 
+        }
+      });
+      res.json({ success: true, data: item });
+    } catch (error: any) {
+      res.status(500).json({ success: false, message: error.message });
+    }
+  };
+
+  update = async (req: Request, res: Response) => {
+    try {
+      const { id } = req.params;
+      const files = req.files as { [fieldname: string]: Express.Multer.File[] } | undefined;
+      req.body = sanitizeObject(req.body);
+      const data = req.body;
+      
+      const existingProduct = await prisma.product.findUnique({ where: { id: parseInt(id as string) } });
+      if (!existingProduct) {
+        return res.status(404).json({ success: false, message: 'Produit non trouvé' });
+      }
+
+      // Extraction des chemins de fichiers
+      const imageUrl = (files && files['image']) ? `/uploads/products/${files['image'][0].filename}` : existingProduct.imageUrl;
+      const gallery = (files && files['gallery']) ? files['gallery'].map(f => `/uploads/products/${f.filename}`) : (existingProduct.gallery || []);
+
+      const payload = {
+        name: data.name || existingProduct.name,
+        description: data.description !== undefined ? data.description : existingProduct.description,
+        price: data.price !== undefined ? parseFloat(data.price) || 0 : existingProduct.price,
+        imageUrl: imageUrl,
+        gallery: gallery,
+        typeId: data.typeId ? parseInt(data.typeId) || 1 : existingProduct.typeId,
+        categoryId: data.categoryId ? parseInt(data.categoryId) || 1 : existingProduct.categoryId,
+        varietyId: (data.varietyId !== undefined) ? 
+           ((data.varietyId && data.varietyId !== 'undefined' && data.varietyId !== 'null') ? parseInt(data.varietyId) : null) 
+           : existingProduct.varietyId,
+        sowingDate: data.sowingDate !== undefined ? (data.sowingDate ? new Date(data.sowingDate) : null) : existingProduct.sowingDate,
+        maturityDate: data.maturityDate !== undefined ? (data.maturityDate ? new Date(data.maturityDate) : null) : existingProduct.maturityDate,
+        quantityKg: data.quantityKg !== undefined ? parseFloat(data.quantityKg) || 0 : existingProduct.quantityKg,
+        quantityTonne: data.quantityTonne !== undefined ? parseFloat(data.quantityTonne) || (parseFloat(data.quantityKg) / 1000) || 0 : existingProduct.quantityTonne,
+        priceKg: data.priceKg !== undefined ? parseFloat(data.priceKg) || 0 : existingProduct.priceKg,
+        priceTonne: data.priceTonne !== undefined ? parseFloat(data.priceTonne) || (parseFloat(data.priceKg) * 1000) || 0 : existingProduct.priceTonne,
+        status: data.status || existingProduct.status,
+      };
+
+      // Calcul du stock : Estimation Récolte - Quantité Réservée
+      if (data.quantityKg !== undefined) {
+        const reservedAggregate = await prisma.orderItem.aggregate({
+          where: { productId: parseInt(id as string) },
+          _sum: { quantity: true }
+        });
+        const totalReserved = reservedAggregate._sum.quantity || 0;
+        const newQuantityKg = parseFloat(data.quantityKg) || 0;
+        // @ts-ignore
+        payload.stock = Math.max(0, newQuantityKg - totalReserved);
+      }
+
+      const product = await prisma.product.update({
+        where: { id: parseInt(id as string) },
+        data: {
+          ...payload,
+          sites: data.siteIds ? {
+            deleteMany: {},
+            create: (JSON.parse(data.siteIds || '[]')).map((siteId: number) => ({
+              siteId: siteId
+            }))
+          } : undefined
+        }
+      });
+
+      res.json({ success: true, data: product });
+    } catch (error: any) {
+      console.error('Update product error:', error);
+      res.status(500).json({ success: false, message: error.message });
+    }
+  };
+
+  delete = async (req: Request, res: Response) => {
+    try {
+      const { id } = req.params;
+      await prisma.product.delete({ where: { id: parseInt(id as string) } });
+      res.json({ success: true, message: 'Produit supprimé' });
+    } catch (error: any) {
+      res.status(400).json({ success: false, message: error.message });
+    }
+  };
+}

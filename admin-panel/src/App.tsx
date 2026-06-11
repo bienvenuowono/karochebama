@@ -1,0 +1,64 @@
+import React from 'react';
+import { BrowserRouter as Router, Routes, Route, Navigate } from 'react-router-dom';
+import AdminLayout from './layouts/AdminLayout';
+import LoginPage from './pages/LoginPage';
+import Dashboard from './pages/Dashboard';
+import UsersPage from './pages/UsersPage';
+import ProductsPage from './pages/ProductsPage';
+import CategoriesPage from './pages/CategoriesPage';
+import SitesPage from './pages/SitesPage';
+import ZonesPage from './pages/ZonesPage';
+import CustomerAuditPage from './pages/CustomerAuditPage';
+import OrdersPage from './pages/OrdersPage';
+import ActivitiesPage from './pages/ActivitiesPage';
+import ProjectsPage from './pages/ProjectsPage';
+import MediaPage from './pages/MediaPage';
+import NewsPage from './pages/NewsPage';
+import ProfilePage from './pages/ProfilePage';
+import ContactMessagesPage from './pages/ContactMessagesPage';
+import PartnerApplicationsPage from './pages/PartnerApplicationsPage';
+import CommercialFormsPage from './pages/CommercialFormsPage';
+import { authService } from './services/authService';
+
+const ProtectedRoute = ({ children }: { children: React.ReactNode }) => {
+  if (!authService.isAuthenticated()) {
+    return <Navigate to="/login" replace />;
+  }
+  return <AdminLayout>{children}</AdminLayout>;
+};
+
+function App() {
+  return (
+    <Router basename="/admin">
+      <Routes>
+        <Route path="/login" element={<LoginPage />} />
+        
+        {/* Protected Admin Routes */}
+        <Route path="/dashboard" element={<ProtectedRoute><Dashboard /></ProtectedRoute>} />
+        <Route path="/users" element={<ProtectedRoute><UsersPage /></ProtectedRoute>} />
+        <Route path="/products" element={<ProtectedRoute><ProductsPage /></ProtectedRoute>} />
+        <Route path="/categories" element={<ProtectedRoute><CategoriesPage /></ProtectedRoute>} />
+        <Route path="/sites" element={<ProtectedRoute><SitesPage /></ProtectedRoute>} />
+        <Route path="/zones" element={<ProtectedRoute><ZonesPage /></ProtectedRoute>} />
+        <Route path="/audit-clients" element={<ProtectedRoute><CustomerAuditPage /></ProtectedRoute>} />
+        <Route path="/orders" element={<ProtectedRoute><OrdersPage /></ProtectedRoute>} />
+        <Route path="/activities" element={<ProtectedRoute><ActivitiesPage /></ProtectedRoute>} />
+        <Route path="/projects" element={<ProtectedRoute><ProjectsPage /></ProtectedRoute>} />
+        <Route path="/media" element={<ProtectedRoute><MediaPage /></ProtectedRoute>} />
+        <Route path="/news" element={<ProtectedRoute><NewsPage /></ProtectedRoute>} />
+        <Route path="/profile" element={<ProtectedRoute><ProfilePage /></ProtectedRoute>} />
+        
+        {/* Communications Protected Routes */}
+        <Route path="/communications/contact" element={<ProtectedRoute><ContactMessagesPage /></ProtectedRoute>} />
+        <Route path="/communications/partners" element={<ProtectedRoute><PartnerApplicationsPage /></ProtectedRoute>} />
+        <Route path="/communications/commercial" element={<ProtectedRoute><CommercialFormsPage /></ProtectedRoute>} />
+        
+        {/* Redirects */}
+        <Route path="/" element={<Navigate to="/dashboard" replace />} />
+        <Route path="*" element={<Navigate to="/dashboard" replace />} />
+      </Routes>
+    </Router>
+  );
+}
+
+export default App;
